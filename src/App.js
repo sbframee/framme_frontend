@@ -18,8 +18,8 @@ import ImageUploadPopup from "./components/ImageUploadPopup";
 import axios from "axios";
 
 const id = "230522";
-export const baseURL = "http://localhost:9000";
-// export const baseURL=  "http://18.210.180.208:9000"
+// export const baseURL = "http://localhost:9000";
+export const baseURL=  "https://frammebackend.herokuapp.com/"
 function App() {
   axios.defaults.baseURL = baseURL;
   return (
