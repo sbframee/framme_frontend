@@ -1,0 +1,16 @@
+.navigations {
+  background: rgb(91, 91, 91);
+
+  width: "100vw";
+  color: #fff;
+}
+.icon-container {
+  width: 20%;
+  padding: 10px 0;
+  color: #fff;
+}
+.customBtn {
+  background: red;
+  color: #fff;
+  border-radius: 10px;
+}

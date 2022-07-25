@@ -1,0 +1,55 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@emotion/react": "^11.9.3",
+    "@emotion/styled": "^11.9.3",
+    "@mui/icons-material": "^5.8.4",
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^13.1.1",
+    "@testing-library/user-event": "^13.5.0",
+    "axios": "^0.26.1",
+    "carousel-react-rcdev": "^0.0.4",
+    "compressorjs": "^1.1.1",
+    "downloadjs": "^1.4.7",
+    "html-to-image": "^1.9.0",
+    "perfect-freehand": "^0.4.10",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-icons": "^4.3.1",
+    "react-image-crop": "^10.0.1",
+    "react-router-dom": "^6.3.0",
+    "react-scripts": "5.0.1",
+    "react-slideshow-image": "^3.7.5",
+    "react-speech-kit": "^3.0.1",
+    "react-swipeable": "^7.0.0",
+    "roughjs": "^4.3.1",
+    "uuid": "^8.3.2",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

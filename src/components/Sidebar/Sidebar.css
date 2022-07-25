@@ -1,0 +1,28 @@
+.sidebar {
+  height: 100vh;
+  width: 100px;
+  background: rgba(0, 0, 0, 0.26);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: column;
+}
+.sidebar .nav-link {
+  text-decoration: none;
+  color: black;
+  width: 100%;
+  font-size: 15px;
+  text-align: center;
+  margin: 20px 0px;
+  padding: 20px 0px;
+  cursor: pointer;
+}
+.sidebar .nav-link:hover {
+  background: #000;
+  color: #ffffff;
+}
+.sidebar .selected {
+  background: #000;
+  color: #ffffff;
+  
+}

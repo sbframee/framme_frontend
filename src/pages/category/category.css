@@ -1,0 +1,27 @@
+.posters {
+  width: 10px;
+  height: 10px;
+  object-fit: contain;
+}
+.popup_body {
+  position: relative;
+}
+.inputButton {
+  border: none;
+  top: 80px;
+  position: absolute;
+  z-index: 9999;
+  width: max-content;
+  right: 100px;
+  padding: 10px 15px;
+  cursor: pointer;
+  background: green;
+  border: 2px solid green;
+  font-size: 20px;
+  border-radius: 19px;
+  color: #fff;
+}
+.inputButton:hover {
+  background: #fff;
+  color: green;
+}

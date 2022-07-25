@@ -1,0 +1,109 @@
+.occasion {
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  overflow-y: scroll;
+  justify-content: flex-start;
+  /* padding: 20px; */
+  align-items: center;
+}
+.occasion .table {
+  width: 90%;
+  background-color: #f2f2f2;
+}
+.occasion .table th,
+.occasion .table td {
+  text-align: left;
+  padding: 10px 12px;
+  border: 2px solid #ffffff;
+  font-size: 18px;
+}
+.occasion .add_button {
+  border: none;
+  background: rgb(37, 136, 37);
+  color: #ffffff;
+  font-size: 20px;
+  margin-bottom: 20px;
+  padding: 10px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+.occasion .edit_button {
+  border: none;
+  background: rgb(37, 136, 37);
+  color: #ffffff;
+  font-size: 15px;
+
+  padding: 10px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+.popup_bg {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.459);
+  z-index: 99999;
+  top: 0px;
+  left: 0px;
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+}
+.popup_bg .popup {
+  /* width: 200px; */
+  height: fit-content;
+  background-color: #f2f2f2;
+  font-size: 18px;
+  border-radius: 20px;
+  overflow: hidden;
+}
+.popup_bg .popup .popup_header {
+  display: flex;
+  padding: 0 10px;
+  justify-content: space-between;
+
+  align-items: center;
+  /* width: max-content; */
+  background-color: black;
+  color: #ffffff;
+}
+.popup_bg .popup .popup_header .exit_btn {
+  cursor: pointer;
+}
+.popup_bg .popup .popup_body {
+  display: flex;
+  padding: 10px;
+  justify-content: space-between;
+  flex-direction: column;
+  align-items: flex-end;
+  /* width: max-content; */
+}
+.popup_bg .popup .popup_body div {
+  width: max-content;
+}
+.popup_bg .popup .popup_body div .image {
+  max-width: 200px;
+  max-height: 200px;
+}
+
+.popup_bg .popup .popup_body input,
+.popup_bg .popup .popup_body textarea,
+.popup_bg .popup .popup_body select {
+  width: max-content;
+  margin: 10px;
+  height: fit-content;
+  font-size: 18px;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+.row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
