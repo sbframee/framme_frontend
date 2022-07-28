@@ -167,42 +167,17 @@ const Popup = ({ popupInfo, setOccasionsData, close, categoriesData }) => {
         popupInfo?.item?.occ_date
           ? {
               ...popupInfo.item,
-              occ_date: "yy-mm-dd"
-                ?.replace(
-                  "mm",
-                  (
-                    "00" +
-                    (
-                      new Date(popupInfo?.item?.occ_date)?.getMonth() + 1
-                    )?.toString()
-                  )?.slice(-2)
-                )
-                ?.replace(
-                  "yy",
-                  (
-                    "0000" +
-                    new Date(popupInfo?.item?.occ_date)
-                      ?.getFullYear()
-                      ?.toString()
-                  )?.slice(-4)
-                )
-                ?.replace(
-                  "dd",
-                  (
-                    "00" +
-                    new Date(popupInfo?.item?.occ_date)?.getDate()?.toString()
-                  )?.slice(-2)
-                ),
             }
           : popupInfo?.item
       );
     } else {
       let time = new Date();
-      let curTime = "yy-mm-dd"
-        .replace("mm", ("00" + (time?.getMonth() + 1).toString()).slice(-2))
-        .replace("yy", ("0000" + time?.getFullYear().toString()).slice(-4))
-        .replace("dd", ("00" + time?.getDate().toString()).slice(-2));
-      setData({ occ_uuid: uuid(), status: "1", expiry: curTime });
+      setData({
+        occ_uuid: uuid(),
+        status: "1",
+        expiry: time.getTime(),
+        occ_date: time.getTime(),
+      });
     }
   }, []);
 
@@ -406,8 +381,39 @@ const Popup = ({ popupInfo, setOccasionsData, close, categoriesData }) => {
               <input
                 type="date"
                 placeholder="Date"
-                value={data.occ_date}
-                onChange={(e) => setData({ ...data, occ_date: e.target.value })}
+                value={
+                  data.occ_date
+                    ? "yy-mm-dd"
+                        .replace(
+                          "mm",
+                          (
+                            "00" +
+                            (new Date(data.occ_date)?.getMonth() + 1).toString()
+                          ).slice(-2)
+                        )
+                        .replace(
+                          "yy",
+                          (
+                            "0000" +
+                            new Date(data.occ_date)?.getFullYear().toString()
+                          ).slice(-4)
+                        )
+                        .replace(
+                          "dd",
+                          (
+                            "00" + new Date(data.occ_date)?.getDate().toString()
+                          ).slice(-2)
+                        )
+                    : ""
+                }
+                onChange={(e) =>
+                  setData({
+                    ...data,
+                    occ_date: new Date(
+                      e.target.value + " 00:00:00 AM"
+                    ).getTime(),
+                  })
+                }
               />
             </div>
           </div>
@@ -435,10 +441,34 @@ const Popup = ({ popupInfo, setOccasionsData, close, categoriesData }) => {
                 onChange={(e) =>
                   setData((prev) => ({
                     ...prev,
-                    expiry: e.target.value,
+                    expiry: new Date(e.target.value + " 00:00:00 AM").getTime(),
                   }))
                 }
-                value={data.expiry}
+                value={
+                  data.expiry
+                    ? "yy-mm-dd"
+                        .replace(
+                          "mm",
+                          (
+                            "00" +
+                            (new Date(data.expiry)?.getMonth() + 1).toString()
+                          ).slice(-2)
+                        )
+                        .replace(
+                          "yy",
+                          (
+                            "0000" +
+                            new Date(data.expiry)?.getFullYear().toString()
+                          ).slice(-4)
+                        )
+                        .replace(
+                          "dd",
+                          (
+                            "00" + new Date(data.expiry)?.getDate().toString()
+                          ).slice(-2)
+                        )
+                    : ""
+                }
                 className="searchInput"
               />
             </div>
@@ -455,7 +485,7 @@ const Popup = ({ popupInfo, setOccasionsData, close, categoriesData }) => {
               <img
                 className="image"
                 src={preview || data.thumbnail_url}
-                alt="No Image"
+                alt="NoImage"
               />
             </div>
           </div>
@@ -468,10 +498,9 @@ const Popup = ({ popupInfo, setOccasionsData, close, categoriesData }) => {
               multiple
             />
             <br />
-            {console.log(data)}
             {posters?.length
               ? data?.posters?.map((a) => (
-                  <img className="image" src={a} alt="No Image" />
+                  <img className="image" src={a} alt="NoImage" />
                 ))
               : ""}
           </div>
