@@ -319,7 +319,7 @@ const Popup = ({ popupInfo, setOccasionsData, close, categoriesData }) => {
   };
   useEffect(() => {
     setPosters((prev) =>
-      prev.map((a) => ({
+      prev?.map((a) => ({
         ...a,
         temp_url: a.img ? URL.createObjectURL(a.img) : a.temp_url || "",
       }))
