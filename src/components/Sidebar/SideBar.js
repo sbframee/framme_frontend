@@ -24,14 +24,16 @@ const SideBar = () => {
           : data.length
           ? data[0]?.sort_order + 1
           : 1;
-      previewData.push({ img: URL.createObjectURL(a), sort_order });
-      ImageData.push({
-        img: a,
+      previewData.push({
+        img: URL.createObjectURL(a.img),
         sort_order,
-        expiry: "yy-mm-dd"
-          .replace("mm", ("00" + (time?.getMonth() + 1).toString()).slice(-2))
-          .replace("yy", ("0000" + time?.getFullYear().toString()).slice(-4))
-          .replace("dd", ("00" + time?.getDate().toString()).slice(-2)),
+        posters_uuid: a.posters_uuid,
+      });
+      ImageData.push({
+        img: a.img,
+        sort_order,
+        expiry: time.getTime(),
+        posters_uuid: a.posters_uuid,
       });
     });
     setData(ImageData);
@@ -42,7 +44,10 @@ const SideBar = () => {
       // setSelectedFile(undefined)
       return;
     }
-    setPosters((prev) => [...(prev || []), ...e.target.files]);
+    setPosters((prev) => [
+      ...(prev || []),
+      { img: e.target.files[0], posters_uuid: uuid() },
+    ]);
     // setData(e.target.files[0])
   };
   const handleCompressedUploads = (e) => {
@@ -66,25 +71,31 @@ const SideBar = () => {
     for (let selectedFile of data) {
       // e.preventDefault()
       // let thumbnail = await resizeFile(selectedFile)
-      var bodyFormData = new FormData();
-      const id = uuid();
-      let fileData = new File(
-        [selectedFile.img],
-        id + "." + (selectedFile.img.name.split(".")[1] || "png")
-      );
 
+      const mainimgURL = await axios({ url: "/s3Url", method: "get" });
+      let UploadURL = mainimgURL.data.url;
+      console.log(selectedFile.img);
+      axios({
+        url: UploadURL,
+        method: "put",
+        headers: { "Content-Type": "multipart/form-data" },
+        data: selectedFile.img,
+      })
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((err) => console.log(err));
+      let img_url = UploadURL.split("?")[0];
       let obj = {
-        poster: fileData,
+        posters: img_url,
+        expiry: new Date(selectedFile.expiry).getTime(),
+        sort_order: selectedFile.sort_order,
       };
-      bodyFormData.append("posters", fileData);
-      bodyFormData.append("expiry", selectedFile.expiry);
-      bodyFormData.append("sort_order", selectedFile.sort_order);
 
-      bodyFormData.append("value", JSON.stringify(obj));
       const response = await axios({
         method: "post",
         url: "/posters/postPosters",
-        data: bodyFormData,
+        data: obj,
       });
       console.log(obj, response);
       if (response.data.success) {
@@ -158,29 +169,73 @@ const SideBar = () => {
                   multiple
                 />
                 <br />
+                {console.log(preview)}
                 {preview?.length
-                  ? preview?.map((a, i) => (
-                      <div>
-                        <img className="image" src={a.img} alt="No Image" />
+                  ? preview?.map((a, i) => {
+                      let PreviewData = data.find(
+                        (b) => a.posters_uuid === b.posters_uuid
+                      );
+                      return (
                         <div>
-                          Expiry
-                          <input
-                            type="date"
-                            onChange={(e) =>
-                              setData((prev) =>
-                                prev.map((b, index) =>
-                                  index === i
-                                    ? { ...b, expiry: e.target.value }
-                                    : b
+                          <img className="image" src={a.img} alt="NoImage" />
+                          <div>
+                            Expiry
+                            <input
+                              type="date"
+                              onChange={(e) =>
+                                setData((prev) =>
+                                  prev.map((b) =>
+                                    b.posters_uuid === a.posters_uuid
+                                      ? {
+                                          ...b,
+                                          expiry: new Date(
+                                            e.target.value + " 00:00:00 AM"
+                                          ).getTime(),
+                                        }
+                                      : b
+                                  )
                                 )
-                              )
-                            }
-                            value={data[i].expiry}
-                            className="searchInput"
-                          />
+                              }
+                              value={
+                                PreviewData.expiry
+                                  ? "yy-mm-dd"
+                                      .replace(
+                                        "mm",
+                                        (
+                                          "00" +
+                                          (
+                                            new Date(
+                                              PreviewData.expiry
+                                            )?.getMonth() + 1
+                                          ).toString()
+                                        ).slice(-2)
+                                      )
+                                      .replace(
+                                        "yy",
+                                        (
+                                          "0000" +
+                                          new Date(PreviewData.expiry)
+                                            ?.getFullYear()
+                                            .toString()
+                                        ).slice(-4)
+                                      )
+                                      .replace(
+                                        "dd",
+                                        (
+                                          "00" +
+                                          new Date(PreviewData.expiry)
+                                            ?.getDate()
+                                            .toString()
+                                        ).slice(-2)
+                                      )
+                                  : ""
+                              }
+                              className="searchInput"
+                            />
+                          </div>
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   : ""}
               </div>
               <button

@@ -23,7 +23,7 @@ import "./index.css";
 import axios from "axios";
 import useWindowDimensions from "../../../components/useWidthDimenshion";
 import { MdFileDownload } from "react-icons/md";
-import { baseURL } from "../../../App";
+
 const OccasionPage = () => {
   const [images, setImages] = useState([]);
   const [state, setState] = useState(false);
@@ -268,9 +268,8 @@ const OccasionPage = () => {
                 backgroundColor: "#000",
               }}
             >
-              {console.log(baseURL + "/" + selectedImage?.img_url)}
               <img
-                src={`${baseURL + "/" + selectedImage?.img_url}`}
+                src={selectedImage?.img_url}
                 style={{
                   width: "100%",
                   // height: "100%",
@@ -555,7 +554,7 @@ const OccasionPage = () => {
                   <div className="each-slide" key={index}>
                     <div
                       style={{
-                        backgroundImage: `url(${baseURL + slideImage.url})`,
+                        backgroundImage: `url(${slideImage.url})`,
                         width: "100%",
                         height: "200px",
                         backgroundPosition: "center",
@@ -579,7 +578,7 @@ const OccasionPage = () => {
                     onClick={() => setSelectedImage(imgItem)}
                     src={
                       imgItem.img_url.replace("images", "thumbnail")
-                        ? baseURL +
+                        ? 
                           imgItem.img_url.replace("images", "thumbnail")
                         : NoImage
                     }
@@ -1046,14 +1045,14 @@ const Tag = ({
               ].text
             }
           </div>
-        ) : baseURL +
+        ) : 
           url?.img_url?.sort((a, b) => +a.sort_order - +b.sort_order)[
             item.index % url?.img_url?.length
           ]?.img_url ? (
           // eslint-disable-next-line jsx-a11y/alt-text
           <img
             src={
-              baseURL +
+   
               url?.img_url?.sort((a, b) => +a.sort_order - +b.sort_order)[
                 item.index % url?.img_url?.length
               ]?.img_url
@@ -1352,14 +1351,14 @@ const TagMobile = ({
               ].text
             }
           </div>
-        ) : baseURL +
+        ) : 
           url?.img_url?.sort((a, b) => +a.sort_order - +b.sort_order)[
             item.index % url?.img_url?.length
           ]?.img_url ? (
           // eslint-disable-next-line jsx-a11y/alt-text
           <img
             src={
-              baseURL +
+
               url.img_url.sort((a, b) => +a.sort_order - +b.sort_order)[
                 item.index % url?.img_url?.length
               ]?.img_url

@@ -107,23 +107,10 @@ const PictureUpload = () => {
   };
 
   const submitHandler = async (temp, user_category_uuid) => {
-    // e.preventDefault()
-    // let thumbnail = await resizeFile(selectedFile)
-    var bodyFormData = new FormData();
-    const id = uuid();
-    let fileData = new File(
-      [selectedFile],
-      id + "." + (selectedCropFile.name.split(".")[1] || "png")
-    );
-    let thumbnailData = new File(
-      [thumbnail],
-      id + "." + (selectedCropFile.name.split(".")[1] || "png")
-    );
-    console.log(fileData, thumbnailData, temp);
     let obj = {
       ...imageData,
       user_category_uuid,
-      image: imageData.img_url ? "" : fileData,
+
       img_type: "B",
       remarks: "",
       acc_uuid: "",
@@ -140,14 +127,43 @@ const PictureUpload = () => {
       ],
     };
     if (!imageData.img_url) {
-      bodyFormData.append("image", fileData);
-      bodyFormData.append("thumbnail", thumbnailData);
+      const mainimgURL = await axios({ url: "/s3Url", method: "get" });
+      let UploadURL = mainimgURL.data.url;
+
+      axios({
+        url: UploadURL,
+        method: "put",
+        headers: { "Content-Type": "multipart/form-data" },
+        data: selectedFile,
+      })
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((err) => console.log(err));
+      let img_url = UploadURL.split("?")[0];
+      const mainThumbnailURL = await axios({ url: "/s3Url", method: "get" });
+      let UploadThumbnailURL = mainThumbnailURL.data.url;
+
+      axios({
+        url: UploadThumbnailURL,
+        method: "put",
+        headers: { "Content-Type": "multipart/form-data" },
+        data: thumbnail,
+      })
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((err) => console.log(err));
+      let thumbnail_url = UploadThumbnailURL.split("?")[0];
+      // bodyFormData.append("image", fileData);
+      // bodyFormData.append("thumbnail", thumbnailData);
+      obj = { ...obj, img_url, thumbnail_url };
     }
-    bodyFormData.append("value", JSON.stringify(obj));
+    console.log(obj);
     const response = await axios({
       method: "post",
       url: "/images/postImage",
-      data: bodyFormData,
+      data: obj,
     });
     console.log(obj, response);
     if (response.data.success) {
@@ -156,7 +172,8 @@ const PictureUpload = () => {
       setTempState(true);
       setImageData({
         ...DEFAULT_IMAGE_DATA,
-        img_url: response.data.result.img_url,
+        img_url: obj.img_url,
+        thumbnail_url: obj.thumbnail_url,
       });
     }
   };

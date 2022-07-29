@@ -159,6 +159,7 @@ const Occasion = () => {
 const Popup = ({ popupInfo, setOccasionsData, close, categoriesData }) => {
   const [data, setData] = useState({});
   const [posters, setPosters] = useState([]);
+  const [postersUpdate, setPostersUpdate] = useState(true);
   const [preview, setPreview] = useState(null);
 
   useEffect(() => {
@@ -170,6 +171,7 @@ const Popup = ({ popupInfo, setOccasionsData, close, categoriesData }) => {
             }
           : popupInfo?.item
       );
+      setPosters(popupInfo?.item?.posters);
     } else {
       let time = new Date();
       setData({
@@ -182,70 +184,103 @@ const Popup = ({ popupInfo, setOccasionsData, close, categoriesData }) => {
   }, []);
 
   const submitHandler = async () => {
-    var bodyFormData = new FormData();
-    console.log("thumbnail", data.thumbnail);
-    bodyFormData.append("thumbnail", data.thumbnail);
-    bodyFormData.append(
-      "value",
-      JSON.stringify(
-        data?.occ_date
-          ? {
-              ...data,
-              occ_date: new Date(data?.occ_date).getTime(),
-              expiry: new Date(data?.expiry).getTime(),
-            }
-          : data
-      )
-    );
-    console.log(await bodyFormData.getAll("value"));
+    let obj = data;
+    if (obj.thumbnail) {
+      const mainThumbnailURL = await axios({ url: "/s3Url", method: "get" });
+      let UploadThumbnailURL = mainThumbnailURL.data.url;
+
+      axios({
+        url: UploadThumbnailURL,
+        method: "put",
+        headers: { "Content-Type": "multipart/form-data" },
+        data: obj.thumbnail,
+      })
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((err) => console.log(err));
+      let thumbnail_url = UploadThumbnailURL.split("?")[0];
+      // bodyFormData.append("image", fileData);
+      // bodyFormData.append("thumbnail", thumbnailData);
+      obj = { ...obj, thumbnail_url };
+    }
+    let postersData = [];
+    for (let item of posters) {
+      console.log(item);
+      if (item.img) {
+        const mainThumbnailURL = await axios({ url: "/s3Url", method: "get" });
+        let UploadThumbnailURL = mainThumbnailURL.data.url;
+
+        axios({
+          url: UploadThumbnailURL,
+          method: "put",
+          headers: { "Content-Type": "multipart/form-data" },
+          data: obj.thumbnail,
+        })
+          .then((response) => {
+            console.log(response);
+          })
+          .catch((err) => console.log(err));
+        let url = UploadThumbnailURL.split("?")[0];
+        // bodyFormData.append("image", fileData);
+        // bodyFormData.append("thumbnail", thumbnailData);
+        postersData.push({ ...item, url });
+      } else {
+        postersData.push(item);
+      }
+    }
+    obj = { ...obj, posters: postersData };
+    console.log(obj);
     if (popupInfo.type === "edit") {
       const response = await axios({
         method: "put",
         url: "/occasions/putOccasion",
-        data: bodyFormData,
+        data: obj,
       });
       if (response.data.success) {
         setOccasionsData((prev) =>
           prev?.map((i) => (i.occ_uuid === data.occ_uuid ? data : i))
         );
+        close();
       }
     } else {
       const response = await axios({
         method: "post",
         url: "/occasions/postOccasion",
-        data: bodyFormData,
+        data: obj,
       });
       if (response.data.success) {
         setOccasionsData((prev) => [...prev, data]);
       }
+      close();
     }
-    for (let selectedFile of posters) {
-      // e.preventDefault()
-      // let thumbnail = await resizeFile(selectedFile)
-      bodyFormData = new FormData();
-      const id = uuid();
-      let fileData = new File(
-        [selectedFile],
-        id + "." + (selectedFile.name.split(".")[1] || "png")
-      );
+    // for (let selectedFile of posters) {
+    //   // e.preventDefault()
+    //   // let thumbnail = await resizeFile(selectedFile)
+    //   bodyFormData = new FormData();
+    //   const id = uuid();
+    //   let fileData = new File(
+    //     [selectedFile],
+    //     id + "." + (selectedFile.name.split(".")[1] || "png")
+    //   );
 
-      let obj = {
-        occ_uuid: data.occ_uuid,
-        poster: fileData,
-      };
-      bodyFormData.append("posters", fileData);
+    //   let obj = {
+    //     occ_uuid: data.occ_uuid,
+    //     poster: fileData,
+    //   };
+    //   bodyFormData.append("posters", fileData);
 
-      bodyFormData.append("value", JSON.stringify(obj));
-      const response = await axios({
-        method: "post",
-        url: "/occasions/putOccasionPosters",
-        data: bodyFormData,
-      });
-      console.log(obj, response);
-      if (response.data.success) {
-      }
-    }
-    close();
+    //   bodyFormData.append("value", JSON.stringify(obj));
+    //   const response = await axios({
+    //     method: "post",
+    //     url: "/occasions/putOccasionPosters",
+    //     data: bodyFormData,
+    //   });
+    //   console.log(obj, response);
+    //   if (response.data.success) {
+    //   }
+    // }
+    // close();
   };
   useEffect(() => {
     if (!data.thumbnail) {
@@ -271,10 +306,25 @@ const Popup = ({ popupInfo, setOccasionsData, close, categoriesData }) => {
       // setSelectedFile(undefined)
       return;
     }
-    setPosters((prev) => [...(prev.poster || []), ...e.target.files]);
+    setPosters((prev) => [
+      ...(prev || []),
+      {
+        img: e.target.files[0],
+
+        id: uuid(),
+      },
+    ]);
+    setPostersUpdate((prev) => !prev);
     // setData(e.target.files[0])
   };
-
+  useEffect(() => {
+    setPosters((prev) =>
+      prev.map((a) => ({
+        ...a,
+        temp_url: a.img ? URL.createObjectURL(a.img) : a.temp_url || "",
+      }))
+    );
+  }, [postersUpdate]);
   const handleCompressedUpload = (e) => {
     const image = e.target.files[0];
     new Compressor(image, {
@@ -500,7 +550,7 @@ const Popup = ({ popupInfo, setOccasionsData, close, categoriesData }) => {
             <br />
             {posters?.length
               ? data?.posters?.map((a) => (
-                  <img className="image" src={a} alt="NoImage" />
+                  <img className="image" src={a.url} alt={a.temp_url} />
                 ))
               : ""}
           </div>

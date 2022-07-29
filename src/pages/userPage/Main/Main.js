@@ -8,12 +8,9 @@ import PersonIcon from "@mui/icons-material/Person";
 import NavigationBar from "../../../components/usersComponent/NavigationBar";
 import { Slide } from "react-slideshow-image";
 import "react-slideshow-image/dist/styles.css";
-import { baseURL } from "../../../App";
 const Main = () => {
   const [categories, setCategories] = useState([]);
-  const [subCategories, setSubCategories] = useState([]);
   const [occasions, setOccasions] = useState([]);
-  const [popup, setPopup] = useState(false);
   const [user, setUser] = useState({});
   const [posters, setPosters] = useState([]);
   const getImageData = async () => {
@@ -96,12 +93,14 @@ const Main = () => {
           <PersonIcon className="profile-Icon" />
         </div>
         <div className="slide-container">
-          <Slide indicators={index => <div className="indicator">{index + 1}</div>}>
+          <Slide
+            indicators={(index) => <div className="indicator">{index + 1}</div>}
+          >
             {posters.map((slideImage, index) => (
               <div className="each-slide" key={index}>
                 <div
                   style={{
-                    backgroundImage: `url(${baseURL + slideImage.posters})`,
+                    backgroundImage: `url(${slideImage.posters})`,
                     width: "100%",
                     height: "200px",
                     backgroundPosition: "center",
@@ -147,7 +146,7 @@ const Main = () => {
                             getDayName(imgItem?.occ_date, "en-us", "month")
                           : ""}
                       </div>
-                      <img src={baseURL + imgItem.thumbnail_url || NoImage} />
+                      <img src={imgItem.thumbnail_url} alt={NoImage} />
                       <div className="occ_title">{imgItem.title}</div>
                     </div>
                   ))}
