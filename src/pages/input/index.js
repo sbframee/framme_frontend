@@ -49,18 +49,38 @@ const InputPage = () => {
             url: "/tags/tagText",
             data,
           });
-          // console.log(response)
+          console.log(response);
         }
       } else if (item.img_url.length) {
         for (let data of item.img_url) {
           console.log("------------------", data);
-          let formData = new FormData();
-          formData.append("value", JSON.stringify(data));
-          formData.append("images", data.image);
+          // let formData = new FormData();
+          // formData.append("value", JSON.stringify(data));
+          // formData.append("images", data.image);
+          const mainThumbnailURL = await axios({
+            url: "/s3Url",
+            method: "get",
+          });
+          let UploadThumbnailURL = mainThumbnailURL.data.url;
+
+          axios({
+            url: UploadThumbnailURL,
+            method: "put",
+            headers: { "Content-Type": "multipart/form-data" },
+            data: data.image,
+          })
+            .then((response) => {
+              console.log(response);
+            })
+            .catch((err) => console.log(err));
+          let img_url = UploadThumbnailURL.split("?")[0];
+          // bodyFormData.append("image", fileData);
+          // bodyFormData.append("thumbnail", thumbnailData);
+          data = { ...data, img_url };
           let response = await axios({
             method: "post",
             url: "/tags/tagImages",
-            data: formData,
+            data: data,
           });
           console.log(response);
         }
@@ -93,7 +113,7 @@ const InputPage = () => {
               fontFamily: itemData?.fontFamily || "sans-serif",
             }}
           >
-            {console.log("item", itemData,item)}
+            {console.log("item", itemData, item)}
             input:
             <input
               type="text"
