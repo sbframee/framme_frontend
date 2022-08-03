@@ -98,9 +98,10 @@ const Main = () => {
           >
             {posters.map((slideImage, index) => (
               <div className="each-slide" key={index}>
+                {console.log(slideImage.posters)}
                 <div
                   style={{
-                    backgroundImage: `url(${slideImage.posters})`,
+                    backgroundImage: "url("+slideImage.posters+")",
                     width: "100%",
                     height: "200px",
                     backgroundPosition: "center",
@@ -147,6 +148,7 @@ const Main = () => {
                           : ""}
                       </div>
                       <img src={imgItem.thumbnail_url} alt={NoImage} />
+
                       <div className="occ_title">{imgItem.title}</div>
                     </div>
                   ))}

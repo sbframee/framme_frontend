@@ -32,6 +32,7 @@ const OccasionPage = () => {
   const [occasion, setOccasion] = useState({});
   const [updateImageData, setUpdateImageData] = useState({});
   const [selectedImage, setSelectedImage] = useState(false);
+  const [mirrorRevert, setMirrorevert] = useState(false);
   const [deleteImage, setDeleteImage] = useState(null);
   const [switchBtn, setSwitchBtn] = useState("");
   const [deleteHolders, setDeleteHolders] = useState([]);
@@ -198,7 +199,7 @@ const OccasionPage = () => {
     if (response.data.success) getImageData();
   };
 
-  console.log(occasion);
+  // console.log(occasion);
   return localStorage.getItem("user_uuid") ? (
     selectedImage ? (
       <>
@@ -276,6 +277,7 @@ const OccasionPage = () => {
                   position: "absolute",
                   pointerEvents: "none",
                   borderRadius: "20px",
+                  transform: mirrorRevert ? "scaleX(-1)" : "scaleX(1)",
                 }}
                 ref={imageArea}
                 alt=""
@@ -464,7 +466,12 @@ const OccasionPage = () => {
             >
               <HiOutlineArrowCircleLeft />
             </button>
-            <button className="image_btn">Mirror</button>
+            <button
+              className="image_btn"
+              onClick={() => setMirrorevert((prev) => !prev)}
+            >
+              Mirror
+            </button>
             <button
               className="image_btn"
               onClick={() =>
@@ -578,8 +585,7 @@ const OccasionPage = () => {
                     onClick={() => setSelectedImage(imgItem)}
                     src={
                       imgItem.img_url.replace("images", "thumbnail")
-                        ? 
-                          imgItem.img_url.replace("images", "thumbnail")
+                        ? imgItem.img_url.replace("images", "thumbnail")
                         : NoImage
                     }
                     alt=""
@@ -794,17 +800,19 @@ const Popup = ({ close, deleteHandler, type, usersData, item }) => {
                     // console.log(user,item.img_url.replace("/images/",""),navigator.clipboard.writeText)
                     let copy =
                       "http://localhost:3000" +
-                      `/login/${user}/${item.img_url.replace("/images/", "").replace("/thumbnail/", "")}`;
+                      `/login/${user}/${item.img_url
+                        .replace("/images/", "")
+                        .replace("/thumbnail/", "")}`;
                     navigator.clipboard
                       .writeText(copy)
                       .then(() => {
                         setBtnName("Copied!");
                         setTimeout(close, 2000);
-                        console.log("successfully copied");
+                        // console.log("successfully copied");
                       })
                       .catch(() => {
                         setBtnName("Not Copied!");
-                        console.log("something went wrong");
+                        // console.log("something went wrong");
                       });
                     // navigator?.clipboard?.writeText(`http://44.202.77.101:3000/login/${user}/${item.img_url.replace("/images/","")}`);
                   }
@@ -985,12 +993,7 @@ const Tag = ({
       };
     }
   }, [switchBtn, selectedHolder]);
-  console.log(
-    "selectedHolder",
-    selectedHolder,
-    item,
-    selectedHolder?._id === item._id
-  );
+
   return (
     <div
       ref={ref}
@@ -1037,6 +1040,7 @@ const Tag = ({
               pointerEvents: "none",
               textAlign: "center",
               color: item?.text_color || "#000",
+              fontFamily: item?.fontFamily || "",
             }}
           >
             {
@@ -1045,14 +1049,12 @@ const Tag = ({
               ].text
             }
           </div>
-        ) : 
-          url?.img_url?.sort((a, b) => +a.sort_order - +b.sort_order)[
+        ) : url?.img_url?.sort((a, b) => +a.sort_order - +b.sort_order)[
             item.index % url?.img_url?.length
           ]?.img_url ? (
           // eslint-disable-next-line jsx-a11y/alt-text
           <img
             src={
-   
               url?.img_url?.sort((a, b) => +a.sort_order - +b.sort_order)[
                 item.index % url?.img_url?.length
               ]?.img_url
@@ -1343,6 +1345,8 @@ const TagMobile = ({
               pointerEvents: "none",
               textAlign: "center",
               color: item?.text_color || "#000",
+              fontFamily: item?.fontFamily || "",
+
             }}
           >
             {
@@ -1351,14 +1355,12 @@ const TagMobile = ({
               ].text
             }
           </div>
-        ) : 
-          url?.img_url?.sort((a, b) => +a.sort_order - +b.sort_order)[
+        ) : url?.img_url?.sort((a, b) => +a.sort_order - +b.sort_order)[
             item.index % url?.img_url?.length
           ]?.img_url ? (
           // eslint-disable-next-line jsx-a11y/alt-text
           <img
             src={
-
               url.img_url.sort((a, b) => +a.sort_order - +b.sort_order)[
                 item.index % url?.img_url?.length
               ]?.img_url

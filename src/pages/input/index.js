@@ -51,8 +51,8 @@ const InputPage = () => {
           });
           console.log(response);
         }
-      } else if (item.img_url.length) {
-        for (let data of item.img_url) {
+      } else if (item.img_url.filter(a=>a.edit).length) {
+        for (let data of item.img_url.filter(a=>a.edit)) {
           console.log("------------------", data);
           // let formData = new FormData();
           // formData.append("value", JSON.stringify(data));
@@ -368,6 +368,7 @@ const InputPage = () => {
                             (b) => +b.sort_order === popupCrop.i + 1
                           ) || defaultObject),
                           image: new File([file], uuid()),
+                          edit:true,
                           sort_order: popupCrop.i + 1,
                           tag_uuid: popupCrop.item.tag_uuid,
                         },
