@@ -182,6 +182,7 @@ const OccasionPage = () => {
   const handlePng = () => {
     setSeletedHolder("");
     setSwitchBtn("");
+
     htmlToImage
       .toPng(document.getElementById("my-img"))
       .then(function (dataUrl) {
@@ -215,232 +216,240 @@ const OccasionPage = () => {
             />
           </div>
           <div className="display_image_container">
-            <div
-              id="my-img"
-              className="DisplayImg"
-              style={{
-                width:
-                  (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                    selectedImage?.coordinates[0]?.a?.split(",")[0] <
-                  width
-                    ? selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                      selectedImage?.coordinates[0]?.a?.split(",")[0]
-                    : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                        1.5 <
-                      width
-                    ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                      1.5
-                    : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                        2 <
-                      width
-                    ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                      2
-                    : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                      2.5) + "px",
-                height:
-                  (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                    selectedImage?.coordinates[0]?.a?.split(",")[0] <
-                  width
-                    ? selectedImage?.coordinates[0]?.d?.split(",")[1] -
-                      selectedImage?.coordinates[0]?.a?.split(",")[1]
-                    : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                        1.5 <
-                      width
-                    ? (selectedImage?.coordinates[0]?.d?.split(",")[1] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[1]) /
-                      1.5
-                    : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                        2 <
-                      width
-                    ? (selectedImage?.coordinates[0]?.d?.split(",")[1] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[1]) /
-                      2
-                    : (selectedImage?.coordinates[0]?.d?.split(",")[1] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[1]) /
-                      2.5) + "px",
-                maxHeight: "100%",
-                backgroundColor: "#000",
-              }}
-            >
-              <img
-                src={selectedImage?.img_url}
+            {selectedImage.img_url ? (
+              <div
+                id="my-img"
+                className="DisplayImg"
                 style={{
-                  width: "100%",
-                  // height: "100%",
-                  position: "absolute",
-                  pointerEvents: "none",
-                  borderRadius: "20px",
-                  transform: mirrorRevert ? "scaleX(-1)" : "scaleX(1)",
+                  width:
+                    (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                      selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                    width
+                      ? selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                        selectedImage?.coordinates[0]?.a?.split(",")[0]
+                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                          1.5 <
+                        width
+                      ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                        1.5
+                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                          2 <
+                        width
+                      ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                        2
+                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                        2.5) + "px",
+                  height:
+                    (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                      selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                    width
+                      ? selectedImage?.coordinates[0]?.d?.split(",")[1] -
+                        selectedImage?.coordinates[0]?.a?.split(",")[1]
+                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                          1.5 <
+                        width
+                      ? (selectedImage?.coordinates[0]?.d?.split(",")[1] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[1]) /
+                        1.5
+                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                          2 <
+                        width
+                      ? (selectedImage?.coordinates[0]?.d?.split(",")[1] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[1]) /
+                        2
+                      : (selectedImage?.coordinates[0]?.d?.split(",")[1] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[1]) /
+                        2.5) + "px",
+                  maxHeight: "100%",
+                  backgroundColor: "#000",
                 }}
-                ref={imageArea}
-                alt=""
-              />
+              >
+                <img
+                  src={selectedImage?.img_url}
+                  alt={selectedImage?.img_url}
+                  style={{
+                    width: "100%",
+                    // height: "100%",
+                    position: "absolute",
+                    pointerEvents: "none",
+                    borderRadius: "20px",
+                    transform: mirrorRevert ? "scaleX(-1)" : "scaleX(1)",
+                  }}
+                  ref={imageArea}
+                />
 
-              {selectedImage.holder
-                ?.filter((a) => {
-                  let value = deleteHolders?.filter((b) => a?._id === b?._id)
-                    ?.length
-                    ? false
-                    : true;
+                {selectedImage.holder
+                  ?.filter((a) => {
+                    let value = deleteHolders?.filter((b) => a?._id === b?._id)
+                      ?.length
+                      ? false
+                      : true;
 
-                  return value;
-                })
-                ?.map((item) => {
-                  let url = tags.find((a) => a.tag_uuid === item.label_uuid);
+                    return value;
+                  })
+                  ?.map((item) => {
+                    let url = tags.find((a) => a.tag_uuid === item.label_uuid);
 
-                  let coordinates = item.a.split(",");
-                  coordinates[0] =
-                    selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                      selectedImage?.coordinates[0]?.a?.split(",")[0] <
-                    width
-                      ? coordinates[0]
-                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                          1.5 <
-                        width
-                      ? coordinates[0] / 1.5
-                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                          2 <
-                        width
-                      ? coordinates[0] / 2
-                      : coordinates[0] / 2.5;
+                    let coordinates = item.a.split(",");
+                    coordinates[0] =
+                      selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                        selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                      width
+                        ? coordinates[0]
+                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                            1.5 <
+                          width
+                        ? coordinates[0] / 1.5
+                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                            2 <
+                          width
+                        ? coordinates[0] / 2
+                        : coordinates[0] / 2.5;
 
-                  coordinates[1] =
-                    selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                      selectedImage?.coordinates[0]?.a?.split(",")[0] <
-                    width
-                      ? coordinates[1]
-                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                          1.5 <
-                        width
-                      ? coordinates[1] / 1.5
-                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                          2 <
-                        width
-                      ? coordinates[1] / 2
-                      : coordinates[1] / 2.5;
+                    coordinates[1] =
+                      selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                        selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                      width
+                        ? coordinates[1]
+                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                            1.5 <
+                          width
+                        ? coordinates[1] / 1.5
+                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                            2 <
+                          width
+                        ? coordinates[1] / 2
+                        : coordinates[1] / 2.5;
 
-                  let width1 =
-                    selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                      selectedImage?.coordinates[0]?.a?.split(",")[0] <
-                    width
-                      ? item.b.split(",")[0] - coordinates[0]
-                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                          1.5 <
-                        width
-                      ? item.b.split(",")[0] / 1.5 - coordinates[0]
-                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                          2 <
-                        width
-                      ? item.b.split(",")[0] / 2 - coordinates[0]
-                      : item.b.split(",")[0] / 2.5 - coordinates[0];
+                    let width1 =
+                      selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                        selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                      width
+                        ? item.b.split(",")[0] - coordinates[0]
+                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                            1.5 <
+                          width
+                        ? item.b.split(",")[0] / 1.5 - coordinates[0]
+                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                            2 <
+                          width
+                        ? item.b.split(",")[0] / 2 - coordinates[0]
+                        : item.b.split(",")[0] / 2.5 - coordinates[0];
 
-                  let height =
-                    selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                      selectedImage?.coordinates[0]?.a?.split(",")[0] <
-                    width
-                      ? item.d.split(",")[1] - coordinates[1]
-                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                          1.5 <
-                        width
-                      ? item.d.split(",")[1] / 1.5 - coordinates[1]
-                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                          2 <
-                        width
-                      ? item.d.split(",")[1] / 2 - coordinates[1]
-                      : item.d.split(",")[1] / 2.5 - coordinates[1];
+                    let height =
+                      selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                        selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                      width
+                        ? item.d.split(",")[1] - coordinates[1]
+                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                            1.5 <
+                          width
+                        ? item.d.split(",")[1] / 1.5 - coordinates[1]
+                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                            2 <
+                          width
+                        ? item.d.split(",")[1] / 2 - coordinates[1]
+                        : item.d.split(",")[1] / 2.5 - coordinates[1];
 
-                  if (url?.tag_type === "I") {
-                    if (width > 1000)
-                      return (
-                        <Tag
-                          switchBtn={switchBtn}
-                          setSwitchBtn={setSwitchBtn}
-                          setSeletedHolder={setSeletedHolder}
-                          selectedHolder={selectedHolder}
-                          item={item}
-                          url={url}
-                          type="I"
-                          coordinates={coordinates}
-                          width={width1}
-                          height={height}
-                          deleteHandler={() =>
-                            setDeleteHolders((prev) => [...prev, item])
-                          }
-                        />
-                      );
-                    else
-                      return (
-                        <TagMobile
-                          switchBtn={switchBtn}
-                          setSwitchBtn={setSwitchBtn}
-                          setSeletedHolder={setSeletedHolder}
-                          selectedHolder={selectedHolder}
-                          item={item}
-                          url={url}
-                          type="I"
-                          coordinates={coordinates}
-                          width={width1}
-                          height={height}
-                          deleteHandler={() =>
-                            setDeleteHolders((prev) => [...prev, item])
-                          }
-                        />
-                      );
-                  } else if (url?.tag_type === "T") {
-                    if (width > 1000)
-                      return (
-                        <Tag
-                          switchBtn={switchBtn}
-                          setSwitchBtn={setSwitchBtn}
-                          setSeletedHolder={setSeletedHolder}
-                          selectedHolder={selectedHolder}
-                          item={item}
-                          type="T"
-                          coordinates={coordinates}
-                          width={width1}
-                          height={height}
-                          url={url}
-                          deleteHandler={() =>
-                            setDeleteHolders((prev) => [...prev, item])
-                          }
-                        />
-                      );
-                    else
-                      return (
-                        <TagMobile
-                          switchBtn={switchBtn}
-                          setSwitchBtn={setSwitchBtn}
-                          setSeletedHolder={setSeletedHolder}
-                          selectedHolder={selectedHolder}
-                          item={item}
-                          type="T"
-                          coordinates={coordinates}
-                          width={width1}
-                          height={height}
-                          url={url}
-                          deleteHandler={() =>
-                            setDeleteHolders((prev) => [...prev, item])
-                          }
-                        />
-                      );
-                  }
-                })}
-            </div>
+                    if (url?.tag_type === "I") {
+                      if (width > 1000)
+                        return (
+                          <Tag
+                            switchBtn={switchBtn}
+                            setSwitchBtn={setSwitchBtn}
+                            setSeletedHolder={setSeletedHolder}
+                            selectedHolder={selectedHolder}
+                            item={item}
+                            url={url}
+                            type="I"
+                            coordinates={coordinates}
+                            width={width1}
+                            height={height}
+                            mirrorRevert={mirrorRevert}
+                            deleteHandler={() =>
+                              setDeleteHolders((prev) => [...prev, item])
+                            }
+                          />
+                        );
+                      else
+                        return (
+                          <TagMobile
+                            switchBtn={switchBtn}
+                            setSwitchBtn={setSwitchBtn}
+                            setSeletedHolder={setSeletedHolder}
+                            selectedHolder={selectedHolder}
+                            item={item}
+                            url={url}
+                            mirrorRevert={mirrorRevert}
+                            type="I"
+                            coordinates={coordinates}
+                            width={width1}
+                            height={height}
+                            deleteHandler={() =>
+                              setDeleteHolders((prev) => [...prev, item])
+                            }
+                          />
+                        );
+                    } else if (url?.tag_type === "T") {
+                      if (width > 1000)
+                        return (
+                          <Tag
+                            switchBtn={switchBtn}
+                            setSwitchBtn={setSwitchBtn}
+                            setSeletedHolder={setSeletedHolder}
+                            selectedHolder={selectedHolder}
+                            item={item}
+                            mirrorRevert={mirrorRevert}
+                            type="T"
+                            coordinates={coordinates}
+                            width={width1}
+                            height={height}
+                            url={url}
+                            deleteHandler={() =>
+                              setDeleteHolders((prev) => [...prev, item])
+                            }
+                          />
+                        );
+                      else
+                        return (
+                          <TagMobile
+                            switchBtn={switchBtn}
+                            setSwitchBtn={setSwitchBtn}
+                            setSeletedHolder={setSeletedHolder}
+                            selectedHolder={selectedHolder}
+                            item={item}
+                            mirrorRevert={mirrorRevert}
+                            type="T"
+                            coordinates={coordinates}
+                            width={width1}
+                            height={height}
+                            url={url}
+                            deleteHandler={() =>
+                              setDeleteHolders((prev) => [...prev, item])
+                            }
+                          />
+                        );
+                    }
+                  })}
+              </div>
+            ) : (
+              ""
+            )}
           </div>
           <div className="container_buttons">
             <button
@@ -842,6 +851,7 @@ const Tag = ({
   selectedHolder,
   setSeletedHolder,
   setSwitchBtn,
+  mirrorRevert,
 }) => {
   const ref = useRef(null);
   const refLeft = useRef(null);
@@ -998,14 +1008,25 @@ const Tag = ({
     <div
       ref={ref}
       className="resizeable"
-      style={{
-        cursor: "pointer",
-        left: coordinates[0] + "px",
-        top: coordinates[1] + "px",
-        width: width + "px",
-        height: height + "px",
-        position: "absolute",
-      }}
+      style={
+        mirrorRevert
+          ? {
+              cursor: "pointer",
+              right: coordinates[0] + "px",
+              top: coordinates[1] + "px",
+              width: width + "px",
+              height: height + "px",
+              position: "absolute",
+            }
+          : {
+              cursor: "pointer",
+              left: coordinates[0] + "px",
+              top: coordinates[1] + "px",
+              width: width + "px",
+              height: height + "px",
+              position: "absolute",
+            }
+      }
     >
       <div
         ref={sizeRef}
@@ -1143,6 +1164,7 @@ const TagMobile = ({
   selectedHolder,
   setSeletedHolder,
   setSwitchBtn,
+  mirrorRevert,
 }) => {
   const ref = useRef(null);
   const refLeft = useRef(null);
@@ -1303,14 +1325,25 @@ const TagMobile = ({
     <div
       ref={ref}
       className="resizeable"
-      style={{
-        cursor: "pointer",
-        left: coordinates[0] + "px",
-        top: coordinates[1] + "px",
-        width: width + "px",
-        height: height + "px",
-        position: "absolute",
-      }}
+      style={
+        mirrorRevert
+          ? {
+              cursor: "pointer",
+              right: coordinates[0] + "px",
+              top: coordinates[1] + "px",
+              width: width + "px",
+              height: height + "px",
+              position: "absolute",
+            }
+          : {
+              cursor: "pointer",
+              left: coordinates[0] + "px",
+              top: coordinates[1] + "px",
+              width: width + "px",
+              height: height + "px",
+              position: "absolute",
+            }
+      }
       onTouchEnd={() => setSwitchBtn("resize")}
     >
       <div
@@ -1346,7 +1379,6 @@ const TagMobile = ({
               textAlign: "center",
               color: item?.text_color || "#000",
               fontFamily: item?.fontFamily || "",
-
             }}
           >
             {
