@@ -12,7 +12,7 @@ const Main = () => {
   const [categories, setCategories] = useState([]);
   const [occasions, setOccasions] = useState([]);
   const [user, setUser] = useState({});
-  const [posters, setPosters] = useState([]);
+  const [posters, setPosters] = useState(false);
   const getImageData = async () => {
     const response = await axios({ method: "get", url: "/posters/getPoster" });
     // console.log(response)
@@ -84,7 +84,6 @@ const Main = () => {
     if (type === "month") return date.toLocaleString(locale, { month: "long" });
     return date.toLocaleDateString(locale, { weekday: "long" });
   };
-
   return (
     <>
       <div className="main">
@@ -93,25 +92,23 @@ const Main = () => {
           <PersonIcon className="profile-Icon" />
         </div>
         <div className="slide-container">
-          <Slide
+          {posters?<Slide
             indicators={(index) => <div className="indicator">{index + 1}</div>}
           >
-            {posters.map((slideImage, index) => (
+            {posters?.map((slideImage, index) => (
               <div className="each-slide" key={index}>
                 {console.log(slideImage.posters)}
-                <div
+                <img
+                  src={slideImage?.posters}
+                  alt="NOImage"
                   style={{
-                    backgroundImage: "url("+slideImage.posters+")",
                     width: "100%",
                     height: "200px",
-                    backgroundPosition: "center",
-                    backgroundRepeat: "no-repeat",
-                    backgroundSize: "cover",
                   }}
-                ></div>
+                />
               </div>
             ))}
-          </Slide>
+          </Slide>:""}
         </div>
 
         {categories
