@@ -40,6 +40,7 @@ const OccasionPage = () => {
   const [usersData, setUsersData] = useState([]);
   const params = useParams();
   const imageArea = useRef();
+  const ref = useRef();
   const [selectedHolder, setSeletedHolder] = useState("");
   const navigate = useNavigate();
   const { width, height } = useWindowDimensions();
@@ -184,7 +185,7 @@ const OccasionPage = () => {
     setSwitchBtn("");
 
     htmlToImage
-      .toPng(document.getElementById("my-img"))
+      .toPng(ref.current)
       .then(function (dataUrl) {
         console.log(dataUrl);
         download(dataUrl, "text-img.png");
@@ -218,6 +219,7 @@ const OccasionPage = () => {
           <div className="display_image_container">
             {selectedImage.img_url ? (
               <div
+              ref={ref}
                 id="my-img"
                 className="DisplayImg"
                 style={{
