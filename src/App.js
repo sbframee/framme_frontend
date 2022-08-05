@@ -11,8 +11,6 @@ import InputPage from "./pages/input";
 import Users from "./pages/UserData/Users";
 import UserCategory from "./pages/userCategory/UserCategory";
 import CustomImage from "./pages/userPage/CustomeImage/CustomImage";
-import UserDynamicPage from "./pages/userPage/UserDynamicPage/UserDynamicPage";
-import { useEffect, useState } from "react";
 import LoginPage from "./LoginPage";
 import ImageUploadPopup from "./components/ImageUploadPopup";
 import axios from "axios";
