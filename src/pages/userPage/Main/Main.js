@@ -97,10 +97,9 @@ const Main = () => {
           >
             {posters?.map((slideImage, index) => (
               <div className="each-slide" key={index}>
-                {console.log(slideImage.posters)}
                 <img
                   src={slideImage?.posters}
-                  alt="NOImage"
+                  alt={NoImage}
                   style={{
                     width: "100%",
                     height: "200px",

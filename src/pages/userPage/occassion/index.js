@@ -273,7 +273,7 @@ const OccasionPage = () => {
               >
                 <img
                   src={selectedImage?.img_url}
-                  alt={selectedImage?.img_url}
+                  alt={NoImage}
                   style={{
                     width: "100%",
                     // height: "100%",
@@ -597,7 +597,7 @@ const OccasionPage = () => {
                         ? imgItem.img_url.replace("images", "thumbnail")
                         : NoImage
                     }
-                    alt=""
+                    alt={NoImage}
                   />
                   {location.pathname.includes("AdminOccasion") ? (
                     <div
@@ -1082,7 +1082,7 @@ const Tag = ({
             }
             className="holders"
             style={{ width: "100%", height: "100%", pointerEvents: "none" }}
-            alt=""
+            alt={NoImage}
           />
         ) : (
           <></>
@@ -1399,7 +1399,7 @@ const TagMobile = ({
             }
             className="holders"
             style={{ width: "100%", height: "100%", pointerEvents: "none" }}
-            alt=""
+            alt={NoImage}
           />
         ) : (
           <></>
