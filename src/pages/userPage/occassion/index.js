@@ -592,11 +592,12 @@ const OccasionPage = () => {
               .sort((a, b) => +a.sort_order - b.sort_order)
               .map((imgItem, index) => (
                 <div className="image_container">
+                  {console.log(imgItem?.img_url)}
                   <img
                     onClick={() => setSelectedImage(imgItem)}
                     src={
-                      imgItem.img_url.replace("images", "thumbnail")
-                        ? imgItem.img_url.replace("images", "thumbnail")
+                      imgItem.img_url
+                        ? imgItem.img_url
                         : NoImage
                     }
                     alt={NoImage}

@@ -186,73 +186,75 @@ const Popup = ({ popupInfo, setOccasionsData, close, categoriesData }) => {
   const submitHandler = async () => {
     let obj = data;
     if (obj.thumbnail) {
-      const mainThumbnailURL = await axios({ url: "/s3Url", method: "get" });
-      let UploadThumbnailURL = mainThumbnailURL.data.url;
+      let url = await axios.get("s3url");
+      url = url.data.url;
 
-      axios({
-        url: UploadThumbnailURL,
+      const result = await axios({
+        url,
         method: "put",
         headers: { "Content-Type": "multipart/form-data" },
-        data: obj.thumbnail,
-      })
-        .then((response) => {
-          console.log(response);
-        })
-        .catch((err) => console.log(err));
-      let thumbnail_url = UploadThumbnailURL.split("?")[0];
-      // bodyFormData.append("image", fileData);
-      // bodyFormData.append("thumbnail", thumbnailData);
-      obj = { ...obj, thumbnail_url };
-    }
-    let postersData = [];
-    for (let item of posters) {
-      console.log(item);
-      if (item.img) {
-        const mainThumbnailURL = await axios({ url: "/s3Url", method: "get" });
-        let UploadThumbnailURL = mainThumbnailURL.data.url;
-
-        axios({
-          url: UploadThumbnailURL,
-          method: "put",
-          headers: { "Content-Type": "multipart/form-data" },
-          data: obj.thumbnail,
-        })
-          .then((response) => {
-            console.log(response);
-          })
-          .catch((err) => console.log(err));
-        let url = UploadThumbnailURL.split("?")[0];
+        data: obj?.thumbnail,
+      });
+      if (result.status === 200) {
+        let thumbnail_url = url.split("?")[0];
         // bodyFormData.append("image", fileData);
-        // bodyFormData.append("thumbnail", thumbnailData);
-        postersData.push({ ...item, url });
-      } else {
-        postersData.push(item);
+        console.log("thumbnail", thumbnail_url);
+        obj = { ...obj, thumbnail_url };
+
+        let postersData = [];
+        for (let item of posters) {
+          console.log(item);
+          if (item.img) {
+            const mainThumbnailURL = await axios({
+              url: "/s3Url",
+              method: "get",
+            });
+            let UploadThumbnailURL = mainThumbnailURL.data.url;
+
+            axios({
+              url: UploadThumbnailURL,
+              method: "put",
+              headers: { "Content-Type": "multipart/form-data" },
+              data: obj.thumbnail,
+            })
+              .then((response) => {
+                console.log(response);
+              })
+              .catch((err) => console.log(err));
+            let url = UploadThumbnailURL.split("?")[0];
+            // bodyFormData.append("image", fileData);
+            // bodyFormData.append("thumbnail", thumbnailData);
+            postersData.push({ ...item, url });
+          } else {
+            postersData.push(item);
+          }
+        }
+        obj = { ...obj, posters: postersData };
+        console.log(obj);
+        if (popupInfo.type === "edit") {
+          const response = await axios({
+            method: "put",
+            url: "/occasions/putOccasion",
+            data: obj,
+          });
+          if (response.data.success) {
+            setOccasionsData((prev) =>
+              prev?.map((i) => (i.occ_uuid === data.occ_uuid ? data : i))
+            );
+            close();
+          }
+        } else {
+          const response = await axios({
+            method: "post",
+            url: "/occasions/postOccasion",
+            data: obj,
+          });
+          if (response.data.success) {
+            setOccasionsData((prev) => [...prev, data]);
+          }
+          close();
+        }
       }
-    }
-    obj = { ...obj, posters: postersData };
-    console.log(obj);
-    if (popupInfo.type === "edit") {
-      const response = await axios({
-        method: "put",
-        url: "/occasions/putOccasion",
-        data: obj,
-      });
-      if (response.data.success) {
-        setOccasionsData((prev) =>
-          prev?.map((i) => (i.occ_uuid === data.occ_uuid ? data : i))
-        );
-        close();
-      }
-    } else {
-      const response = await axios({
-        method: "post",
-        url: "/occasions/postOccasion",
-        data: obj,
-      });
-      if (response.data.success) {
-        setOccasionsData((prev) => [...prev, data]);
-      }
-      close();
     }
     // for (let selectedFile of posters) {
     //   // e.preventDefault()
@@ -528,7 +530,9 @@ const Popup = ({ popupInfo, setOccasionsData, close, categoriesData }) => {
               Thumbnail
               <input
                 type="file"
-                onChange={onSelectFile}
+                onChange={(e) =>
+                  setData((prev) => ({ ...prev, thumbnail: e.target.files[0] }))
+                }
                 accept="image/png, image/jpeg"
               />
               <br />
