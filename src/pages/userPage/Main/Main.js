@@ -144,7 +144,9 @@ const Main = () => {
                             getDayName(imgItem?.occ_date, "en-us", "month")
                           : ""}
                       </div>
-                      <img src={imgItem.thumbnail_url} alt={NoImage} />
+                      
+                      {console.log(imgItem)}
+                      <img src={imgItem.thumbnail_url} alt="" />
 
                       <div className="occ_title">{imgItem.title}</div>
                     </div>

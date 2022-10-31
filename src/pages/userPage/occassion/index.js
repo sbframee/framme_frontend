@@ -50,7 +50,7 @@ const OccasionPage = () => {
     console.log(response);
     if (response.data.success) setUsersData(response.data.result);
   };
-
+console.log(params)
   const updateImage = async (data) => {
     const response = await axios({
       method: "put",
@@ -596,11 +596,11 @@ const OccasionPage = () => {
                   <img
                     onClick={() => setSelectedImage(imgItem)}
                     src={
-                      imgItem.img_url
-                        ? imgItem.img_url
+                      imgItem?.img_url
+                        ? imgItem?.img_url
                         : NoImage
                     }
-                    alt={NoImage}
+                    alt=""
                   />
                   {location.pathname.includes("AdminOccasion") ? (
                     <div
@@ -760,7 +760,7 @@ const Popup = ({ close, deleteHandler, type, usersData, item }) => {
                 <textarea
                   id="myTextInput"
                   value={
-                    "http://localhost:3000" +
+                    "https://www.framee.in" +
                     `/login/${user}/${item.img_url
                       .replace("thumbnail/", "")
                       .replace("/images/", "")}`
@@ -796,7 +796,7 @@ const Popup = ({ close, deleteHandler, type, usersData, item }) => {
                       `https://api.whatsapp.com/send/?phone=91${
                         usersData.find((a) => a.user_uuid === user)?.user_name
                       }&text=${
-                        "http://localhost:3000" +
+                        "http://www.framee.in" +
                         `/login/${user}/${item.img_url.replace("/images/", "")}`
                       }`,
                       "_blank"
@@ -811,7 +811,7 @@ const Popup = ({ close, deleteHandler, type, usersData, item }) => {
                   if (user) {
                     // console.log(user,item.img_url.replace("/images/",""),navigator.clipboard.writeText)
                     let copy =
-                      "http://localhost:3000" +
+                      "http://www.framee.in" +
                       `/login/${user}/${item.img_url
                         .replace("/images/", "")
                         .replace("/thumbnail/", "")}`;
