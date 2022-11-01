@@ -7,11 +7,14 @@ import axios from "axios";
 import { v4 as uuid } from "uuid";
 import Compressor from "compressorjs";
 import { useNavigate } from "react-router-dom";
+import { Cancel, DeleteOutline, Image } from "@mui/icons-material";
 
 const Occasion = () => {
   const [occasionsData, setOccasionsData] = useState([]);
   const [categoriesData, setCategoriesData] = useState([]);
   const navigate = useNavigate();
+  const [pictureUploadPopup, setPictureUploadPopup] = useState(false);
+
   const [deleteItem, setDeleteItem] = useState(null);
 
   const [popup, setPopup] = useState(false);
@@ -51,7 +54,6 @@ const Occasion = () => {
   }, []);
   return (
     <>
-      {" "}
       <SideBar />
       <div className="occasion">
         <h1>Occasion</h1>
@@ -82,7 +84,7 @@ const Occasion = () => {
           <tbody>
             {occasionsData.length ? (
               occasionsData.map((item, i) => (
-                <tr>
+                <tr key={i}>
                   <td>{i + 1}</td>
                   <td>{item?.title || "-"}</td>
                   <td>{item?.sort_order || "-"}</td>
@@ -107,6 +109,15 @@ const Occasion = () => {
                       }}
                     >
                       Images
+                    </button>
+                    <button
+                      className="edit_button"
+                      type="button"
+                      onClick={() => {
+                        setPictureUploadPopup(item);
+                      }}
+                    >
+                      Posters
                     </button>
                   </td>
                   <td style={{ textAlign: "center" }}>
@@ -152,14 +163,23 @@ const Occasion = () => {
         ) : (
           ""
         )}
-      </div>{" "}
+      </div>
+      {pictureUploadPopup ? (
+        <PicturesPopup
+          onSave={() => setPictureUploadPopup(false)}
+          popupInfo={pictureUploadPopup}
+          getItem={getOccasionData}
+        />
+      ) : (
+        ""
+      )}
     </>
   );
 };
 const Popup = ({ popupInfo, setOccasionsData, close, categoriesData }) => {
   const [data, setData] = useState({});
-  const [posters, setPosters] = useState([]);
-  const [postersUpdate, setPostersUpdate] = useState(true);
+  // const [posters, setPosters] = useState([]);
+  // const [postersUpdate, setPostersUpdate] = useState(true);
   const [preview, setPreview] = useState(null);
 
   useEffect(() => {
@@ -171,7 +191,7 @@ const Popup = ({ popupInfo, setOccasionsData, close, categoriesData }) => {
             }
           : popupInfo?.item
       );
-      setPosters(popupInfo?.item?.posters);
+      // setPosters(popupInfo?.item?.posters);
     } else {
       let time = new Date();
       setData({
@@ -200,89 +220,61 @@ const Popup = ({ popupInfo, setOccasionsData, close, categoriesData }) => {
         // bodyFormData.append("image", fileData);
         console.log("thumbnail", thumbnail_url);
         obj = { ...obj, thumbnail_url };
-
-        let postersData = [];
-        for (let item of posters) {
-          console.log(item);
-          if (item.img) {
-            const mainThumbnailURL = await axios({
-              url: "/s3Url",
-              method: "get",
-            });
-            let UploadThumbnailURL = mainThumbnailURL.data.url;
-
-            axios({
-              url: UploadThumbnailURL,
-              method: "put",
-              headers: { "Content-Type": "multipart/form-data" },
-              data: obj.thumbnail,
-            })
-              .then((response) => {
-                console.log(response);
-              })
-              .catch((err) => console.log(err));
-            let url = UploadThumbnailURL.split("?")[0];
-            // bodyFormData.append("image", fileData);
-            // bodyFormData.append("thumbnail", thumbnailData);
-            postersData.push({ ...item, url });
-          } else {
-            postersData.push(item);
-          }
-        }
-        obj = { ...obj, posters: postersData };
-        console.log(obj);
-        if (popupInfo.type === "edit") {
-          const response = await axios({
-            method: "put",
-            url: "/occasions/putOccasion",
-            data: obj,
-          });
-          if (response.data.success) {
-            setOccasionsData((prev) =>
-              prev?.map((i) => (i.occ_uuid === data.occ_uuid ? data : i))
-            );
-            close();
-          }
-        } else {
-          const response = await axios({
-            method: "post",
-            url: "/occasions/postOccasion",
-            data: obj,
-          });
-          if (response.data.success) {
-            setOccasionsData((prev) => [...prev, data]);
-          }
-          close();
-        }
       }
     }
-    // for (let selectedFile of posters) {
-    //   // e.preventDefault()
-    //   // let thumbnail = await resizeFile(selectedFile)
-    //   bodyFormData = new FormData();
-    //   const id = uuid();
-    //   let fileData = new File(
-    //     [selectedFile],
-    //     id + "." + (selectedFile.name.split(".")[1] || "png")
-    //   );
+    // let postersData = [];
+    // for (let item of posters) {
+    //   console.log(item);
+    //   if (item.img) {
+    //     const mainThumbnailURL = await axios({
+    //       url: "/s3Url",
+    //       method: "get",
+    //     });
+    //     let UploadThumbnailURL = mainThumbnailURL.data.url;
 
-    //   let obj = {
-    //     occ_uuid: data.occ_uuid,
-    //     poster: fileData,
-    //   };
-    //   bodyFormData.append("posters", fileData);
-
-    //   bodyFormData.append("value", JSON.stringify(obj));
-    //   const response = await axios({
-    //     method: "post",
-    //     url: "/occasions/putOccasionPosters",
-    //     data: bodyFormData,
-    //   });
-    //   console.log(obj, response);
-    //   if (response.data.success) {
+    //     axios({
+    //       url: UploadThumbnailURL,
+    //       method: "put",
+    //       headers: { "Content-Type": "multipart/form-data" },
+    //       data: obj.thumbnail,
+    //     })
+    //       .then((response) => {
+    //         console.log(response);
+    //       })
+    //       .catch((err) => console.log(err));
+    //     let url = UploadThumbnailURL.split("?")[0];
+    //     // bodyFormData.append("image", fileData);
+    //     // bodyFormData.append("thumbnail", thumbnailData);
+    //     postersData.push({ ...item, url });
+    //   } else {
+    //     postersData.push(item);
     //   }
     // }
-    // close();
+    // obj = { ...obj, posters: postersData };
+    console.log(obj);
+    if (popupInfo.type === "edit") {
+      const response = await axios({
+        method: "put",
+        url: "/occasions/putOccasion",
+        data: obj,
+      });
+      if (response.data.success) {
+        setOccasionsData((prev) =>
+          prev?.map((i) => (i.occ_uuid === data.occ_uuid ? data : i))
+        );
+        close();
+      }
+    } else {
+      const response = await axios({
+        method: "post",
+        url: "/occasions/postOccasion",
+        data: obj,
+      });
+      if (response.data.success) {
+        setOccasionsData((prev) => [...prev, data]);
+      }
+      close();
+    }
   };
   useEffect(() => {
     if (!data.thumbnail) {
@@ -303,30 +295,30 @@ const Popup = ({ popupInfo, setOccasionsData, close, categoriesData }) => {
     handleCompressedUpload(e);
     // setData(e.target.files[0])
   };
-  const onSelectFiles = (e) => {
-    if (!e.target.files || e.target.files.length === 0) {
-      // setSelectedFile(undefined)
-      return;
-    }
-    setPosters((prev) => [
-      ...(prev || []),
-      {
-        img: e.target.files[0],
+  // const onSelectFiles = (e) => {
+  //   if (!e.target.files || e.target.files.length === 0) {
+  //     // setSelectedFile(undefined)
+  //     return;
+  //   }
+  //   setPosters((prev) => [
+  //     ...(prev || []),
+  //     {
+  //       img: e.target.files[0],
 
-        id: uuid(),
-      },
-    ]);
-    setPostersUpdate((prev) => !prev);
-    // setData(e.target.files[0])
-  };
-  useEffect(() => {
-    setPosters((prev) =>
-      prev?.map((a) => ({
-        ...a,
-        temp_url: a.img ? URL.createObjectURL(a.img) : a.temp_url || "",
-      }))
-    );
-  }, [postersUpdate]);
+  //       id: uuid(),
+  //     },
+  //   ]);
+  //   setPostersUpdate((prev) => !prev);
+  //   // setData(e.target.files[0])
+  // };
+  // useEffect(() => {
+  //   setPosters((prev) =>
+  //     prev?.map((a) => ({
+  //       ...a,
+  //       temp_url: a.img ? URL.createObjectURL(a.img) : a.temp_url || "",
+  //     }))
+  //   );
+  // }, [postersUpdate]);
   const handleCompressedUpload = (e) => {
     const image = e.target.files[0];
     new Compressor(image, {
@@ -393,7 +385,10 @@ const Popup = ({ popupInfo, setOccasionsData, close, categoriesData }) => {
             X
           </div>
         </div>
-        <div className="popup_body">
+        <div
+          className="popup_body"
+          style={{ maxHeight: "70vh", overflowY: "scroll" }}
+        >
           <div className="row">
             <div>
               Title
@@ -540,10 +535,15 @@ const Popup = ({ popupInfo, setOccasionsData, close, categoriesData }) => {
                 className="image"
                 src={preview || data.thumbnail_url}
                 alt="NoImage"
+                style={{
+                  width: "100px",
+                  height: "100px",
+                  objectFit: "contain",
+                }}
               />
             </div>
           </div>
-          <div>
+          {/* <div>
             Posters
             <input
               type="file"
@@ -554,10 +554,19 @@ const Popup = ({ popupInfo, setOccasionsData, close, categoriesData }) => {
             <br />
             {posters?.length
               ? data?.posters?.map((a) => (
-                  <img className="image" src={a.url} alt={a.temp_url} />
+                  <img
+                    className="image"
+                    style={{
+                      width: "100px",
+                      height: "100px",
+                      objectFit: "contain",
+                    }}
+                    src={a.url}
+                    alt={a.temp_url}
+                  />
                 ))
               : ""}
-          </div>
+          </div> */}
           <button onClick={submitHandler} type="button" className="add_button">
             {popupInfo.type === "edit" ? "Update" : "Add"}
           </button>
@@ -608,3 +617,238 @@ const ConfirmPopup = ({ close, deleteHandler }) => {
     </div>
   );
 };
+function PicturesPopup({ onSave, popupInfo, getItem }) {
+  const [data, setdata] = useState({});
+  const [images, setImages] = useState();
+  const [deleteImages, setDeletedImages] = useState([]);
+
+  useEffect(() => {
+    setdata(popupInfo || {});
+  }, [popupInfo]);
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    let itemData = {
+      occ_uuid: data?.occ_uuid,
+      posters: data?.posters,
+    };
+    let url = await axios.get("s3url");
+    url = url.data.url;
+
+    const result = await axios({
+      url,
+      method: "put",
+      headers: { "Content-Type": "multipart/form-data" },
+      data: images,
+    });
+    if (result.status === 200) {
+      let image_url = { url: url?.split("?")[0], id: uuid() };
+      itemData = {
+        ...itemData,
+        posters: itemData?.posters?.length
+          ? [...itemData?.posters, image_url]
+          : [image_url],
+      };
+    }
+
+    const response = await axios({
+      method: "put",
+      url: "/occasions/putOccasion",
+      data: itemData,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.data.success) {
+      getItem();
+      onSave();
+    }
+  };
+  const deleteSubmitHandler = async (e) => {
+    e.preventDefault();
+    let itemData = {
+      occ_uuid: data?.occ_uuid,
+      posters: data.posters.filter(
+        (a) => !deleteImages.find((b) => b === a?.id)
+      ),
+    };
+
+    const response = await axios({
+      method: "put",
+      url: "/occasions/putOccasion",
+      data: itemData,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.data.success) {
+      getItem();
+      onSave();
+    }
+  };
+
+  return (
+    <div className="overlay">
+      <div
+        className="modal"
+        style={{ height: "fit-content", width: "fit-content" }}
+      >
+        <div
+          className="content"
+          style={{
+            height: "fit-content",
+            padding: "20px",
+            width: "fit-content",
+          }}
+        >
+          <div style={{ overflowY: "scroll" }}>
+            <form className="form" onSubmit={submitHandler}>
+              <div className="row">
+                <h1>Posters</h1>
+              </div>
+
+              <div className="formGroup">
+                <div className="row">
+                  <label
+                    htmlFor="upload_image"
+                    className="selectLabel file_upload"
+                  >
+                    <h2>
+                      <Image />
+                      Upload Image
+                    </h2>
+
+                    <input
+                      type="file"
+                      id="upload_image"
+                      name="route_title"
+                      className="numberInput"
+                      style={{ display: "none" }}
+                      onChange={
+                        (e) => setImages(e.target.files[0])
+                        // setImages((prev) =>
+                        //   prev.length
+                        //     ? [...prev, ...e.target.files]
+                        //     : [...e.target.files]
+                        // )
+                      }
+                      accept="image/*"
+                      maxLength={60}
+                    />
+                  </label>
+                  {images ? (
+                    <div className="imageContainer">
+                      <img
+                        src={URL.createObjectURL(images)}
+                        className="previwImages"
+                        alt="yourimage"
+                      />
+                      <button
+                        onClick={() => setImages(false)}
+                        className="closeButton"
+                        style={{
+                          fontSize: "20px",
+                          right: "5px",
+                          padding: "0 10px",
+                          width: "20px",
+                          height: "20px",
+                        }}
+                      >
+                        x
+                      </button>
+                    </div>
+                  ) : (
+                    ""
+                  )}
+                </div>
+              </div>
+              <div className="formGroup">
+                <div className="row">
+                  {data?.posters?.length ? (
+                    data?.posters.map((img) => (
+                      <div
+                        className="imageContainer"
+                        style={
+                          deleteImages.find((b) => b === img?.id)
+                            ? { border: "1px solid red" }
+                            : {}
+                        }
+                      >
+                        <img
+                          src={img?.url}
+                          alt="NoImage"
+                          className="previwImages"
+                        />
+                        {deleteImages.find((b) => b === img?.id) ? (
+                          <button
+                            onClick={() =>
+                              setDeletedImages((prev) =>
+                                prev.filter((b) => b !== img?.id)
+                              )
+                            }
+                            className="closeButton"
+                            style={{
+                              fontSize: "20px",
+                              right: "5px",
+                              padding: "0 10px",
+                              width: "20px",
+                              height: "20px",
+                            }}
+                            type="button"
+                          >
+                            <Cancel fontSize="5px" />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() =>
+                              setDeletedImages((prev) => [...prev, img?.id])
+                            }
+                            className="closeButton"
+                            style={{
+                              fontSize: "20px",
+                              right: "5px",
+                              padding: "0 10px",
+                              width: "20px",
+                              height: "20px",
+                            }}
+                            type="button"
+                          >
+                            <DeleteOutline fontSize="5px" />
+                          </button>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <h1>No Image Uploaded yet</h1>
+                  )}
+                </div>
+              </div>
+
+              {images ? (
+                <button type="submit" className="submit">
+                  Upload Image
+                </button>
+              ) : (
+                ""
+              )}
+              {deleteImages.length ? (
+                <button
+                  type="button"
+                  className="submit"
+                  onClick={deleteSubmitHandler}
+                >
+                  Save
+                </button>
+              ) : (
+                ""
+              )}
+            </form>
+          </div>
+          <button onClick={onSave} className="closeButton">
+            x
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

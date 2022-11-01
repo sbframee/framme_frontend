@@ -92,23 +92,30 @@ const Main = () => {
           <PersonIcon className="profile-Icon" />
         </div>
         <div className="slide-container">
-          {posters?<Slide
-            indicators={(index) => <div className="indicator">{index + 1}</div>}
-          >
-            {posters?.map((slideImage, index) => (
-              <div className="each-slide" key={index}>
-                {console.log(slideImage.posters)}
-                <img
-                  src={slideImage?.posters}
-                  alt={slideImage?.posters}
-                  style={{
-                    width: "100%",
-                    height: "200px",
-                  }}
-                />
-              </div>
-            ))}
-          </Slide>:""}
+          {posters ? (
+            <Slide
+              // duration={2500}
+              transitionDuration={500}
+              indicators={(index) => (
+                <div className="indicator">{index + 1}</div>
+              )}
+            >
+              {posters?.map((slideImage, index) => (
+                <div className="each-slide" key={index}>
+                  <img
+                    src={slideImage?.posters}
+                    alt={slideImage?.posters}
+                    style={{
+                      width: "100%",
+                      height: "200px",
+                    }}
+                  />
+                </div>
+              ))}
+            </Slide>
+          ) : (
+            ""
+          )}
         </div>
 
         {categories
@@ -144,7 +151,7 @@ const Main = () => {
                             getDayName(imgItem?.occ_date, "en-us", "month")
                           : ""}
                       </div>
-                      
+
                       {console.log(imgItem)}
                       <img src={imgItem.thumbnail_url} alt="" />
 

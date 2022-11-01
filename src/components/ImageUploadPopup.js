@@ -113,10 +113,24 @@ export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
           <div
             style={{
               display: "flex",
-              justifyContent: "center",
+              justifyContent: "space-between",
               alignItems: "center",
+              flexDirection: "column",
+              maxHeight:"400px"
             }}
           >
+            {Boolean(completedCrop) && (
+              <canvas
+                id="alpha"
+                ref={previewCanvasRef}
+                style={{
+                  border: "1px solid black",
+                  objectFit: "contain",
+                  width: completedCrop.width,
+                  height: completedCrop.height,
+                }}
+              />
+            )}
             {Boolean(imgSrc) && (
               <ReactCrop
                 crop={crop}
@@ -130,24 +144,13 @@ export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
                   src={imgSrc}
                   style={{
                     transform: `scale(${scale}) rotate(${rotate}deg)`,
-                    width: "400px",
+                    height: "200px",
                     maxHeight: "50vh",
+                    marginTop:"20px"
                   }}
                   onLoad={onImageLoad}
                 />
               </ReactCrop>
-            )}
-            {Boolean(completedCrop) && (
-              <canvas
-                id="alpha"
-                ref={previewCanvasRef}
-                style={{
-                  border: "1px solid black",
-                  objectFit: "contain",
-                  width: completedCrop.width,
-                  height: completedCrop.height,
-                }}
-              />
             )}
           </div>
 
@@ -184,7 +187,6 @@ export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
                     : Math.min(360, Math.max(-360, Number(prev + 90)))
                 );
               }}
-              
               style={{ width: "50%", fontSize: "20px", cursor: "pointer" }}
             />
           </div>

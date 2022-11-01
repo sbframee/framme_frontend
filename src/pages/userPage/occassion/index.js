@@ -32,7 +32,7 @@ const OccasionPage = () => {
   const [occasion, setOccasion] = useState({});
   const [updateImageData, setUpdateImageData] = useState({});
   const [selectedImage, setSelectedImage] = useState(false);
-  const [mirrorRevert, setMirrorevert] = useState(false);
+  const [mirrorRevert, setMirrorevert] = useState([]);
   const [deleteImage, setDeleteImage] = useState(null);
   const [switchBtn, setSwitchBtn] = useState("");
   const [deleteHolders, setDeleteHolders] = useState([]);
@@ -45,12 +45,13 @@ const OccasionPage = () => {
   const navigate = useNavigate();
   const { width, height } = useWindowDimensions();
   const location = useLocation();
+  console.log(mirrorRevert);
   const getUsersData = async () => {
     const response = await axios({ method: "get", url: "/users/getUsers" });
     console.log(response);
     if (response.data.success) setUsersData(response.data.result);
   };
-console.log(params)
+  console.log(params);
   const updateImage = async (data) => {
     const response = await axios({
       method: "put",
@@ -184,12 +185,10 @@ console.log(params)
     setSeletedHolder("");
     setSwitchBtn("");
 
-    htmlToImage
-      .toPng(ref.current)
-      .then(function (dataUrl) {
-        console.log(dataUrl);
-        download(dataUrl, "text-img.png");
-      });
+    htmlToImage.toPng(ref.current).then(function (dataUrl) {
+      console.log(dataUrl);
+      download(dataUrl, "text-img.png");
+    });
   };
   const deleteHandler = async () => {
     const response = await axios({
@@ -219,7 +218,7 @@ console.log(params)
           <div className="display_image_container">
             {selectedImage.img_url ? (
               <div
-              ref={ref}
+                ref={ref}
                 id="my-img"
                 className="DisplayImg"
                 style={{
@@ -282,7 +281,7 @@ console.log(params)
                     position: "absolute",
                     pointerEvents: "none",
                     borderRadius: "20px",
-                    transform: mirrorRevert ? "scaleX(-1)" : "scaleX(1)",
+                    // transform: mirrorRevert ? "scaleX(-1)" : "scaleX(1)",
                   }}
                   ref={imageArea}
                 />
@@ -479,7 +478,15 @@ console.log(params)
             </button>
             <button
               className="image_btn"
-              onClick={() => setMirrorevert((prev) => !prev)}
+              onClick={() =>
+                setMirrorevert((prev) =>
+                  prev?.length
+                    ? prev?.find((a) => a === selectedHolder?.label_uuid)
+                      ? prev?.filter((a) => a !== selectedHolder?.label_uuid)
+                      : [...prev, selectedHolder?.label_uuid]
+                    : [selectedHolder?.label_uuid]
+                )
+              }
             >
               Mirror
             </button>
@@ -564,6 +571,8 @@ console.log(params)
           {occasion?.posters?.length ? (
             <div className="slide-container">
               <Slide
+                // duration={2500}
+                transitionDuration={500}
                 indicators={(index) => (
                   <div className="indicator">{index + 1}</div>
                 )}
@@ -595,11 +604,7 @@ console.log(params)
                   {console.log(imgItem?.img_url)}
                   <img
                     onClick={() => setSelectedImage(imgItem)}
-                    src={
-                      imgItem?.img_url
-                        ? imgItem?.img_url
-                        : NoImage
-                    }
+                    src={imgItem?.img_url ? imgItem?.img_url : NoImage}
                     alt=""
                   />
                   {location.pathname.includes("AdminOccasion") ? (
@@ -1011,25 +1016,17 @@ const Tag = ({
     <div
       ref={ref}
       className="resizeable"
-      style={
-        mirrorRevert
-          ? {
-              cursor: "pointer",
-              right: coordinates[0] + "px",
-              top: coordinates[1] + "px",
-              width: width + "px",
-              height: height + "px",
-              position: "absolute",
-            }
-          : {
-              cursor: "pointer",
-              left: coordinates[0] + "px",
-              top: coordinates[1] + "px",
-              width: width + "px",
-              height: height + "px",
-              position: "absolute",
-            }
-      }
+      style={{
+        cursor: "pointer",
+        left: coordinates[0] + "px",
+        top: coordinates[1] + "px",
+        width: width + "px",
+        height: height + "px",
+        position: "absolute",
+        transform: mirrorRevert.find((a) => a === item?.label_uuid)
+          ? "scaleX(-1)"
+          : "scaleX(1)",
+      }}
     >
       <div
         ref={sizeRef}
@@ -1328,25 +1325,17 @@ const TagMobile = ({
     <div
       ref={ref}
       className="resizeable"
-      style={
-        mirrorRevert
-          ? {
-              cursor: "pointer",
-              right: coordinates[0] + "px",
-              top: coordinates[1] + "px",
-              width: width + "px",
-              height: height + "px",
-              position: "absolute",
-            }
-          : {
-              cursor: "pointer",
-              left: coordinates[0] + "px",
-              top: coordinates[1] + "px",
-              width: width + "px",
-              height: height + "px",
-              position: "absolute",
-            }
-      }
+      style={{
+        cursor: "pointer",
+        left: coordinates[0] + "px",
+        top: coordinates[1] + "px",
+        width: width + "px",
+        height: height + "px",
+        position: "absolute",
+        transform: mirrorRevert.find((a) => a === item?.label_uuid)
+          ? "scaleX(-1)"
+          : "scaleX(1)",
+      }}
       onTouchEnd={() => setSwitchBtn("resize")}
     >
       <div
