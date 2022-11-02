@@ -22,11 +22,13 @@ const WaBoot = () => {
   const [step, setStep] = useState(0);
   let finalLink = useMemo(
     () =>
-      "https://api.whatsapp.com/send/?phone=91{user_name}&text=" +
-      mssage?.replace(
-        "{link}",
-        `http://www.framee.in/login/{user_uuid}/{img_uuid}`
-      ),
+      "https://api.whatsapp.com/send/?phone=91{phone}&text=" +
+      mssage
+        .replace(/\n/g, "%0A")
+        ?.replace(
+          "{link}",
+          `http://www.framee.in/login/{user_uuid}/{img_uuid}`
+        ),
     [mssage]
   );
   const getUsersData = async () => {
@@ -140,7 +142,8 @@ const WaBoot = () => {
           .replace(
             "{img_uuid}",
             selectedOrder[index % selectedOrder.length].img_url.split("/")[3]
-          ),
+          )
+          .replace(/ /g, "%20"),
       });
     }
     // console.log(sheetData)
@@ -152,6 +155,7 @@ const WaBoot = () => {
     setSelectedOrder([]);
     setSelectedUser([]);
     setStep(0);
+    setMessage("{link}");
   };
   return (
     <>
