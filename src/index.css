@@ -328,3 +328,58 @@ body {
   color: #44cd4a;
   background-color: #fff;
 }
+.selectLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.selectLabel>input,
+.selectLabel>select,
+.selectLabel>textarea {
+  border-radius: 1rem;
+  padding: 5px 10px;
+  outline: none;
+  border: 0.5px solid grey;
+  letter-spacing: 0.5px;
+
+}
+.select,
+.multiSelect,
+.numberInput {
+  padding: 0.2rem;
+  font-size: medium;
+}
+
+.select,
+.numberInput {
+  height: 2.4rem;
+}
+
+.select,
+.multiSelect,
+.numberInput,
+.messageTextarea {
+  outline-color: var(--mainColor);
+}
+.clear_Logout_button, .simple_Logout_button{
+  border: none;
+  color: #fff;
+  background: #44cd4a;
+  width: 200px;
+  padding: 10px 0px;
+  margin: 10px 20px;
+  border-radius: 1.5rem;
+  cursor: pointer;
+  position: relative;
+  letter-spacing: 1px;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 3px 4px 3px black;
+  transition: all 0.3s ease-in-out;
+}
+.clear_Logout_button:hover, .simple_Logout_button:hover{
+  transform: scale(1.05);
+}

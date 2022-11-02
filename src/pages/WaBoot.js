@@ -17,7 +17,18 @@ const WaBoot = () => {
   const [userCategory, setCategoriesData] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState([]);
   const [selectedUser, setSelectedUser] = useState([]);
+  const [mssage, setMessage] = useState("{link}");
+  const [mssagePopup, setMessagePopup] = useState("");
   const [step, setStep] = useState(0);
+  let finalLink = useMemo(
+    () =>
+      "https://api.whatsapp.com/send/?phone=91{user_name}&text=" +
+      mssage?.replace(
+        "{link}",
+        `http://www.framee.in/login/{user_uuid}/{img_uuid}`
+      ),
+    [mssage]
+  );
   const getUsersData = async () => {
     const response = await axios({ method: "get", url: "/users/getUsers" });
     console.log(response);
@@ -123,14 +134,13 @@ const WaBoot = () => {
     for (let [index, order] of selectedUser.entries()) {
       // console.log(selectedOrder[index % selectedOrder.length].img_url.split("/")[3])
       sheetData.push({
-        Link: `https://api.whatsapp.com/send/?phone=91${
-          order?.user_name
-        }&text=${
-          "http://www.framee.in" +
-          `/login/${order?.user_uuid}/${
+        Link: finalLink
+          ?.replace("{phone}", order?.user_name)
+          .replace("{user_uuid}", order?.user_uuid)
+          .replace(
+            "{img_uuid}",
             selectedOrder[index % selectedOrder.length].img_url.split("/")[3]
-          }`
-        }`,
+          ),
       });
     }
     // console.log(sheetData)
@@ -148,6 +158,8 @@ const WaBoot = () => {
       <SideBar />
       <Header />
       <div className="item-sales-container orders-report-container">
+        <h1 className="flex">WA Bot</h1>
+
         <div className="content-container" id="content-file-container">
           {noOrder ? (
             <div className="noOrder">{noOrder}</div>
@@ -716,17 +728,82 @@ const WaBoot = () => {
                 step === 0
                   ? () => setStep(1)
                   : step === 1
-                  ? () => setStep(2)
+                  ? () => setMessagePopup(2)
                   : () => downloadExel()
               }
             >
-              {step === 0 || step === 1 ? "Next" : "Print Excel"}
+              {step === 0 || step === 1 ? "Next" : "Download Excel"}
             </button>
           ) : (
             ""
           )}
         </div>
       </div>
+      {mssagePopup ? (
+        <div
+          className="overlay"
+          // style={{ position: "fixed", top: 0, left: 0, zIndex: 9999999999 }}
+        >
+          <div
+            className="modal"
+            style={{ height: "fit-content", width: "fit-content" }}
+          >
+            <div
+              className="content"
+              style={{
+                height: "fit-content",
+                padding: "20px",
+                width: "fit-content",
+              }}
+            >
+              <div style={{ overflowY: "scroll" }}>
+                <form
+                  className="form"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    setMessagePopup(false);
+                    setStep(2);
+                  }}
+                >
+                  <div className="formGroup">
+                    <div
+                      className="row"
+                      style={{ flexDirection: "column", alignItems: "start" }}
+                    >
+                      <label className="selectLabel flex">
+                        <textarea
+                          type="text"
+                          name="route_title"
+                          className="numberInput"
+                          value={mssage}
+                          style={{ height: "200px" }}
+                          onChange={(e) =>
+                            setMessage((prev) =>
+                              e.target.value.includes("{link}")
+                                ? e.target.value
+                                : prev
+                            )
+                          }
+                          onWheel={(e) => e.preventDefault()}
+                        />
+                        {/* {popupInfo.conversion || 0} */}
+                      </label>
+                    </div>
+
+                    <div className="row">
+                      <button className="simple_Logout_button" type="submit">
+                        Save
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        ""
+      )}
     </>
   );
 };

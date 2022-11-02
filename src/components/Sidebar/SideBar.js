@@ -51,7 +51,7 @@ const SideBar = () => {
                 link: "/user_category",
               },
               {
-                name: "WA Boot",
+                name: "WA Bot",
                 link: "/waBoot",
               },
               
