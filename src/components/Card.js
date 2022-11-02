@@ -23,7 +23,7 @@ const Card = ({
               selectedOrder
                 ? "selected-seat"
                 : selectedCounter
-                ? "blinking-seat"
+                ? ""
                 : ""
             }
             `}
