@@ -109,7 +109,7 @@ export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
             X
           </div>
         </div>
-        <div className="popup_body" style={{ overflowY: "scroll" }}>
+        <div className="popup_body" style={{ overflowY: "scroll",height:"450px" }}>
           <div
             style={{
               display: "flex",
@@ -117,6 +117,7 @@ export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
               alignItems: "center",
               flexDirection: "column",
               maxHeight:"400px"
+              
             }}
           >
             {Boolean(completedCrop) && (
@@ -137,6 +138,7 @@ export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
                 onChange={(_, percentCrop) => setCrop(percentCrop)}
                 onComplete={(c) => setCompletedCrop(c)}
                 aspect={aspect}
+                style={{marginTop:"20px"}}
               >
                 <img
                   ref={imgRef}
@@ -146,7 +148,7 @@ export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
                     transform: `scale(${scale}) rotate(${rotate}deg)`,
                     height: "200px",
                     maxHeight: "50vh",
-                    marginTop:"20px"
+        
                   }}
                   onLoad={onImageLoad}
                 />
