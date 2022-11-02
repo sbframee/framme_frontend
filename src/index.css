@@ -212,3 +212,119 @@ body {
   align-items: center;
   justify-content: center;
 }
+.item-sales-container {
+  padding: 0px !important;
+  background: white;
+  width: calc(100vw - 100px);
+  left: 100px;
+}
+.orders-report-container {
+  position: absolute;
+  top: 50px;
+  left: 100px;
+  display: flex;
+  flex-direction: column;
+  padding: 0 10px;
+  overflow: hidden;
+  border: 2px solid #44cd4a;
+}
+
+.orders-report-container > #heading {
+  width: calc(100vw - 85px);
+  background-color: black;
+  color: white;
+  margin: 0;
+  text-align: center;
+}
+
+.orders-report-container > #heading > h2 {
+  margin-right: 212px;
+  padding: 7px;
+}
+.picture_upload_container {
+  border: 2px solid #44cd4a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+.popup_bg {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.459);
+  z-index: 9999999999;
+  top: 0px;
+  left: 0px;
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+}
+.popup_bg .popup_img {
+  /* width: 200px; */
+  z-index: 99999999999;
+  height: fit-content;
+  background-color: #f2f2f2;
+  font-size: 18px;
+  border-radius: 20px;
+  overflow: hidden;
+}
+.popup_bg .popup_img .popup_header {
+  display: flex;
+  padding: 0 10px;
+  justify-content: space-between;
+
+  align-items: center;
+  /* width: max-content; */
+  background-color: black;
+  color: #ffffff;
+}
+.popup_bg .popup_img .popup_header .exit_btn {
+  cursor: pointer;
+}
+.popup_bg .popup_img .popup_body {
+  display: flex;
+  padding: 10px;
+  justify-content: space-between;
+  flex-direction: column;
+  align-items: flex-end;
+  /* width: max-content; */
+}
+.popup_bg .popup_img .popup_body div {
+  width: max-content;
+}
+.popup_bg .popup_img .popup_body div .image {
+  max-width: 200px;
+  max-height: 200px;
+}
+
+.popup_bg .popup_img .popup_body input,
+.popup_bg .popup_img .popup_body textarea,
+.popup_bg .popup_img .popup_body select {
+  width: max-content;
+  margin: 10px;
+  height: fit-content;
+  font-size: 18px;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+.imageselectnextBtn {
+  position: fixed;
+  right: 100px;
+  top: 100px;
+  z-index: 1000000;
+  font-size: 2rem;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  background-color: #44cd4a;
+  color: #fff;
+  border-radius: 20px;
+  border: 2px solid #44cd4a;
+}
+.imageselectnextBtn:hover{
+  color: #44cd4a;
+  background-color: #fff;
+}

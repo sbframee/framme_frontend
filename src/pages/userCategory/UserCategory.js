@@ -4,6 +4,7 @@ import SideBar from "../../components/Sidebar/SideBar";
 import { v4 as uuid } from "uuid";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
+import Header from "../../components/Sidebar/Header";
 const UserCategory = () => {
   const [usersData, setUsersData] = useState([]);
   const [popup, setPopup] = useState(false);
@@ -23,95 +24,98 @@ const UserCategory = () => {
   return (
     <>
       <SideBar />
-      <div className="tags">
-        <h1>Users Categories</h1>
-        <div style={{ width: "80%" }}>
-          <button
-            className="add_button"
-            type="button"
-            onClick={() => {
-              setPopupInfo({ type: "new" });
-              setPopup(true);
-            }}
-          >
-            Add User Category
-          </button>
-        </div>
-        <table className="table">
-          <thead>
-            <tr>
-              <th>SR. No</th>
-              <th>User Category Name</th>
+      <Header />
+      <div className="item-sales-container orders-report-container">
+        <div className="tags">
+          <h1>Users Categories</h1>
+          <div style={{ width: "80%" }}>
+            <button
+              className="add_button"
+              type="button"
+              onClick={() => {
+                setPopupInfo({ type: "new" });
+                setPopup(true);
+              }}
+            >
+              Add User Category
+            </button>
+          </div>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>SR. No</th>
+                <th>User Category Name</th>
 
-              <th colSpan={2} style={{ textAlign: "center" }}>
-                Actions
-              </th>
-            </tr>
-          </thead>
+                <th colSpan={2} style={{ textAlign: "center" }}>
+                  Actions
+                </th>
+              </tr>
+            </thead>
 
-          <tbody>
-            {usersData.length ? (
-              usersData.map((item, i) => (
+            <tbody>
+              {usersData.length ? (
+                usersData.map((item, i) => (
+                  <tr>
+                    <td>{i + 1}</td>
+                    <td>{item?.user_category_title || "-"}</td>
+
+                    <td style={{ textAlign: "center" }}>
+                      <button
+                        className="edit_button"
+                        type="button"
+                        onClick={() => {
+                          setPopupInfo({ type: "edit", item });
+                          setPopup(true);
+                        }}
+                      >
+                        Edit
+                      </button>
+                    </td>
+                    <td style={{ textAlign: "center" }}>
+                      <button
+                        className="edit_button"
+                        type="button"
+                        onClick={() => {
+                          setSubCategoryPopup(item.user_category_uuid);
+                        }}
+                      >
+                        Sub Categories
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
                 <tr>
-                  <td>{i + 1}</td>
-                  <td>{item?.user_category_title || "-"}</td>
-
-                  <td style={{ textAlign: "center" }}>
-                    <button
-                      className="edit_button"
-                      type="button"
-                      onClick={() => {
-                        setPopupInfo({ type: "edit", item });
-                        setPopup(true);
-                      }}
-                    >
-                      Edit
-                    </button>
-                  </td>
-                  <td style={{ textAlign: "center" }}>
-                    <button
-                      className="edit_button"
-                      type="button"
-                      onClick={() => {
-                        setSubCategoryPopup(item.user_category_uuid);
-                      }}
-                    >
-                      Sub Categories
-                    </button>
+                  <td colSpan={5} style={{ textAlign: "center" }}>
+                    No Content
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={5} style={{ textAlign: "center" }}>
-                  No Content
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-        {popup ? (
-          <Popup
-            popupInfo={popupInfo}
-            close={() => {
-              setPopup(false);
-              setPopupInfo({});
-            }}
-            setUsersData={setUsersData}
-          />
-        ) : (
-          ""
-        )}
-        {subCategoryPopup ? (
-          <SubCategory
-            user_category_uuid={subCategoryPopup}
-            close={() => {
-              setSubCategoryPopup(false);
-            }}
-          />
-        ) : (
-          ""
-        )}
+              )}
+            </tbody>
+          </table>
+          {popup ? (
+            <Popup
+              popupInfo={popupInfo}
+              close={() => {
+                setPopup(false);
+                setPopupInfo({});
+              }}
+              setUsersData={setUsersData}
+            />
+          ) : (
+            ""
+          )}
+          {subCategoryPopup ? (
+            <SubCategory
+              user_category_uuid={subCategoryPopup}
+              close={() => {
+                setSubCategoryPopup(false);
+              }}
+            />
+          ) : (
+            ""
+          )}
+        </div>
       </div>
     </>
   );
@@ -161,8 +165,8 @@ const Popup = ({ popupInfo, setUsersData, close }) => {
     }
   };
   return (
-    <div className="popup_bg">
-      <div className="popup">
+    <div className="popup_bg overlay">
+      <div className="popup_img">
         <div className="popup_header">
           <h3>
             {popupInfo.type === "edit"
@@ -209,8 +213,8 @@ const SubCategory = ({ user_category_uuid, close }) => {
     getUsersData();
   }, []);
   return (
-    <div className="popup_bg">
-      <div className="popup" style={{ width: "600px" }}>
+    <div className="popup_bg overlay">
+      <div className="popup_img" style={{ width: "600px" }}>
         <div className="popup_header">
           <h3>Sub Categories</h3>
           <div className="exit_btn" onClick={close}>
@@ -285,11 +289,7 @@ const SubCategory = ({ user_category_uuid, close }) => {
     </div>
   );
 };
-const EditSubCategory = ({
-  popupInfo,
-  close,
-  user_category_uuid,
-}) => {
+const EditSubCategory = ({ popupInfo, close, user_category_uuid }) => {
   const [data, setData] = useState({});
   useEffect(
     () =>
@@ -309,7 +309,6 @@ const EditSubCategory = ({
         },
       });
       if (response.data.success) {
-
         close();
       }
     } else {
@@ -327,8 +326,8 @@ const EditSubCategory = ({
     }
   };
   return (
-    <div className="popup_bg">
-      <div className="popup">
+    <div className="popup_bg overlay">
+      <div className="popup_img">
         <div className="popup_header">
           <h3>
             {popupInfo.type === "edit"

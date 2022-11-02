@@ -6,6 +6,8 @@ import Compressor from "compressorjs";
 import axios from "axios";
 import { v4 as uuid } from "uuid";
 import { MdDelete } from "react-icons/md";
+import Header from "../../components/Sidebar/Header";
+import { Delete, DeleteOutline } from "@mui/icons-material";
 
 const Category = () => {
   const [categoriesData, setCategoriesData] = useState([]);
@@ -35,95 +37,92 @@ const Category = () => {
   }, []);
   return (
     <>
-      {" "}
       <SideBar />
-      <div className="occasion">
-        <h1>Categories</h1>
-        <div style={{ width: "80%" }}>
-          <button
-            className="add_button"
-            type="button"
-            onClick={() => {
-              setPopupInfo({ type: "new" });
-              setPopup(true);
-            }}
-          >
-            Add Category
-          </button>
-        </div>
-        <table className="table">
-          <thead>
-            <tr>
-              <th>SR. No</th>
-              <th>Title</th>
-              <th>Sort Order</th>
-              <th>Status</th>
-              <th></th>
-              <th></th>
-            </tr>
-          </thead>
+      <Header />
+      <div className="item-sales-container orders-report-container">
+        <div className="occasion">
+          <h1>Categories</h1>
+          <div style={{ width: "80%" }}>
+            <button
+              className="add_button"
+              type="button"
+              onClick={() => {
+                setPopupInfo({ type: "new" });
+                setPopup(true);
+              }}
+            >
+              Add Category
+            </button>
+          </div>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>SR. No</th>
+                <th>Title</th>
+                <th>Sort Order</th>
+                <th>Status</th>
+                <th></th>
+                <th></th>
+              </tr>
+            </thead>
 
-          <tbody>
-            {categoriesData.length ? (
-              categoriesData.map((item, i) => (
+            <tbody>
+              {categoriesData.length ? (
+                categoriesData.map((item, i) => (
+                  <tr>
+                    <td>{i + 1}</td>
+                    <td>{item?.title || "-"}</td>
+                    <td>{item?.sort_order || "-"}</td>
+                    <td>{item?.status}</td>
+                    <td style={{ textAlign: "center" }}>
+                      <button
+                        className="edit_button"
+                        type="button"
+                        onClick={() => {
+                          setPopupInfo({ type: "edit", item });
+                          setPopup(true);
+                        }}
+                      >
+                        Edit
+                      </button>
+                    </td>
+                    <td style={{ textAlign: "center" }}>
+                      <DeleteOutline onClick={() => setDeleteItem(item)} />
+                    </td>
+                  </tr>
+                ))
+              ) : (
                 <tr>
-                  <td>{i + 1}</td>
-                  <td>{item?.title || "-"}</td>
-                  <td>{item?.sort_order || "-"}</td>
-                  <td>{item?.status}</td>
-                  <td style={{ textAlign: "center" }}>
-                    <button
-                      className="edit_button"
-                      type="button"
-                      onClick={() => {
-                        setPopupInfo({ type: "edit", item });
-                        setPopup(true);
-                      }}
-                    >
-                      Edit
-                    </button>
-                  </td>
-                  <td style={{ textAlign: "center" }}>
-                    <MdDelete
-                      style={{ backgroundColor: "red" }}
-                      className="edit_button"
-                      type="button"
-                      onClick={() => setDeleteItem(item)}
-                    />
+                  <td colSpan={5} style={{ textAlign: "center" }}>
+                    No Content
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={5} style={{ textAlign: "center" }}>
-                  No Content
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-        {deleteItem ? (
-          <ConfirmPopup
-            close={() => setDeleteItem(null)}
-            deleteHandler={deleteCategoriesData}
-          />
-        ) : (
-          ""
-        )}
+              )}
+            </tbody>
+          </table>
+          {deleteItem ? (
+            <ConfirmPopup
+              close={() => setDeleteItem(null)}
+              deleteHandler={deleteCategoriesData}
+            />
+          ) : (
+            ""
+          )}
 
-        {popup ? (
-          <Popup
-            popupInfo={popupInfo}
-            close={() => {
-              setPopup(false);
-              setPopupInfo({});
-            }}
-            setCategoriesData={setCategoriesData}
-          />
-        ) : (
-          ""
-        )}
-      </div>{" "}
+          {popup ? (
+            <Popup
+              popupInfo={popupInfo}
+              close={() => {
+                setPopup(false);
+                setPopupInfo({});
+              }}
+              setCategoriesData={setCategoriesData}
+            />
+          ) : (
+            ""
+          )}
+        </div>
+      </div>
     </>
   );
 };
@@ -139,7 +138,7 @@ const Popup = ({ popupInfo, setCategoriesData, close }) => {
   );
   const submitHandler = async () => {
     let obj = data;
-    if (!obj.thumbnail_url&&obj.thumbnail) {
+    if (!obj.thumbnail_url && obj.thumbnail) {
       const mainThumbnailURL = await axios({ url: "/s3Url", method: "get" });
       let UploadThumbnailURL = mainThumbnailURL.data.url;
 
@@ -217,8 +216,8 @@ const Popup = ({ popupInfo, setCategoriesData, close }) => {
   };
 
   return (
-    <div className="popup_bg">
-      <div className="popup">
+    <div className="popup_bg overlay">
+      <div className="popup_img">
         <div className="popup_header">
           <h3>
             {popupInfo.type === "edit" ? data?.title || "-" : "New Category"}
@@ -303,8 +302,8 @@ const ConfirmPopup = ({ close, deleteHandler }) => {
     close();
   };
   return (
-    <div className="popup_bg">
-      <div className="popup">
+    <div className="popup_bg overlay">
+      <div className="popup_img">
         <div className="popup_header">
           <h3></h3>
         </div>

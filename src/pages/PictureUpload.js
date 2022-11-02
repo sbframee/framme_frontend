@@ -6,6 +6,8 @@ import SideBar from "./../components/Sidebar/SideBar";
 import { ImCross } from "react-icons/im";
 import Compressor from "compressorjs";
 import ImageUploadPopup from "../components/ImageUploadPopup";
+import Headers from "../components/Sidebar/Header";
+import { Image } from "@mui/icons-material";
 const DEFAULT_IMAGE_DATA = {
   img_url: "",
   image_type: "",
@@ -181,65 +183,76 @@ const PictureUpload = () => {
   return (
     <>
       <SideBar />
+      <Headers />
+      <div className="item-sales-container orders-report-container">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            setPopup(true);
+          }}
+          className="picture_upload"
+        >
+          {selectedFile ? (
+            <>
+              <div className="image_container">
+                <img src={preview} ref={imageArea} />
+                <Canvas
+                  templateHoldersData={templateHoldersData}
+                  imageArea={imageArea}
+                  ImageData={imageData}
+                  setImageData={setImageData}
+                  tempstate={tempstate}
+                  setTempState={setTempState}
+                />
+              </div>
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          setPopup(true);
-        }}
-        className="picture_upload"
-      >
-        {selectedFile ? (
-          <>
-            <div className="image_container">
-              <img src={preview} ref={imageArea} />
-              <Canvas
-                templateHoldersData={templateHoldersData}
-                imageArea={imageArea}
-                ImageData={imageData}
-                setImageData={setImageData}
-                tempstate={tempstate}
-                setTempState={setTempState}
-              />
-            </div>
-
-            <button
-              style={{ position: "absolute", padding: "8px 12px" }}
-              className="save_button"
-            >
-              Save
-            </button>
-            {imageData.img_url && imageData.holder.length === 0 ? (
               <button
-                style={{
-                  position: "absolute",
-                  left: "40vw",
-                  padding: "8px 12px",
-                }}
+                style={{ position: "absolute", padding: "8px 12px" }}
                 className="save_button"
-                type="button"
-                onClick={() => {
-                  setSelectedFile(null);
-                  setImageData(DEFAULT_IMAGE_DATA);
-                  setPreview(null);
-                }}
               >
-                Clear
+                Save
               </button>
-            ) : (
-              ""
-            )}
-          </>
-        ) : (
-          <>
-            <input
-              type="file"
-              onChange={onSelectFile}
-              accept="image/png, image/jpeg"
-            />
-          </>
-        )}
-      </form>
+              {imageData.img_url && imageData.holder.length === 0 ? (
+                <button
+                  style={{
+                    position: "absolute",
+                    left: "40vw",
+                    padding: "8px 12px",
+                  }}
+                  className="save_button"
+                  type="button"
+                  onClick={() => {
+                    setSelectedFile(null);
+                    setImageData(DEFAULT_IMAGE_DATA);
+                    setPreview(null);
+                  }}
+                >
+                  Clear
+                </button>
+              ) : (
+                ""
+              )}
+            </>
+          ) : (
+            <>
+              <label
+                htmlFor="mainBasePictue"
+                className="picture_upload_container"
+              >
+                <Image />
+                Upload frame
+                <input
+                  type="file"
+                  id="mainBasePictue"
+                  onChange={onSelectFile}
+                  accept="image/png, image/jpeg"
+                  style={{ display: "none" }}
+                />
+              </label>
+            </>
+          )}
+        </form>
+      </div>
       {popup ? (
         <NamePopup
           imageData={imageData}

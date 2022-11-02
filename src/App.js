@@ -14,6 +14,7 @@ import CustomImage from "./pages/userPage/CustomeImage/CustomImage";
 import LoginPage from "./LoginPage";
 import ImageUploadPopup from "./components/ImageUploadPopup";
 import axios from "axios";
+import WaBoot from "./pages/WaBoot";
 
 const id = "230522";
 // export const baseURL = "http://localhost:9000";
@@ -37,6 +38,7 @@ function App() {
               <>
                 <Route exact path="/home" element={<PictureUpload />} />
                 <Route exact path="/occasion" element={<Occasion />} />
+                <Route exact path="/waBoot" element={<WaBoot />} />
                 <Route exact path="/customInput" element={<CustomImage />} />
 
                 <Route exact path="/category" element={<Category />} />

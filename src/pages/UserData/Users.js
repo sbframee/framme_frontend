@@ -3,6 +3,7 @@ import axios from "axios";
 import SideBar from "../../components/Sidebar/SideBar";
 import { v4 as uuid } from "uuid";
 import { useNavigate } from "react-router-dom";
+import Header from "../../components/Sidebar/Header";
 const Users = () => {
   const [usersData, setUsersData] = useState([]);
   const [popup, setPopup] = useState(false);
@@ -43,90 +44,93 @@ const Users = () => {
   return (
     <>
       <SideBar />
-      <div className="tags">
-        <h1>Users</h1>
-        <div style={{ width: "80%" }}>
-          <button
-            className="add_button"
-            type="button"
-            onClick={() => {
-              setPopupInfo({ type: "new" });
-              setPopup(true);
-            }}
-          >
-            Add User
-          </button>
-        </div>
-        <table className="table">
-          <thead>
-            <tr>
-              <th>SR. No</th>
-              <th>Title</th>
-              <th>User Name</th>
+      <Header />
+      <div className="item-sales-container orders-report-container">
+        <div className="tags">
+          <h1>Users</h1>
+          <div style={{ width: "80%" }}>
+            <button
+              className="add_button"
+              type="button"
+              onClick={() => {
+                setPopupInfo({ type: "new" });
+                setPopup(true);
+              }}
+            >
+              Add User
+            </button>
+          </div>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>SR. No</th>
+                <th>Title</th>
+                <th>User Name</th>
 
-              <th></th>
-            </tr>
-          </thead>
+                <th></th>
+              </tr>
+            </thead>
 
-          <tbody>
-            {usersData.length ? (
-              usersData.map((item, i) => (
+            <tbody>
+              {usersData.length ? (
+                usersData.map((item, i) => (
+                  <tr>
+                    <td>{i + 1}</td>
+                    <td>{item?.user_title || "-"}</td>
+                    <td>{item?.user_name || "-"}</td>
+
+                    <td style={{ textAlign: "center" }}>
+                      <button
+                        className="edit_button"
+                        type="button"
+                        onClick={() => {
+                          setPopupInfo({ type: "edit", item });
+                          setPopup(true);
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="edit_button"
+                        type="button"
+                        onClick={() => {
+                          localStorage.setItem("user_uuid", item.user_uuid);
+                          localStorage.setItem(
+                            "user_category_uuid",
+                            JSON.stringify(item.user_category_uuid)
+                          );
+                          navigate("/tagInput");
+                        }}
+                      >
+                        Upload
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
                 <tr>
-                  <td>{i + 1}</td>
-                  <td>{item?.user_title || "-"}</td>
-                  <td>{item?.user_name || "-"}</td>
-
-                  <td style={{ textAlign: "center" }}>
-                    <button
-                      className="edit_button"
-                      type="button"
-                      onClick={() => {
-                        setPopupInfo({ type: "edit", item });
-                        setPopup(true);
-                      }}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="edit_button"
-                      type="button"
-                      onClick={() => {
-                        localStorage.setItem("user_uuid", item.user_uuid);
-                        localStorage.setItem(
-                          "user_category_uuid",
-                          JSON.stringify(item.user_category_uuid)
-                        );
-                        navigate("/tagInput");
-                      }}
-                    >
-                      Upload
-                    </button>
+                  <td colSpan={5} style={{ textAlign: "center" }}>
+                    No Content
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={5} style={{ textAlign: "center" }}>
-                  No Content
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-        {popup ? (
-          <Popup
-            categoriesData={categoriesData}
-            popupInfo={popupInfo}
-            close={() => {
-              setPopup(false);
-              setPopupInfo({});
-            }}
-            setUsersData={setUsersData}
-            subCategoriesData={subCategoriesData}
-          />
-        ) : (
-          ""
-        )}
+              )}
+            </tbody>
+          </table>
+          {popup ? (
+            <Popup
+              categoriesData={categoriesData}
+              popupInfo={popupInfo}
+              close={() => {
+                setPopup(false);
+                setPopupInfo({});
+              }}
+              setUsersData={setUsersData}
+              subCategoriesData={subCategoriesData}
+            />
+          ) : (
+            ""
+          )}
+        </div>
       </div>
     </>
   );
@@ -240,8 +244,8 @@ const Popup = ({
     setData({ ...data, user_sub_category_uuid: catData });
   };
   return (
-    <div className="popup_bg">
-      <div className="popup" style={{ width: "400px" }}>
+    <div className="popup_bg overlay">
+      <div className="popup_img" style={{ width: "400px" }}>
         <div className="popup_header">
           <h3>
             {popupInfo.type === "edit"

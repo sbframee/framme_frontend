@@ -88,7 +88,7 @@ const Main = () => {
     <>
       <div className="main">
         <div className="navbar">
-          <div className="user_name">{user?.user_title || "Test"}</div>
+          <div className="h1">{user?.user_title || "Test"}</div>
           <PersonIcon className="profile-Icon" />
         </div>
         <div className="slide-container">
@@ -161,25 +161,7 @@ const Main = () => {
               </Carousel>
             </div>
           ))}
-        <div className="buttonsContainer">
-          <button
-            type="button"
-            className="inputButtons"
-            onClick={() => navigate("/tagInput")}
-          >
-            Input
-          </button>
-          <button
-            type="button"
-            className="inputButtons"
-            onClick={() => {
-              localStorage.clear();
-              window.location.assign("/users");
-            }}
-          >
-            Logout
-          </button>
-        </div>
+        
       </div>
       <div style={{ width: "100vw", position: "fixed", bottom: "0" }}>
         <NavigationBar />

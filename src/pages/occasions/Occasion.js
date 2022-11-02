@@ -8,6 +8,7 @@ import { v4 as uuid } from "uuid";
 import Compressor from "compressorjs";
 import { useNavigate } from "react-router-dom";
 import { Cancel, DeleteOutline, Image } from "@mui/icons-material";
+import Header from "../../components/Sidebar/Header";
 
 const Occasion = () => {
   const [occasionsData, setOccasionsData] = useState([]);
@@ -55,114 +56,111 @@ const Occasion = () => {
   return (
     <>
       <SideBar />
-      <div className="occasion">
-        <h1>Occasion</h1>
-        <div style={{ width: "80%" }}>
-          <button
-            className="add_button"
-            type="button"
-            onClick={() => {
-              setPopupInfo({ type: "new" });
-              setPopup(true);
-            }}
-          >
-            Add Occasion
-          </button>
-        </div>
-        <table className="table">
-          <thead>
-            <tr>
-              <th>SR. No</th>
-              <th>Title</th>
-              <th>Sort Order</th>
-              <th>Status</th>
-              <th></th>
-              <th></th>
-            </tr>
-          </thead>
+      <Header />
+      <div className="item-sales-container orders-report-container">
+        <div className="occasion">
+          <h1>Occasion</h1>
+          <div style={{ width: "80%" }}>
+            <button
+              className="add_button"
+              type="button"
+              onClick={() => {
+                setPopupInfo({ type: "new" });
+                setPopup(true);
+              }}
+            >
+              Add Occasion
+            </button>
+          </div>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>SR. No</th>
+                <th>Title</th>
+                <th>Sort Order</th>
+                <th>Status</th>
+                <th></th>
+                <th></th>
+              </tr>
+            </thead>
 
-          <tbody>
-            {occasionsData.length ? (
-              occasionsData.map((item, i) => (
-                <tr key={i}>
-                  <td>{i + 1}</td>
-                  <td>{item?.title || "-"}</td>
-                  <td>{item?.sort_order || "-"}</td>
-                  <td>{item?.status}</td>
-                  <td style={{ textAlign: "center" }}>
-                    <button
-                      className="edit_button"
-                      type="button"
-                      onClick={() => {
-                        setPopupInfo({ type: "edit", item });
-                        setPopup(true);
-                      }}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="edit_button"
-                      type="button"
-                      onClick={() => {
-                        navigate(`/AdminOccasion/${item.occ_uuid}`);
-                        setPopup(true);
-                      }}
-                    >
-                      Images
-                    </button>
-                    <button
-                      className="edit_button"
-                      type="button"
-                      onClick={() => {
-                        setPictureUploadPopup(item);
-                      }}
-                    >
-                      Posters
-                    </button>
-                  </td>
-                  <td style={{ textAlign: "center" }}>
-                    <MdDelete
-                      style={{ backgroundColor: "red" }}
-                      className="edit_button"
-                      type="button"
-                      onClick={() => setDeleteItem(item)}
-                    >
-                      Edit
-                    </MdDelete>
+            <tbody>
+              {occasionsData.length ? (
+                occasionsData.map((item, i) => (
+                  <tr key={i}>
+                    <td>{i + 1}</td>
+                    <td>{item?.title || "-"}</td>
+                    <td>{item?.sort_order || "-"}</td>
+                    <td>{item?.status}</td>
+                    <td style={{ textAlign: "center" }}>
+                      <button
+                        className="edit_button"
+                        type="button"
+                        onClick={() => {
+                          setPopupInfo({ type: "edit", item });
+                          setPopup(true);
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="edit_button"
+                        type="button"
+                        onClick={() => {
+                          navigate(`/AdminOccasion/${item.occ_uuid}`);
+                          setPopup(true);
+                        }}
+                      >
+                        Images
+                      </button>
+                      <button
+                        className="edit_button"
+                        type="button"
+                        onClick={() => {
+                          setPictureUploadPopup(item);
+                        }}
+                      >
+                        Posters
+                      </button>
+                    </td>
+                    <td style={{ textAlign: "center" }}>
+                      <DeleteOutline onClick={() => setDeleteItem(item)}/>
+                      
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} style={{ textAlign: "center" }}>
+                    No Content
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={5} style={{ textAlign: "center" }}>
-                  No Content
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-        {deleteItem ? (
-          <ConfirmPopup
-            close={() => setDeleteItem(null)}
-            deleteHandler={deleteOccasionData}
-          />
-        ) : (
-          ""
-        )}
+              )}
+            </tbody>
+          </table>
+          {deleteItem ? (
+            <ConfirmPopup
+              close={() => setDeleteItem(null)}
+              deleteHandler={deleteOccasionData}
+            />
+          ) : (
+            ""
+          )}
 
-        {popup ? (
-          <Popup
-            popupInfo={popupInfo}
-            close={() => {
-              setPopup(false);
-              setPopupInfo({});
-            }}
-            setOccasionsData={setOccasionsData}
-            categoriesData={categoriesData}
-          />
-        ) : (
-          ""
-        )}
+          {popup ? (
+            <Popup
+              popupInfo={popupInfo}
+              close={() => {
+                setPopup(false);
+                setPopupInfo({});
+              }}
+              setOccasionsData={setOccasionsData}
+              categoriesData={categoriesData}
+            />
+          ) : (
+            ""
+          )}
+        </div>
       </div>
       {pictureUploadPopup ? (
         <PicturesPopup
@@ -375,8 +373,8 @@ const Popup = ({ popupInfo, setOccasionsData, close, categoriesData }) => {
     setData({ ...data, cat_uuid: catData });
   };
   return (
-    <div className="popup_bg">
-      <div className="popup">
+    <div className="popup_bg overlay">
+      <div className="popup_img">
         <div className="popup_header">
           <h3>
             {popupInfo.type === "edit" ? data?.title || "-" : "New Occasion"}
@@ -582,8 +580,8 @@ const ConfirmPopup = ({ close, deleteHandler }) => {
     close();
   };
   return (
-    <div className="popup_bg">
-      <div className="popup">
+    <div className="popup_bg overlay">
+      <div className="popup_img">
         <div className="popup_header"></div>
         <div className="popup_body">
           <h2>Confirm Delete?</h2>

@@ -10,19 +10,11 @@
   overflow-x: hidden;
   background-color: black;
 }
-.main .navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  /* padding: 5px 10px; */
-  width: 100vw;
-  background: rgb(91, 91, 91);
-  color: #fff;
-}
+
 .profile-Icon {
   padding: 10px;
 }
-.main .navbar .user_name {
+ .navbar .user_name {
   font-size: 1rem;
   font-weight: bold;
   padding: 0 10px;

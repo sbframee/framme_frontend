@@ -711,8 +711,8 @@ const Popup = ({ close, deleteHandler, type, usersData, item }) => {
     [user]
   );
   return (
-    <div className="popup_bg">
-      <div className="popup">
+    <div className="popup_bg overlay">
+      <div className="popup_img">
         <div className="popup_header">
           <h3></h3>
           <AiOutlineClose
@@ -766,7 +766,6 @@ const Popup = ({ close, deleteHandler, type, usersData, item }) => {
               ))}
             </select>
             <div>
-              {console.log("url",item.img_url.split("/")[3])}
               {user ? (
                 <textarea
                   id="myTextInput"

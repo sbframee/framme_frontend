@@ -101,8 +101,8 @@ export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
     handleToggleAspectClick();
   }, []);
   return (
-    <div className="popup_bg">
-      <div className="popup">
+    <div className="popup_bg overlay" >
+      <div className="popup_img">
         <div className="popup_header">
           <h3>Upload Image</h3>
           <div className="exit_btn" onClick={onClose}>
