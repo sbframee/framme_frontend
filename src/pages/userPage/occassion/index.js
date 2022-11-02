@@ -126,7 +126,12 @@ const OccasionPage = () => {
       );
       if (params.img_url)
         setSelectedImage(
-          response.data.result.find((a) => a.img_url.includes(params.img_url))
+          response.data.result.find((a) =>
+            a.img_url.includes(
+              "https://framme-media.s3.ap-south-1.amazonaws.com/" +
+                params.img_url
+            )
+          )
         );
     }
   };
@@ -761,14 +766,13 @@ const Popup = ({ close, deleteHandler, type, usersData, item }) => {
               ))}
             </select>
             <div>
+              {console.log("url",item.img_url.split("/")[3])}
               {user ? (
                 <textarea
                   id="myTextInput"
                   value={
                     "https://www.framee.in" +
-                    `/login/${user}/${item.img_url
-                      .replace("thumbnail/", "")
-                      .replace("/images/", "")}`
+                    `/login/${user}/${item.img_url.split("/")[3]}`
                   }
                   rows={7}
                   style={{ width: "fit-content", height: "fit-content" }}
@@ -802,7 +806,7 @@ const Popup = ({ close, deleteHandler, type, usersData, item }) => {
                         usersData.find((a) => a.user_uuid === user)?.user_name
                       }&text=${
                         "http://www.framee.in" +
-                        `/login/${user}/${item.img_url.replace("/images/", "")}`
+                        `/login/${user}/${item.img_url.split("/")[3]}`
                       }`,
                       "_blank"
                     )
@@ -818,8 +822,7 @@ const Popup = ({ close, deleteHandler, type, usersData, item }) => {
                     let copy =
                       "http://www.framee.in" +
                       `/login/${user}/${item.img_url
-                        .replace("/images/", "")
-                        .replace("/thumbnail/", "")}`;
+                        .split("/")[3]}`;
                     navigator.clipboard
                       .writeText(copy)
                       .then(() => {
