@@ -22,7 +22,7 @@ import "./index.css";
 import axios from "axios";
 import useWindowDimensions from "../../../components/useWidthDimenshion";
 import { MdFileDownload } from "react-icons/md";
-import { Image } from "@mui/icons-material";
+import { Home, Image } from "@mui/icons-material";
 
 const ShareImage = () => {
   const [tags, setTags] = useState([]);
@@ -31,11 +31,15 @@ const ShareImage = () => {
   const [baseImage, setBaseImage] = useState();
   const [switchBtn, setSwitchBtn] = useState("");
   const [deleteHolders, setDeleteHolders] = useState([]);
-
+  const [mobilePopup, setMobilePopup] = useState(false);
+  const [mobile, setMobile] = useState("");
+  const [login, setLogin] = useState("");
   const params = useParams();
+  const navigate = useNavigate();
   const imageArea = useRef();
   const ref = useRef();
   const [selectedHolder, setSeletedHolder] = useState("");
+  const [holdersImges, setHoldersImges] = useState([]);
 
   const { width } = useWindowDimensions();
   useEffect(() => {
@@ -89,7 +93,61 @@ const ShareImage = () => {
     setDeleteHolders([]);
     setSwitchBtn("");
   }, [selectedImage]);
+  const loginHandler = async () => {
+    if (mobile?.length < 10) return;
+    let data = { user_name: mobile };
+    // console.log(data.user_name)
+    const response = await axios({
+      method: "post",
+      url: `/users/varifyUser`,
+      data,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.data.success) {
+      localStorage.setItem("user_uuid", response.data.result.user_uuid);
+      localStorage.setItem(
+        "user_category_uuid",
+        JSON.stringify(response.data.result.user_category_uuid || [])
+      );
 
+      for (let data of holdersImges) {
+        console.log("------------------", data);
+        // let formData = new FormData();
+        // formData.append("value", JSON.stringify(data));
+        // formData.append("images", data.image);
+        const mainThumbnailURL = await axios({
+          url: "/s3Url",
+          method: "get",
+        });
+        let UploadThumbnailURL = mainThumbnailURL.data.url;
+
+        axios({
+          url: UploadThumbnailURL,
+          method: "put",
+          headers: { "Content-Type": "multipart/form-data" },
+          data: data.image,
+        })
+          .then((res) => {
+            console.log(res);
+          })
+          .catch((err) => console.log(err));
+        let img_url = UploadThumbnailURL.split("?")[0];
+        // bodyFormData.append("image", fileData);
+        // bodyFormData.append("thumbnail", thumbnailData);
+        data = { ...data, img_url, user: [response.data.result.user_uuid] };
+        let result = await axios({
+          method: "post",
+          url: "/tags/tagImages",
+          data: data,
+        });
+        console.log(result);
+      }
+
+      handlePng();
+    }
+  };
   const handlePng = () => {
     setSeletedHolder("");
     setSwitchBtn("");
@@ -97,12 +155,26 @@ const ShareImage = () => {
     htmlToImage.toPng(ref.current).then(function (dataUrl) {
       //   console.log(dataUrl);
       download(dataUrl, "text-img.png");
+      setLogin(true);
     });
   };
 
   // console.log(occasion);
   return (
     <div className="container">
+      {login ? (
+        <div className="navbar" style={{ justifyContent: "space-between" }}>
+          <Home
+            className="backArrow"
+            onClick={() => {
+              if (params.img_url) navigate("/users");
+            }}
+            style={{ color: "#fff", marginLeft: "20px" }}
+          />
+        </div>
+      ) : (
+        ""
+      )}
       <div className="display_image_container">
         {selectedImage.img_url ? (
           <div
@@ -260,6 +332,7 @@ const ShareImage = () => {
                     return (
                       <Tag
                         switchBtn={switchBtn}
+                        setHoldersImges={setHoldersImges}
                         setSwitchBtn={setSwitchBtn}
                         setSeletedHolder={setSeletedHolder}
                         selectedHolder={selectedHolder}
@@ -280,6 +353,7 @@ const ShareImage = () => {
                       <TagMobile
                         switchBtn={switchBtn}
                         setSwitchBtn={setSwitchBtn}
+                        setHoldersImges={setHoldersImges}
                         setSeletedHolder={setSeletedHolder}
                         selectedHolder={selectedHolder}
                         item={item}
@@ -300,6 +374,7 @@ const ShareImage = () => {
                       <Tag
                         switchBtn={switchBtn}
                         setSwitchBtn={setSwitchBtn}
+                        setHoldersImges={setHoldersImges}
                         setSeletedHolder={setSeletedHolder}
                         selectedHolder={selectedHolder}
                         item={item}
@@ -389,10 +464,76 @@ const ShareImage = () => {
         <ShareIcon style={{ fontSize: "20px", marginRight: "20px" }} />
         <MdFileDownload
           className="backArrow"
-          onClick={() => handlePng()}
+          onClick={() => setMobilePopup(true)}
           style={{ fontSize: "20px" }}
         />
       </div>
+      {mobilePopup ? (
+        <div
+          className="overlay"
+          // style={{ position: "fixed", top: 0, left: 0, zIndex: 9999999999 }}
+        >
+          <div
+            className="modal"
+            style={{ height: "fit-content", width: "fit-content" }}
+          >
+            <div
+              className="content"
+              style={{
+                height: "fit-content",
+                padding: "20px",
+                width: "fit-content",
+              }}
+            >
+              <div style={{ overflowY: "scroll" }}>
+                <form
+                  className="form"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    loginHandler();
+                    setMobilePopup(false);
+                  }}
+                >
+                  <div className="formGroup">
+                    <div
+                      className="row"
+                      style={{ flexDirection: "column", alignItems: "start" }}
+                    >
+                      <label className="selectLabel flex">
+                        Enter Mobile Number
+                        <input
+                          type="number"
+                          name="route_title"
+                          className="numberInput"
+                          value={mobile}
+                          //   style={{ height: "200px" }}
+                          onChange={(e) =>
+                            setMobile((prev) =>
+                              e.target.value.length <= 10
+                                ? e.target.value
+                                : prev
+                            )
+                          }
+                          onWheel={(e) => e.preventDefault()}
+                        />
+                        {/* {popupInfo.conversion || 0} */}
+                      </label>
+                    </div>
+
+                    <div className="row">
+                      <button className="simple_Logout_button" type="submit">
+                        Save
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        ""
+      )}
     </div>
   );
 };
@@ -412,6 +553,7 @@ const Tag = ({
   setSeletedHolder,
   setSwitchBtn,
   mirrorRevert,
+  setHoldersImges,
 }) => {
   const ref = useRef(null);
   const refLeft = useRef(null);
@@ -420,7 +562,14 @@ const Tag = ({
   const refBottom = useRef(null);
   const sizeRef = useRef(null);
   const heightWeight = useWindowDimensions();
-
+  const [image, setImage] = useState("");
+  useEffect(() => {
+    if (image)
+      setHoldersImges((prev) => [
+        ...(prev || []),
+        { img_type: "UI", sort_order: 1, image, tag_uuid: url?.tag_uuid },
+      ]);
+  }, [image,url]);
   useEffect(() => {
     const resizeableEle = ref.current;
     const styles = window.getComputedStyle(resizeableEle);
@@ -600,43 +749,56 @@ const Tag = ({
           height: "100%",
         }}
       >
-        {type === "T" &&
-        url?.text?.sort((a, b) => +a.sort_order - +b.sort_order)[
-          item.index % url?.text?.length
-        ]?.text ? (
-          <div
-            className="holders"
-            style={{
-              border:
-                selectedHolder?._id === item?._id ? "2px solid black" : "none",
-              width: "100%",
-              height: "100%",
-              pointerEvents: "none",
-              textAlign: "center",
-              color: item?.text_color || "#000",
-              fontFamily: item?.fontFamily || "",
-            }}
-          >
-            {
-              url?.text.sort((a, b) => +a.sort_order - +b.sort_order)[
-                item.index % url?.text?.length
-              ].text
-            }
-          </div>
-        ) : url?.img_url?.sort((a, b) => +a.sort_order - +b.sort_order)[
-            item.index % url?.img_url?.length
-          ]?.img_url ? (
-          // eslint-disable-next-line jsx-a11y/alt-text
-          <img
-            src={
-              url?.img_url?.sort((a, b) => +a.sort_order - +b.sort_order)[
-                item.index % url?.img_url?.length
-              ]?.img_url
-            }
-            className="holders"
-            style={{ width: "100%", height: "100%", pointerEvents: "none" }}
-            alt={NoImage}
-          />
+        {type === "I" ? (
+          image ? (
+            // eslint-disable-next-line jsx-a11y/alt-text
+            <img
+              src={URL.createObjectURL(image)}
+              className="holders"
+              style={{ width: "100%", height: "100%", pointerEvents: "none" }}
+              alt={NoImage}
+            />
+          ) : (
+            <label
+              htmlFor={url?.tag_uuid}
+              className="flex"
+              style={{
+                // color: "rgba(142,198,13,255)",
+                // border: "4px solid #fff",
+                padding: "10px",
+                backgroundColor: "#000",
+                margin: "10px 0",
+                width: "100%",
+                textAlign: "left",
+                fontSize: "10px",
+                fontWeight: "1000",
+                color: "#fff",
+              }}
+            >
+              <span style={{ width: "250px" }} className="flex">
+                <Image />
+                Click Here
+              </span>
+              {item.value ? (
+                <img
+                  src={URL.createObjectURL(item.value)}
+                  className="previwImages"
+                  alt="yourimage"
+                  style={{ width: "100px", objectFit: "contain" }}
+                />
+              ) : (
+                ""
+              )}
+              <input
+                id={url?.tag_uuid}
+                type="file"
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  setImage(e.target.files[0]);
+                }}
+              />
+            </label>
+          )
         ) : (
           <></>
         )}
@@ -708,6 +870,7 @@ const Tag = ({
 const TagMobile = ({
   url,
   type,
+  setHoldersImges,
   coordinates,
   width,
   height,
@@ -727,6 +890,13 @@ const TagMobile = ({
   const heightWidth = useWindowDimensions();
   const sizeRef = useRef(null);
   const [image, setImage] = useState();
+  useEffect(() => {
+    if (image)
+      setHoldersImges((prev) => [
+        ...(prev || []),
+        { img_type: "UI", sort_order: 1, image, tag_uuid: url?.tag_uuid },
+      ]);
+  }, [image,url]);
   useEffect(() => {
     const resizeableEle = ref.current;
     const styles = window.getComputedStyle(resizeableEle);
@@ -929,7 +1099,7 @@ const TagMobile = ({
                 // color: "rgba(142,198,13,255)",
                 // border: "4px solid #fff",
                 padding: "10px",
-                backgroundColor: "rgba(142,198,13,255)",
+                backgroundColor: "#000",
                 margin: "10px 0",
                 width: "100%",
                 textAlign: "left",

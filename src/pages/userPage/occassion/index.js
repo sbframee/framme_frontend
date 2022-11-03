@@ -18,11 +18,11 @@ import {
   HiOutlineArrowCircleLeft,
 } from "react-icons/hi";
 import { AiOutlineClose } from "react-icons/ai";
-import { TiArrowBack } from "react-icons/ti";
 import "./index.css";
 import axios from "axios";
 import useWindowDimensions from "../../../components/useWidthDimenshion";
 import { MdFileDownload } from "react-icons/md";
+import { ArrowBack } from "@mui/icons-material";
 
 const OccasionPage = () => {
   const [images, setImages] = useState([]);
@@ -213,7 +213,7 @@ const OccasionPage = () => {
       <>
         <div className="container">
           <div className="navbar" style={{ justifyContent: "space-between" }}>
-            <TiArrowBack
+            <ArrowBack
               className="backArrow"
               onClick={() => {
                 if (params.img_url) navigate(`/occasion/${occasion?.occ_uuid}`);
@@ -568,7 +568,7 @@ const OccasionPage = () => {
       <>
         <div className="userOccasion">
           <div className="navbar">
-            <TiArrowBack
+            <ArrowBack
               className="backArrow"
               onClick={() => navigate("/users")}
               style={{ color: "#fff" }}

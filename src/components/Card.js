@@ -19,13 +19,7 @@ const Card = ({
         <button
           className={`card-focus 
             ${rounded ? "rounded" : ""} 
-            ${
-              selectedOrder
-                ? "selected-seat"
-                : selectedCounter
-                ? ""
-                : ""
-            }
+            ${selectedOrder ? "selected-seat" : selectedCounter ? "" : ""}
             `}
           style={{ margin: "5px" }}
         >
@@ -47,7 +41,7 @@ const Card = ({
             ) : (
               ""
             )}
-            {order?.user_title ? (
+            {order?.user_title || order?.user_name ? (
               <h1
                 className="flex"
                 style={{
@@ -57,9 +51,10 @@ const Card = ({
                   position: "absolute",
                   top: 0,
                   left: 0,
+                  wordWrap:"break-word"
                 }}
               >
-                {order?.user_title}
+                {order?.user_title || order?.user_name}
               </h1>
             ) : (
               ""
