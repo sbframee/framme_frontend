@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { v4 as uuid } from "uuid";
 import { MdDelete } from "react-icons/md";
 import ImageUploadPopup from "../../components/ImageUploadPopup";
+import { Upload } from "@mui/icons-material";
 const InputPage = () => {
   const [tagsData, setTagsData] = useState([]);
   const [seletiveCropFile, setSelectiveCropFile] = useState();
@@ -114,7 +115,10 @@ const InputPage = () => {
               flexDirection: "column",
             }}
           >
-            <div className="flex" style={{ justifyContent: "space-between",width:"100%" }}>
+            <div
+              className="flex"
+              style={{ justifyContent: "space-between", width: "100%" }}
+            >
               input:
               <input
                 type="text"
@@ -145,7 +149,10 @@ const InputPage = () => {
                 }
               />
             </div>
-            <div className="flex" style={{ justifyContent: "space-between",width:"100%" }}>
+            <div
+              className="flex"
+              style={{ justifyContent: "space-between", width: "100%" }}
+            >
               Font Style:
               <select
                 placeholder="#000"
@@ -210,7 +217,10 @@ const InputPage = () => {
                 </option>
               </select>
             </div>
-            <div className="flex" style={{ justifyContent: "space-between",width:"100%" }}>
+            <div
+              className="flex"
+              style={{ justifyContent: "space-between", width: "100%" }}
+            >
               Color:
               <select
                 placeholder="#000"
@@ -295,19 +305,32 @@ const InputPage = () => {
           : {};
 
         rows.push(
-          <div
+          <lable
             style={{
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              flexDirection: "column",
+              border: "1px solid #fff",
+              margin: "10px 0",
             }}
+            htmlFor={item?.tag_type + i}
           >
+            <span className="flex">
+              <Upload />
+              {itemData?.img_url || itemData?.image
+                ? "Change Tag Image"
+                : " Upload Tag Image"}
+            </span>
+
             <input
+              id={item?.tag_type + i}
               type="file"
               onChange={(e) => {
                 setSelectiveCropFile(e.target.files[0]);
                 setPopupCrop({ item, i });
               }}
+              style={{ display: "none" }}
               accept="image/png, image/jpeg"
             />
             {/* URL.createObjectURL(selectedFile) */}
@@ -318,6 +341,7 @@ const InputPage = () => {
                   src={
                     itemData?.img_url || URL.createObjectURL(itemData?.image)
                   }
+                  alt=""
                 />
                 <MdDelete
                   onClick={() => deleteHandler(itemData)}
@@ -327,7 +351,7 @@ const InputPage = () => {
             ) : (
               ""
             )}
-          </div>
+          </lable>
         );
       }
     }
@@ -336,13 +360,13 @@ const InputPage = () => {
   return (
     <>
       {/* <SideBar /> */}
-      <div className="inputPage">
+      <div className="inputPage" style={{background:"#000",color:"#fff"}}>
         {tagsData.map((item) => (
-          <div className="tagsInput">
-            <h2>{item.tag_title}</h2>
+          <div className="tagsInput" style={{marginTop:"20px"}}>
+            <h2>{item.tag_title === "image" ? "IMAGE" : "TEXT"}</h2>
             <div
               style={{
-                border: "2px solid black",
+                border: "2px solid #fff",
                 padding: "10px 20px",
                 display: "flex",
                 alignItems: "center",

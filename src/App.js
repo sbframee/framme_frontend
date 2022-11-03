@@ -15,11 +15,12 @@ import LoginPage from "./LoginPage";
 import ImageUploadPopup from "./components/ImageUploadPopup";
 import axios from "axios";
 import WaBoot from "./pages/WaBoot";
+import ShareImage from "./pages/userPage/occassion/ShareImage";
 
 const id = "230522";
 // export const baseURL = "http://localhost:9000";
 // export const baseURL=  "http://13.232.99.217:9000/"
-export const baseURL=  "https://api.framee.in/"
+export const baseURL = "https://api.framee.in/";
 function App() {
   axios.defaults.baseURL = baseURL;
   return (
@@ -36,6 +37,11 @@ function App() {
           <>
             {localStorage.getItem("user_uuid") === id ? (
               <>
+                <Route
+                  exact
+                  path="/login/new/:img_url"
+                  element={<OccasionPage />}
+                />
                 <Route exact path="/home" element={<PictureUpload />} />
                 <Route exact path="/occasion" element={<Occasion />} />
                 <Route exact path="/waBoot" element={<WaBoot />} />
@@ -78,7 +84,7 @@ function App() {
         ) : (
           ""
         )}
-
+        <Route exact path="/login/new/:img_url" element={<ShareImage />} />
       </Routes>
     </div>
   );

@@ -166,7 +166,9 @@ const OccasionPage = () => {
       getImageData();
       if (location.pathname.includes("AdminOccasion")) getUsersData();
     } else if (params.user_uuid) {
-      loginHandler();
+      if (params?.user_uuid === "new" && !localStorage.getItem("user_uuid")) {
+        navigate("/login");
+      } else loginHandler();
     }
   }, [state]);
   useEffect(() => {
@@ -820,8 +822,7 @@ const Popup = ({ close, deleteHandler, type, usersData, item }) => {
                     // console.log(user,item.img_url.replace("/images/",""),navigator.clipboard.writeText)
                     let copy =
                       "http://www.framee.in" +
-                      `/login/${user}/${item.img_url
-                        .split("/")[3]}`;
+                      `/login/${user}/${item.img_url.split("/")[3]}`;
                     navigator.clipboard
                       .writeText(copy)
                       .then(() => {
