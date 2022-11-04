@@ -15,7 +15,7 @@ body {
 }
 
 :root {
-  --mainColor: #4ac959;
+  --mainColor: var(--main-color);
 }
 
 ::-webkit-scrollbar {
@@ -2357,7 +2357,7 @@ tr:nth-child(4) {
 .refresh_button {
   height: 40px;
   cursor: pointer;
-  background: #4ac959;
+  background: var(--main-color);
   color: #fff;
   padding: 10px 20px;
   border-radius: 20px;
@@ -2378,7 +2378,7 @@ tr:nth-child(4) {
   margin-right: auto;
   left: 0;
   right: 0;
-  background: #4ac959;
+  background: var(--main-color);
   color: #fff;
   padding: 15px 40px;
   border-radius: 10px;
@@ -2404,7 +2404,7 @@ tr:nth-child(4) {
   display: flex;
   align-items: center;
   justify-content: left;
-  background-color: #4ac959;
+  background-color: var(--main-color);
   color: #fff;
   padding: 10px 20px;
   margin: 2px 0px;
@@ -2466,14 +2466,14 @@ tr:nth-child(4) {
   border: none;
   width: 80%;
   margin: 5px 0;
-  background: #4ac959;
+  background: var(--main-color);
   color: #fff;
   padding: 5px 0;
   border-radius: 10px;
 }
 
 .customer_balance_payment_button:hover {
-  background: #4ac959c5;
+  background: var(--main-color)c5;
 }
 
 .rbc-off-range {
@@ -2535,7 +2535,7 @@ tr:nth-child(4) {
   font-size: 20px;
   border: none;
   color: white;
-  background: #4ac959;
+  background: var(--main-color);
 }
 
 .orderDetailsContainer {

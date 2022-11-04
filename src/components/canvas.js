@@ -192,7 +192,7 @@ const Canvas = ({
   ImageData,
   templateHoldersData,
   tempstate,
-  setTempState
+  setTempState,
 }) => {
   const [elements, setElements, undo, redo] = useHistory([]);
   const [action, setAction] = useState("none");
@@ -216,7 +216,7 @@ const Canvas = ({
   useEffect(() => {
     if (tempstate) {
       setElements([]);
-      setTempState(false)
+      setTempState(false);
     }
   }, [tempstate]);
   useEffect(
@@ -318,13 +318,21 @@ const Canvas = ({
     setElements(elementsCopy, true);
   };
   const DoubleClickHandel = (event) => {
-    const { clientX, clientY } = { ...event, clientX: event.clientX - 100 };
+    const { clientX, clientY } = {
+      ...event,
+      clientX: event.clientX - 100,
+      clientY: event.clientX - 50,
+    };
 
     const element = getElementAtPosition(clientX, clientY, elements);
     setElementId({ uuid: element?.uuid, id: element?.id });
   };
   const handleMouseDown = (event) => {
-    const { clientX, clientY } = { ...event, clientX: event.clientX - 100 };
+    const { clientX, clientY } = {
+      ...event,
+      clientX: event.clientX - 100,
+      clientY: event.clientY - 50,
+    };
     if (tool === "selection") {
       const element = getElementAtPosition(clientX, clientY, elements);
       if (element) {
@@ -401,7 +409,11 @@ const Canvas = ({
   };
 
   const handleMouseMove = (event) => {
-    const { clientX, clientY } = { ...event, clientX: event.clientX - 100 };
+    const { clientX, clientY } = {
+      ...event,
+      clientX: event.clientX - 100,
+      clientY: event.clientY - 50,
+    };
 
     if (tool === "selection") {
       const element = getElementAtPosition(clientX, clientY, elements);
@@ -456,7 +468,11 @@ const Canvas = ({
   };
 
   const handleMouseUp = (event) => {
-    const { clientX, clientY } = { ...event, clientX: event.clientX - 100 };
+    const { clientX, clientY } = {
+      ...event,
+      clientX: event.clientX - 100,
+      clientY: event.clientY - 50,
+    };
 
     if (selectedElement) {
       if (

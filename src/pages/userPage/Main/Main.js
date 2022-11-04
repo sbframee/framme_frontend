@@ -1,12 +1,11 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import NoImage from "../../../assets/noImage.jpg";
 import "./Main.css";
 import Carousel from "carousel-react-rcdev";
 import PersonIcon from "@mui/icons-material/Person";
 import NavigationBar from "../../../components/usersComponent/NavigationBar";
-import { Slide } from "react-slideshow-image";
+import Sliders from "../../../components/Sliders";
 import "react-slideshow-image/dist/styles.css";
 const Main = () => {
   const [categories, setCategories] = useState([]);
@@ -92,30 +91,7 @@ const Main = () => {
           <PersonIcon className="profile-Icon" />
         </div>
         <div className="slide-container">
-          {posters ? (
-            <Slide
-              // duration={2500}
-              transitionDuration={500}
-              indicators={(index) => (
-                <div className="indicator">{index + 1}</div>
-              )}
-            >
-              {posters?.map((slideImage, index) => (
-                <div className="each-slide" key={index}>
-                  <img
-                    src={slideImage?.posters}
-                    alt={slideImage?.posters}
-                    style={{
-                      width: "100%",
-                      height: "200px",
-                    }}
-                  />
-                </div>
-              ))}
-            </Slide>
-          ) : (
-            ""
-          )}
+          {posters.length ? <Sliders item={posters} /> : ""}
         </div>
 
         {categories
@@ -141,19 +117,19 @@ const Main = () => {
                       className="image_container"
                       onClick={() => navigate(`/occasion/${imgItem.occ_uuid}`)}
                     >
-                      {/* {console.log(imgItem.img_url.replace("images", "thumbnail") || NoImage)} */}
-                      <div className="occ_title">
-                        {imgItem?.occ_date
-                          ? getDayName(imgItem?.occ_date, "en-us") +
-                            "," +
-                            new Date(imgItem?.occ_date).getDate() +
-                            " " +
-                            getDayName(imgItem?.occ_date, "en-us", "month")
-                          : ""}
-                      </div>
-
-                      {console.log(imgItem)}
-                      <img src={imgItem.thumbnail_url} alt="" />
+                      <img
+                        src={imgItem.thumbnail_url}
+                        alt=""
+                        style={
+                          item?.square
+                            ? {
+                                borderRadius: "10px",
+                                width: "120px",
+                                height: "120px",
+                              }
+                            : {}
+                        }
+                      />
 
                       <div className="occ_title">{imgItem.title}</div>
                     </div>
@@ -161,7 +137,6 @@ const Main = () => {
               </Carousel>
             </div>
           ))}
-        
       </div>
       <div style={{ width: "100vw", position: "fixed", bottom: "0" }}>
         <NavigationBar />

@@ -5,7 +5,7 @@ import * as htmlToImage from "html-to-image";
 import download from "downloadjs";
 import { FaWhatsapp } from "react-icons/fa";
 import ShareIcon from "@mui/icons-material/Share";
-import { Slide } from "react-slideshow-image";
+import Sliders from "../../../components/Sliders"
 import "react-slideshow-image/dist/styles.css";
 import {
   MdKeyboardArrowDown,
@@ -577,28 +577,11 @@ const OccasionPage = () => {
           </div>
           {occasion?.posters?.length ? (
             <div className="slide-container">
-              <Slide
-                // duration={2500}
-                transitionDuration={500}
-                indicators={(index) => (
-                  <div className="indicator">{index + 1}</div>
-                )}
-              >
-                {occasion?.posters?.map((slideImage, index) => (
-                  <div className="each-slide" key={index}>
-                    <div
-                      style={{
-                        backgroundImage: `url(${slideImage.url})`,
-                        width: "100%",
-                        height: "200px",
-                        backgroundPosition: "center",
-                        backgroundRepeat: "no-repeat",
-                        backgroundSize: "cover",
-                      }}
-                    ></div>
-                  </div>
-                ))}
-              </Slide>
+              {occasion?.posters.length ? (
+                <Sliders item={occasion?.posters} />
+              ) : (
+                ""
+              )}
             </div>
           ) : (
             ""

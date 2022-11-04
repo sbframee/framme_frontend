@@ -1,5 +1,5 @@
 .navigations {
-  background: rgb(91, 91, 91);
+  background: var(--main-color);
 
   width: "100vw";
   color: #fff;

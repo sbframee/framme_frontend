@@ -133,7 +133,7 @@ const Popup = ({ popupInfo, setCategoriesData, close }) => {
     () =>
       popupInfo.type === "edit"
         ? setData(popupInfo.item)
-        : setData({ cat_uuid: uuid(), status: "1" }),
+        : setData({ cat_uuid: uuid(), status: "1", square: 0 }),
     []
   );
   const submitHandler = async () => {
@@ -272,21 +272,16 @@ const Popup = ({ popupInfo, setCategoriesData, close }) => {
               <option value="0">0</option>
             </select>
           </div>
-          {/* <div>Thumbnail
-                        <input type='file' onChange={onSelectFile} accept="image/png, image/jpeg" />
-                        <br />
-                        <img className='image' src={preview || data.Thumbnail_url} alt="No Image" />
-                    </div> */}
-          {/* <div>Posters
-                        <input type='file' onChange={e => {
-                            let files = e.target.files
-                            files = Array.from(files).map(file => (new File([file], uuid() + "." + (file.name.split(".")[1] || "png"))))
-                            setPosters(files)
-                        }} accept="image/png, image/jpeg" multiple />
-                        <br />
-                        {/* {data?.poster_url?.map(a => <img className='posters' src={a} />)} */}
-
-          {/*} </div> */}
+          <div>
+            Thumbnail Style
+            <select
+              value={data.square}
+              onChange={(e) => setData({ ...data, square: e.target.value })}
+            >
+              <option value="1">Square</option>
+              <option value="0">Circle</option>
+            </select>
+          </div>
           <button onClick={submitHandler} type="button" className="add_button">
             {popupInfo.type === "edit" ? "Update" : "Add"}
           </button>

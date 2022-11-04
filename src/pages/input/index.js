@@ -305,16 +305,16 @@ const InputPage = () => {
           : {};
 
         rows.push(
-          <lable
+          <label
             style={{
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               flexDirection: "column",
-              border: "1px solid #fff",
+              border: "1px solid #000",
               margin: "10px 0",
             }}
-            htmlFor={item?.tag_type + i}
+            htmlFor={item?.tag_uuid}
           >
             <span className="flex">
               <Upload />
@@ -322,9 +322,8 @@ const InputPage = () => {
                 ? "Change Tag Image"
                 : " Upload Tag Image"}
             </span>
-
             <input
-              id={item?.tag_type + i}
+              id={item?.tag_uuid}
               type="file"
               onChange={(e) => {
                 setSelectiveCropFile(e.target.files[0]);
@@ -351,7 +350,7 @@ const InputPage = () => {
             ) : (
               ""
             )}
-          </lable>
+          </label>
         );
       }
     }
@@ -360,13 +359,13 @@ const InputPage = () => {
   return (
     <>
       {/* <SideBar /> */}
-      <div className="inputPage" style={{background:"#000",color:"#fff"}}>
+      <div className="inputPage" >
         {tagsData.map((item) => (
-          <div className="tagsInput" style={{marginTop:"20px"}}>
+          <div className="tagsInput" style={{ marginTop: "20px" }}>
             <h2>{item.tag_title === "image" ? "IMAGE" : "TEXT"}</h2>
             <div
               style={{
-                border: "2px solid #fff",
+                border: "2px solid #000",
                 padding: "10px 20px",
                 display: "flex",
                 alignItems: "center",

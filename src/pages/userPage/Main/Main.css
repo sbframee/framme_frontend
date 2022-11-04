@@ -8,7 +8,7 @@
   flex-direction: column;
   overflow-y: scroll;
   overflow-x: hidden;
-  background-color: black;
+  /* background-color: black; */
 }
 
 .profile-Icon {
@@ -21,9 +21,9 @@
 }
 .main .occasion_container {
   height: fit-content;
-  color: #ffffff;
-  padding: 0px 20px;
-  margin: 20px 0px;
+  /* color: #ffffff; */
+  padding: 0px 10px;
+  /* margin: 20px 0px; */
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
@@ -33,11 +33,11 @@
 
 .main .occasion_container .image_container {
   cursor: pointer;
-  width: 130px;
+  /* width: 130px; */
 
-  border: 2px solid black;
+  /* border: 2px solid black; */
 
-  margin: 10px;
+  margin: 5px 0;
   transition: all ease 1s;
   overflow: hidden;
   display: flex;
@@ -54,23 +54,23 @@
   display: none;
 }
 .main .occasion_container .image_container img {
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   /* margin: 0 10px; */
   object-fit: fill;
   transition: all ease 1s;
   background-color: #ffffff;
 
-  border-radius: 30%;
+  border-radius: 50%;
 }
 .main .occasion_container .image_container .occ_title {
   width: 100%;
   padding: 5px 0;
   text-align: center;
-  font-size: 0.5rem;
+  font-size: 1rem;
 }
 .cat_title {
-  font-size: 1rem;
+  font-size: 1.3rem;
 }
 .buttonsContainer {
   display: flex;
@@ -114,12 +114,9 @@
   background: #ffffff;
 }
 .slide-container{
-  width:90vw;
-  height: 40vh;
-  margin-bottom: 50px;
-  margin-top: 50px;
-  border-radius: 50%;
-  margin-left: 5vw;
+  width:100vw;
+  height: 220px;
+margin-top: 5px;
 }
 .indicator{
   background: #fff;

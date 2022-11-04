@@ -324,7 +324,7 @@ body {
   border-radius: 20px;
   border: 2px solid #44cd4a;
 }
-.imageselectnextBtn:hover{
+.imageselectnextBtn:hover {
   color: #44cd4a;
   background-color: #fff;
 }
@@ -336,15 +336,14 @@ body {
   white-space: nowrap;
 }
 
-.selectLabel>input,
-.selectLabel>select,
-.selectLabel>textarea {
+.selectLabel > input,
+.selectLabel > select,
+.selectLabel > textarea {
   border-radius: 1rem;
   padding: 5px 10px;
   outline: none;
   border: 0.5px solid grey;
   letter-spacing: 0.5px;
-
 }
 .select,
 .multiSelect,
@@ -364,7 +363,8 @@ body {
 .messageTextarea {
   outline-color: var(--mainColor);
 }
-.clear_Logout_button, .simple_Logout_button{
+.clear_Logout_button,
+.simple_Logout_button {
   border: none;
   color: #fff;
   background: #44cd4a;
@@ -380,6 +380,54 @@ body {
   box-shadow: 3px 4px 3px black;
   transition: all 0.3s ease-in-out;
 }
-.clear_Logout_button:hover, .simple_Logout_button:hover{
+.clear_Logout_button:hover,
+.simple_Logout_button:hover {
   transform: scale(1.05);
+}
+.container_main {
+  width: calc(100vw - 64px);
+  overflow: hidden;
+  position: absolute;
+  top: 0px;
+  height: fit-content;
+  max-width: 500px;
+}
+::-webkit-scrollbar {
+  display: none;
+}
+#scroll-btns-container {
+  position: absolute;
+  width: 100vw;
+  top: 18vh;
+  background: none;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem 0;
+  z-index: 1;
+}
+
+#scroll-btns-container button {
+  background: var(--body-color);
+  border: none;
+  outline: none;
+  padding: 0.45rem !important;
+  border-radius: 50%;
+  padding: 0.3rem;
+  margin: 1rem 0.25rem 0;
+  /* box-shadow: 0 0 5px 1px var(--body-color); */
+  transition: all 350ms ease;
+}
+
+#scroll-btns-container button#current {
+  background: var(--main-color);
+  width: 40px;
+  border-radius: 10px;
+}
+:root {
+  --main-color: #317EEB;
+  --hover-color: #2764BA;
+  --body-color: #E0E0E0;
+  --box-color: white;
 }
