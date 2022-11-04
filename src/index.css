@@ -398,7 +398,7 @@ body {
 #scroll-btns-container {
   position: absolute;
   width: 100vw;
-  top: 18vh;
+  top: 16vh;
   background: none;
   display: flex;
   flex-flow: row nowrap;

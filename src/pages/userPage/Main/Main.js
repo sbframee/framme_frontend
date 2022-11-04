@@ -67,17 +67,25 @@ const Main = () => {
       getImageData();
     }
   }, [user]);
-  const getCategoriesData = async () => {
+  const getCategoriesData = async (occasionData) => {
     const response = await axios({
       method: "get",
       url: "/categories/getCategories",
     });
     console.log(response);
-    if (response.data.success) setCategories(response.data.result);
+    if (response.data.success)
+      setCategories(
+        response.data.result.filter(
+          (a) =>
+          occasionData.filter(
+              (b) => b.cat_uuid?.filter((c) => c === a.cat_uuid)?.length
+            )?.length
+        )
+      );
   };
   useEffect(() => {
-    if (user?.user_name) getCategoriesData();
-  }, [user]);
+    if (user?.user_name) getCategoriesData(occasions);
+  }, [occasions, user]);
   const getDayName = (dateStr, locale, type) => {
     var date = new Date(dateStr);
     if (type === "month") return date.toLocaleString(locale, { month: "long" });
@@ -95,15 +103,16 @@ const Main = () => {
         </div>
 
         {categories
-          .filter(
-            (a) =>
-              occasions.filter(
-                (b) => b.cat_uuid?.filter((c) => c === a.cat_uuid)?.length
-              )?.length
-          )
+
           .sort((a, b) => +a.sort_order - +b.sort_order)
-          .map((item) => (
-            <div className="occasion_container" key={Math.random()}>
+          .map((item, index) => (
+            <div
+              className="occasion_container"
+              style={
+                index + 1 === categories?.length ? { marginBottom: "50px" } : {}
+              }
+              key={Math.random()}
+            >
               <div className="cat_title">{item.title}</div>
               <Carousel className="images_container">
                 {occasions
@@ -138,6 +147,7 @@ const Main = () => {
             </div>
           ))}
       </div>
+
       <div style={{ width: "100vw", position: "fixed", bottom: "0" }}>
         <NavigationBar />
       </div>

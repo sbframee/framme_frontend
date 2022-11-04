@@ -14,7 +14,7 @@
 .profile-Icon {
   padding: 10px;
 }
- .navbar .user_name {
+.navbar .user_name {
   font-size: 1rem;
   font-weight: bold;
   padding: 0 10px;
@@ -113,12 +113,12 @@
   color: green;
   background: #ffffff;
 }
-.slide-container{
-  width:100vw;
+.slide-container {
+  width: 100vw;
   height: 220px;
-margin-top: 5px;
+  margin-top: 40px;
 }
-.indicator{
+.indicator {
   background: #fff;
   margin: 0 5px;
   width: 10px;
@@ -129,7 +129,6 @@ margin-top: 5px;
   transition: all ease 0.5s;
 }
 .indicator.active {
-
   background: #666;
   color: #666;
   transform: scale(1.5);

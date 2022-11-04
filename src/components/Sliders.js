@@ -5,11 +5,12 @@ import { useSwipeable } from "react-swipeable";
 
 const TypesOfOutlets = ({ item = [] }) => {
   const [position, setPosition] = useState(0);
+  console.log(item)
   const pages = useMemo(
     () =>
       item
         ?.sort((a, b) => a.sort_order - b.sort_order)
-        ?.map((a, i) => ({ index: i, src: a.posters })) || [],
+        ?.map((a, i) => ({ index: i, src: a.posters||a.url })) || [],
 
     [item]
   );
@@ -99,7 +100,7 @@ const TypesOfOutlets = ({ item = [] }) => {
           >
             <img
               src={page?.src}
-              style={{ objectFit: "fill", width: "100vw", height: "100vw" }}
+              style={{ objectFit: "cover", width: "100%", height: "100%" }}
               alt="abc"
             />
           </motion.div>

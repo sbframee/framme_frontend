@@ -415,59 +415,72 @@ const ShareImage = () => {
           ""
         )}
       </div>
-      <div className="container_buttons" style={{ width: "100%" }}>
-        <button
-          className="image_btn"
-          onClick={() =>
-            setMirrorevert((prev) =>
-              prev?.length
-                ? prev?.find((a) => a === selectedHolder?.label_uuid)
-                  ? prev?.filter((a) => a !== selectedHolder?.label_uuid)
-                  : [...prev, selectedHolder?.label_uuid]
-                : [selectedHolder?.label_uuid]
-            )
-          }
-        >
-          Mirror
-        </button>
-        <button
-          className="image_btn"
-          onClick={() =>
-            setSelectedImage({
-              ...selectedImage,
-              holder: selectedImage.holder.map((b) =>
-                b._id === selectedHolder._id ? { ...b, index: b.index + 1 } : b
-              ),
-            })
-          }
-        >
-          Swap
-        </button>
-        <button
-          className="image_btn"
-          onClick={() =>
-            setDeleteHolders((prev) => [
-              ...prev,
-              selectedImage.holder.find((a) => a._id === selectedHolder._id),
-            ])
-          }
-        >
-          Delete
-        </button>
-        {/* <button
-           className="image_btn"
+      <div className="container_buttons">
+        <div className="container_buttons_container">
+          <button
+            className="image_btn"
+            onClick={() =>
+              setMirrorevert((prev) =>
+                prev?.length
+                  ? prev?.find((a) => a === selectedHolder?.label_uuid)
+                    ? prev?.filter((a) => a !== selectedHolder?.label_uuid)
+                    : [...prev, selectedHolder?.label_uuid]
+                  : [selectedHolder?.label_uuid]
+              )
+            }
           >
-            Share
-          </button> */}
+            Mirror
+          </button>
+          <button
+            className="image_btn"
+            onClick={() =>
+              setSelectedImage({
+                ...selectedImage,
+                holder: selectedImage.holder.map((b) =>
+                  b._id === selectedHolder._id
+                    ? { ...b, index: b.index + 1 }
+                    : b
+                ),
+              })
+            }
+          >
+            Swap
+          </button>
+          <button
+            className="image_btn"
+            onClick={() =>
+              setDeleteHolders((prev) => [
+                ...prev,
+                selectedImage.holder.find((a) => a._id === selectedHolder._id),
+              ])
+            }
+          >
+            Delete
+          </button>
+        </div>
+        <div className="container_buttons_container">
+          <ShareIcon
+            style={{
+              fontSize: "40px",
+              marginRight: "40px",
+              border: "2px solid #fff",
+              borderRadius: "50%",
+              padding: "5px",
+            }}
+          />
+          <MdFileDownload
+            className="backArrow"
+            onClick={() => setMobilePopup(true)}
+            style={{
+              fontSize: "40px",
+              border: "2px solid #fff",
+              borderRadius: "50%",
+              padding: "5px",
+            }}
+          />
+        </div>
       </div>
-      <div className="downloadBtnBackground">
-        <ShareIcon style={{ fontSize: "20px", marginRight: "20px" }} />
-        <MdFileDownload
-          className="backArrow"
-          onClick={() => setMobilePopup(true)}
-          style={{ fontSize: "20px" }}
-        />
-      </div>
+
       {mobilePopup ? (
         <div
           className="overlay"
@@ -569,7 +582,7 @@ const Tag = ({
         ...(prev || []),
         { img_type: "UI", sort_order: 1, image, tag_uuid: url?.tag_uuid },
       ]);
-  }, [image,url]);
+  }, [image, url]);
   useEffect(() => {
     const resizeableEle = ref.current;
     const styles = window.getComputedStyle(resizeableEle);
@@ -896,7 +909,7 @@ const TagMobile = ({
         ...(prev || []),
         { img_type: "UI", sort_order: 1, image, tag_uuid: url?.tag_uuid },
       ]);
-  }, [image,url]);
+  }, [image, url]);
   useEffect(() => {
     const resizeableEle = ref.current;
     const styles = window.getComputedStyle(resizeableEle);

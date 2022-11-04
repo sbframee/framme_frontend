@@ -5,7 +5,7 @@ import * as htmlToImage from "html-to-image";
 import download from "downloadjs";
 import { FaWhatsapp } from "react-icons/fa";
 import ShareIcon from "@mui/icons-material/Share";
-import Sliders from "../../../components/Sliders"
+import Sliders from "../../../components/Sliders";
 import "react-slideshow-image/dist/styles.css";
 import {
   MdKeyboardArrowDown,
@@ -43,9 +43,9 @@ const OccasionPage = () => {
   const ref = useRef();
   const [selectedHolder, setSeletedHolder] = useState("");
   const navigate = useNavigate();
-  const { width, height } = useWindowDimensions();
+  const { width } = useWindowDimensions();
   const location = useLocation();
-  console.log(mirrorRevert);
+
   const getUsersData = async () => {
     const response = await axios({ method: "get", url: "/users/getUsers" });
     console.log(response);
@@ -460,107 +460,119 @@ const OccasionPage = () => {
             )}
           </div>
           <div className="container_buttons">
-            <button
-              onClick={() =>
-                setSelectedImage(
-                  baseImages?.find((a) => {
-                    let b =
-                      selectedImage?.sort_order - 1
-                        ? selectedImage?.sort_order - 1
-                        : baseImages?.length;
-                    return a?.sort_order === b;
-                  }) || selectedImage
-                )
-              }
-              style={{
-                cursor: "pointer",
-                fontSize: "35px",
-                color: "#fff",
-                borderRadius: "30px",
-                backgroundColor: "transparent",
-                border: "none",
-              }}
-            >
-              <HiOutlineArrowCircleLeft />
-            </button>
-            <button
-              className="image_btn"
-              onClick={() =>
-                setMirrorevert((prev) =>
-                  prev?.length
-                    ? prev?.find((a) => a === selectedHolder?.label_uuid)
-                      ? prev?.filter((a) => a !== selectedHolder?.label_uuid)
-                      : [...prev, selectedHolder?.label_uuid]
-                    : [selectedHolder?.label_uuid]
-                )
-              }
-            >
-              Mirror
-            </button>
-            <button
-              className="image_btn"
-              onClick={() =>
-                setSelectedImage({
-                  ...selectedImage,
-                  holder: selectedImage.holder.map((b) =>
-                    b._id === selectedHolder._id
-                      ? { ...b, index: b.index + 1 }
-                      : b
-                  ),
-                })
-              }
-            >
-              Swap
-            </button>
-            <button
-              className="image_btn"
-              onClick={() =>
-                setDeleteHolders((prev) => [
-                  ...prev,
-                  selectedImage.holder.find(
-                    (a) => a._id === selectedHolder._id
-                  ),
-                ])
-              }
-            >
-              Delete
-            </button>
-            {/* <button
-           className="image_btn"
-          >
-            Share
-          </button> */}
-            <button
-              onClick={() =>
-                setSelectedImage(
-                  baseImages?.find((a) => {
-                    let b =
-                      selectedImage?.sort_order + 1 < baseImages?.length
-                        ? selectedImage?.sort_order + 1
-                        : 0;
-                    return a?.sort_order === b;
-                  }) || selectedImage
-                )
-              }
-              style={{
-                cursor: "pointer",
-                fontSize: "35px",
-                color: "#fff",
-                borderRadius: "30px",
-                backgroundColor: "transparent",
-                border: "none",
-              }}
-            >
-              <HiOutlineArrowCircleRight />
-            </button>
-          </div>
-          <div className="downloadBtnBackground">
-            <ShareIcon style={{ fontSize: "20px", marginRight: "20px" }} />
-            <MdFileDownload
-              className="backArrow"
-              onClick={() => handlePng()}
-              style={{ fontSize: "20px" }}
-            />
+            <div className="container_buttons_container">
+              <button
+                onClick={() =>
+                  setSelectedImage(
+                    baseImages?.find((a) => {
+                      let b =
+                        selectedImage?.sort_order - 1
+                          ? selectedImage?.sort_order - 1
+                          : baseImages?.length;
+                      return a?.sort_order === b;
+                    }) || selectedImage
+                  )
+                }
+                style={{
+                  cursor: "pointer",
+                  fontSize: "35px",
+                  color: "#fff",
+                  borderRadius: "30px",
+                  backgroundColor: "transparent",
+                  border: "none",
+                }}
+              >
+                <HiOutlineArrowCircleLeft />
+              </button>
+              <button
+                className="image_btn"
+                onClick={() =>
+                  setMirrorevert((prev) =>
+                    prev?.length
+                      ? prev?.find((a) => a === selectedHolder?.label_uuid)
+                        ? prev?.filter((a) => a !== selectedHolder?.label_uuid)
+                        : [...prev, selectedHolder?.label_uuid]
+                      : [selectedHolder?.label_uuid]
+                  )
+                }
+              >
+                Mirror
+              </button>
+              <button
+                className="image_btn"
+                onClick={() =>
+                  setSelectedImage({
+                    ...selectedImage,
+                    holder: selectedImage.holder.map((b) =>
+                      b._id === selectedHolder._id
+                        ? { ...b, index: b.index + 1 }
+                        : b
+                    ),
+                  })
+                }
+              >
+                <i class="fa-regular fa-arrows-rotate"></i>
+              </button>
+              <button
+                className="image_btn"
+                onClick={() =>
+                  setDeleteHolders((prev) => [
+                    ...prev,
+                    selectedImage.holder.find(
+                      (a) => a._id === selectedHolder._id
+                    ),
+                  ])
+                }
+              >
+                Delete
+              </button>
+
+              <button
+                onClick={() =>
+                  setSelectedImage(
+                    baseImages?.find((a) => {
+                      let b =
+                        selectedImage?.sort_order + 1 < baseImages?.length
+                          ? selectedImage?.sort_order + 1
+                          : 0;
+                      return a?.sort_order === b;
+                    }) || selectedImage
+                  )
+                }
+                style={{
+                  cursor: "pointer",
+                  fontSize: "35px",
+                  color: "#fff",
+                  borderRadius: "30px",
+                  backgroundColor: "transparent",
+                  border: "none",
+                }}
+              >
+                <HiOutlineArrowCircleRight />
+              </button>
+            </div>
+            <div className="container_buttons_container">
+              <ShareIcon
+                style={{
+                  fontSize: "40px",
+                  marginRight: "40px",
+                  border: "2px solid #fff",
+                  borderRadius: "50%",
+                  padding:"5px"
+
+                }}
+              />
+              <MdFileDownload
+                className="backArrow"
+                onClick={() => handlePng()}
+                style={{
+                  fontSize: "40px",
+                  border: "2px solid #fff",
+                  borderRadius: "50%",
+                  padding:"5px"
+                }}
+              />
+            </div>
           </div>
         </div>
       </>
@@ -591,11 +603,15 @@ const OccasionPage = () => {
               .sort((a, b) => +a.sort_order - b.sort_order)
               .map((imgItem, index) => (
                 <div className="image_container">
-                  {console.log(imgItem?.img_url)}
                   <img
                     onClick={() => setSelectedImage(imgItem)}
                     src={imgItem?.img_url ? imgItem?.img_url : NoImage}
                     alt=""
+                    style={{
+                      width: "44vw",
+                      height: "61vw",
+                      objectFit: "cover",
+                    }}
                   />
                   {location.pathname.includes("AdminOccasion") ? (
                     <div
