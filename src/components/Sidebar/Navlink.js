@@ -51,8 +51,13 @@ const NavLink = ({
             className="menu"
             style={{
               display: menuVisible ? "block" : "none",
-              top: title === "Report" ?"-350px": title === "Setup" ? "-190px" : "-10px",
-              width:title === "Report" ?"300px":"200px"
+              top:
+                title === "Report"
+                  ? "-350px"
+                  : title === "Setup"
+                  ? "-190px"
+                  : "-10px",
+              width: title === "Report" ? "300px" : "200px",
             }}
           >
             {menuList
@@ -62,9 +67,9 @@ const NavLink = ({
                   className="item"
                   key={Math.random()}
                   onClick={() => {
-                    if (menu.name === "Posters")
-                      setIsItemAvilableOpen((prev) => !prev);
-          
+                    console.log(menu);
+                    if (menu.name === "Poster")
+                      setIsItemAvilableOpen(true);
                   }}
                 >
                   {<Link to={menu.link}>{menu.name}</Link>}

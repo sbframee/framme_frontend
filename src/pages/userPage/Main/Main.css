@@ -64,10 +64,11 @@
   border-radius: 50%;
 }
 .main .occasion_container .image_container .occ_title {
-  width: 100%;
+  width: 120px;
   padding: 5px 0;
   text-align: center;
   font-size: 1rem;
+  word-wrap: break-word;
 }
 .cat_title {
   font-size: 1.3rem;
@@ -115,7 +116,7 @@
 }
 .slide-container {
   width: 100vw;
-  height: 220px;
+  height: 230px;
   margin-top: 40px;
 }
 .indicator {
@@ -132,4 +133,11 @@
   background: #666;
   color: #666;
   transform: scale(1.5);
+}
+.images_container{
+width: max-content;
+  display: flex;
+  overflow-x: scroll;
+   align-items: flex-start;
+
 }

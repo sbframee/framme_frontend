@@ -114,7 +114,8 @@ const Main = () => {
               key={Math.random()}
             >
               <div className="cat_title">{item.title}</div>
-              <Carousel className="images_container">
+              <div style={{width:"100vw",overflow:"scroll"}}>
+              <div className="images_container">
                 {occasions
                   ?.sort((a, b) => +a.sort_order - +b.sort_order)
                   .filter(
@@ -125,6 +126,7 @@ const Main = () => {
                     <div
                       className="image_container"
                       onClick={() => navigate(`/occasion/${imgItem.occ_uuid}`)}
+              
                     >
                       <img
                         src={imgItem.thumbnail_url}
@@ -143,7 +145,8 @@ const Main = () => {
                       <div className="occ_title">{imgItem.title}</div>
                     </div>
                   ))}
-              </Carousel>
+              </div>
+              </div>
             </div>
           ))}
       </div>

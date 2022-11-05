@@ -6,15 +6,9 @@ import "./style.css";
 import NavLink from "./Navlink";
 import {
   AutoAwesomeMosaicOutlined as MasterIcon,
-  AssessmentOutlined as ReportsIcon,
   FlashOn as QuickAccessIcon,
-  SettingsOutlined as SettingsIcon,
-  UpgradeOutlined,
 } from "@mui/icons-material";
-import AssessmentIcon from "@mui/icons-material/Assessment";
-import AddIcon from "@mui/icons-material/Add";
-import axios from "axios";
-import { useLocation } from "react-router-dom";
+
 const SideBar = () => {
   const [posterPopup, setPosterPopup] = useState(false);
 
@@ -24,7 +18,10 @@ const SideBar = () => {
         className="left-panel"
         style={{ position: "relative", zIndex: "9000000" }}
       >
-        <div className="nav" style={{ height: "calc(100vh - 100px)",marginTop:"100px" }}>
+        <div
+          className="nav"
+          style={{ height: "calc(100vh - 100px)", marginTop: "100px" }}
+        >
           <NavLink
             title={"Master"}
             icon={<MasterIcon sx={{ fontSize: 50 }} />}
@@ -54,7 +51,6 @@ const SideBar = () => {
                 name: "WA Bot",
                 link: "/waBoot",
               },
-              
             ]}
           />
 
