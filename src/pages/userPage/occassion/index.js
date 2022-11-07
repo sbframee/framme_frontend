@@ -7,12 +7,8 @@ import { FaWhatsapp } from "react-icons/fa";
 import ShareIcon from "@mui/icons-material/Share";
 import Sliders from "../../../components/Sliders";
 import "react-slideshow-image/dist/styles.css";
-import {
-  MdKeyboardArrowDown,
-  MdKeyboardArrowLeft,
-  MdKeyboardArrowRight,
-  MdKeyboardArrowUp,
-} from "react-icons/md";
+import { motion } from "framer-motion";
+
 import {
   HiOutlineArrowCircleRight,
   HiOutlineArrowCircleLeft,
@@ -23,11 +19,55 @@ import axios from "axios";
 import useWindowDimensions from "../../../components/useWidthDimenshion";
 import { MdFileDownload } from "react-icons/md";
 import { ArrowBack } from "@mui/icons-material";
-
+import { Box, CircularProgress, Slider } from "@mui/material";
+import { styled } from "@mui/system";
+const PrettoSlider = styled(Slider)({
+  color: "#fff",
+  height: 4,
+  "& .MuiSlider-track": {
+    border: "none",
+  },
+  "& .MuiSlider-thumb": {
+    height: 15,
+    width: 15,
+    backgroundColor: "#fff",
+    border: "2px solid currentColor",
+    "&:focus, &:hover, &.Mui-active, &.Mui-focusVisible": {
+      boxShadow: "inherit",
+      height: 24,
+      width: 24,
+    },
+    "&:before": {
+      display: "none",
+    },
+  },
+  "& .MuiSlider-valueLabel": {
+    lineHeight: 1.2,
+    fontSize: 12,
+    background: "unset",
+    padding: 0,
+    width: 32,
+    height: 32,
+    color: "var(--main-color)",
+    borderRadius: "50% 50% 50% 0",
+    backgroundColor: "#fff",
+    transformOrigin: "bottom left",
+    transform: "translate(50%, -100%) rotate(-45deg) scale(0)",
+    "&:before": { display: "none" },
+    "&.MuiSlider-valueLabelOpen": {
+      transform: "translate(50%, -100%) rotate(-45deg) scale(1)",
+    },
+    "& > *": {
+      transform: "rotate(45deg)",
+    },
+  },
+});
 const OccasionPage = () => {
   const [images, setImages] = useState([]);
   const [state, setState] = useState(false);
   const [baseImages, setBaseImages] = useState([]);
+  const [loading, setLoading] = useState(false);
+
   const [tags, setTags] = useState([]);
   const [occasion, setOccasion] = useState({});
   const [updateImageData, setUpdateImageData] = useState({});
@@ -39,13 +79,53 @@ const OccasionPage = () => {
   const [CopyPopup, setCopyPopup] = useState("");
   const [usersData, setUsersData] = useState([]);
   const params = useParams();
+  const [baseImage, setBaseImage] = useState();
+
   const imageArea = useRef();
   const ref = useRef();
   const [selectedHolder, setSeletedHolder] = useState("");
   const navigate = useNavigate();
   const { width } = useWindowDimensions();
   const location = useLocation();
-
+  useEffect(() => {
+    if (selectedImage?.img_url) {
+      axios({
+        method: "get",
+        url: selectedImage?.img_url,
+        responseType: "blob",
+      }).then(function (response) {
+        var reader = new FileReader();
+        reader.readAsDataURL(response.data);
+        reader.onloadend = function () {
+          var base64data = reader.result;
+          console.log(base64data);
+          setBaseImage(base64data);
+        };
+      });
+    }
+  }, [selectedImage]);
+  const getSelectedBaseImageData = async (image) => {
+    if (image.img_url) {
+      setLoading(true);
+      const response = await axios({
+        method: "get",
+        url: "/images/getBaseImages/" + image.img_url.split("/")[3],
+      });
+      if (response.data.success) {
+        let data = response.data.result;
+        data = {
+          ...data,
+          holder: data.holder.map((a) => ({
+            ...a,
+            scale: 1,
+            _id: Math?.random(),
+          })),
+        };
+        setSelectedImage(data);
+        setLoading(false);
+      }
+    }
+  };
   const getUsersData = async () => {
     const response = await axios({ method: "get", url: "/users/getUsers" });
     console.log(response);
@@ -125,14 +205,11 @@ const OccasionPage = () => {
           }))
       );
       if (params.img_url)
-        setSelectedImage(
-          response.data.result.find((a) =>
-            a.img_url.includes(
-              "https://framme-media.s3.ap-south-1.amazonaws.com/" +
-                params.img_url
-            )
-          )
-        );
+        getSelectedBaseImageData({
+          img_url:
+            "https://framme-media.s3.ap-south-1.amazonaws.com/" +
+            params.img_url,
+        });
     }
   };
 
@@ -222,160 +299,167 @@ const OccasionPage = () => {
               style={{ color: "#fff" }}
             />
           </div>
-          <div className="display_image_container">
-            {selectedImage.img_url ? (
-              <div
-                ref={ref}
-                id="my-img"
-                className="DisplayImg"
-                style={{
-                  width:
-                    (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                      selectedImage?.coordinates[0]?.a?.split(",")[0] <
-                    width
-                      ? selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[0]
-                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                          1.5 <
-                        width
-                      ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                        1.5
-                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                          2 <
-                        width
-                      ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                        2
-                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                        2.5) + "px",
-                  height:
-                    (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                      selectedImage?.coordinates[0]?.a?.split(",")[0] <
-                    width
-                      ? selectedImage?.coordinates[0]?.d?.split(",")[1] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[1]
-                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                          1.5 <
-                        width
-                      ? (selectedImage?.coordinates[0]?.d?.split(",")[1] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[1]) /
-                        1.5
-                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                          2 <
-                        width
-                      ? (selectedImage?.coordinates[0]?.d?.split(",")[1] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[1]) /
-                        2
-                      : (selectedImage?.coordinates[0]?.d?.split(",")[1] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[1]) /
-                        2.5) + "px",
-                  maxHeight: "100%",
-                  backgroundColor: "#000",
-                }}
-              >
-                <img
-                  src={selectedImage?.img_url}
-                  alt={NoImage}
+          {loading ? (
+            <div className="flex">
+              <CircularProgress />
+            </div>
+          ) : (
+            <div className="display_image_container">
+              {selectedImage.img_url ? (
+                <div
+                  ref={ref}
+                  id="my-img"
+                  className="DisplayImg"
                   style={{
-                    width: "100%",
-                    // height: "100%",
-                    position: "absolute",
-                    pointerEvents: "none",
-                    borderRadius: "20px",
-                    // transform: mirrorRevert ? "scaleX(-1)" : "scaleX(1)",
+                    width:
+                      (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                        selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                      width
+                        ? selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]
+                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                            1.5 <
+                          width
+                        ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                          1.5
+                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                            2 <
+                          width
+                        ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                          2
+                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                          2.5) + "px",
+                    height:
+                      (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                        selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                      width
+                        ? selectedImage?.coordinates[0]?.d?.split(",")[1] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[1]
+                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                            1.5 <
+                          width
+                        ? (selectedImage?.coordinates[0]?.d?.split(",")[1] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[1]) /
+                          1.5
+                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                            2 <
+                          width
+                        ? (selectedImage?.coordinates[0]?.d?.split(",")[1] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[1]) /
+                          2
+                        : (selectedImage?.coordinates[0]?.d?.split(",")[1] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[1]) /
+                          2.5) + "px",
+                    maxHeight: "100%",
+                    backgroundColor: "#000",
                   }}
-                  ref={imageArea}
-                />
+                >
+                  <img
+                    src={baseImage}
+                    alt={NoImage}
+                    style={{
+                      width: "100%",
+                      // height: "100%",
+                      position: "absolute",
+                      pointerEvents: "none",
+                      borderRadius: "20px",
+                      // transform: mirrorRevert ? "scaleX(-1)" : "scaleX(1)",
+                    }}
+                    ref={imageArea}
+                  />
 
-                {selectedImage.holder
-                  ?.filter((a) => {
-                    let value = deleteHolders?.filter((b) => a?._id === b?._id)
-                      ?.length
-                      ? false
-                      : true;
+                  {selectedImage.holder
+                    ?.filter((a) => {
+                      let value = deleteHolders?.filter(
+                        (b) => a?._id === b?._id
+                      )?.length
+                        ? false
+                        : true;
 
-                    return value;
-                  })
-                  ?.map((item) => {
-                    let url = tags.find((a) => a.tag_uuid === item.label_uuid);
+                      return value;
+                    })
+                    ?.map((item) => {
+                      let url = tags.find(
+                        (a) => a.tag_uuid === item.label_uuid
+                      );
 
-                    let coordinates = item.a.split(",");
-                    coordinates[0] =
-                      selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[0] <
-                      width
-                        ? coordinates[0]
-                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                            1.5 <
-                          width
-                        ? coordinates[0] / 1.5
-                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                            2 <
-                          width
-                        ? coordinates[0] / 2
-                        : coordinates[0] / 2.5;
+                      let coordinates = item.a.split(",");
+                      coordinates[0] =
+                        selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                        width
+                          ? coordinates[0]
+                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                              1.5 <
+                            width
+                          ? coordinates[0] / 1.5
+                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                              2 <
+                            width
+                          ? coordinates[0] / 2
+                          : coordinates[0] / 2.5;
 
-                    coordinates[1] =
-                      selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[0] <
-                      width
-                        ? coordinates[1]
-                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                            1.5 <
-                          width
-                        ? coordinates[1] / 1.5
-                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                            2 <
-                          width
-                        ? coordinates[1] / 2
-                        : coordinates[1] / 2.5;
+                      coordinates[1] =
+                        selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                        width
+                          ? coordinates[1]
+                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                              1.5 <
+                            width
+                          ? coordinates[1] / 1.5
+                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                              2 <
+                            width
+                          ? coordinates[1] / 2
+                          : coordinates[1] / 2.5;
 
-                    let width1 =
-                      selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[0] <
-                      width
-                        ? item.b.split(",")[0] - coordinates[0]
-                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                            1.5 <
-                          width
-                        ? item.b.split(",")[0] / 1.5 - coordinates[0]
-                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                            2 <
-                          width
-                        ? item.b.split(",")[0] / 2 - coordinates[0]
-                        : item.b.split(",")[0] / 2.5 - coordinates[0];
+                      let width1 =
+                        selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                        width
+                          ? item.b.split(",")[0] - coordinates[0]
+                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                              1.5 <
+                            width
+                          ? item.b.split(",")[0] / 1.5 - coordinates[0]
+                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                              2 <
+                            width
+                          ? item.b.split(",")[0] / 2 - coordinates[0]
+                          : item.b.split(",")[0] / 2.5 - coordinates[0];
 
-                    let height =
-                      selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[0] <
-                      width
-                        ? item.d.split(",")[1] - coordinates[1]
-                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                            1.5 <
-                          width
-                        ? item.d.split(",")[1] / 1.5 - coordinates[1]
-                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                            2 <
-                          width
-                        ? item.d.split(",")[1] / 2 - coordinates[1]
-                        : item.d.split(",")[1] / 2.5 - coordinates[1];
+                      let height =
+                        selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                        width
+                          ? item.d.split(",")[1] - coordinates[1]
+                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                              1.5 <
+                            width
+                          ? item.d.split(",")[1] / 1.5 - coordinates[1]
+                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                              2 <
+                            width
+                          ? item.d.split(",")[1] / 2 - coordinates[1]
+                          : item.d.split(",")[1] / 2.5 - coordinates[1];
 
-                    if (url?.tag_type === "I") {
-                      if (width > 1000)
+                      if (url?.tag_type === "I") {
                         return (
                           <Tag
                             switchBtn={switchBtn}
@@ -392,29 +476,10 @@ const OccasionPage = () => {
                             deleteHandler={() =>
                               setDeleteHolders((prev) => [...prev, item])
                             }
+                            scale={item?.scale}
                           />
                         );
-                      else
-                        return (
-                          <TagMobile
-                            switchBtn={switchBtn}
-                            setSwitchBtn={setSwitchBtn}
-                            setSeletedHolder={setSeletedHolder}
-                            selectedHolder={selectedHolder}
-                            item={item}
-                            url={url}
-                            mirrorRevert={mirrorRevert}
-                            type="I"
-                            coordinates={coordinates}
-                            width={width1}
-                            height={height}
-                            deleteHandler={() =>
-                              setDeleteHolders((prev) => [...prev, item])
-                            }
-                          />
-                        );
-                    } else if (url?.tag_type === "T") {
-                      if (width > 1000)
+                      } else if (url?.tag_type === "T") {
                         return (
                           <Tag
                             switchBtn={switchBtn}
@@ -428,42 +493,48 @@ const OccasionPage = () => {
                             width={width1}
                             height={height}
                             url={url}
+                            scale={item?.scale}
                             deleteHandler={() =>
                               setDeleteHolders((prev) => [...prev, item])
                             }
                           />
                         );
-                      else
-                        return (
-                          <TagMobile
-                            switchBtn={switchBtn}
-                            setSwitchBtn={setSwitchBtn}
-                            setSeletedHolder={setSeletedHolder}
-                            selectedHolder={selectedHolder}
-                            item={item}
-                            mirrorRevert={mirrorRevert}
-                            type="T"
-                            coordinates={coordinates}
-                            width={width1}
-                            height={height}
-                            url={url}
-                            deleteHandler={() =>
-                              setDeleteHolders((prev) => [...prev, item])
-                            }
-                          />
-                        );
-                    }
-                  })}
-              </div>
-            ) : (
-              ""
-            )}
-          </div>
+                      }
+                    })}
+                </div>
+              ) : (
+                ""
+              )}
+            </div>
+          )}
           <div className="container_buttons">
+            <div className="container_buttons_container">
+              <Box width={250}>
+                <PrettoSlider
+                  aria-label="pretto slider"
+                  valueLabelDisplay="auto"
+                  value={
+                    selectedImage?.holder?.find(
+                      (b) => b._id === selectedHolder._id
+                    )?.scale * 25 || 0
+                  }
+                  onChange={(e) =>
+                    setSelectedImage((prev) => ({
+                      ...prev,
+                      holder: selectedImage?.holder?.map((b) =>
+                        b._id === selectedHolder._id
+                          ? { ...b, scale: Math.abs(e.target.value / 25) }
+                          : b
+                      ),
+                    }))
+                  }
+                />
+              </Box>
+            </div>
             <div className="container_buttons_container">
               <button
                 onClick={() =>
-                  setSelectedImage(
+                  getSelectedBaseImageData(
                     baseImages?.find((a) => {
                       let b =
                         selectedImage?.sort_order - 1
@@ -511,7 +582,7 @@ const OccasionPage = () => {
                   })
                 }
               >
-                <i class="fa-regular fa-arrows-rotate"></i>
+                Swap
               </button>
               <button
                 className="image_btn"
@@ -529,7 +600,7 @@ const OccasionPage = () => {
 
               <button
                 onClick={() =>
-                  setSelectedImage(
+                  getSelectedBaseImageData(
                     baseImages?.find((a) => {
                       let b =
                         selectedImage?.sort_order + 1 < baseImages?.length
@@ -558,8 +629,7 @@ const OccasionPage = () => {
                   marginRight: "40px",
                   border: "2px solid #fff",
                   borderRadius: "50%",
-                  padding:"5px"
-
+                  padding: "5px",
                 }}
               />
               <MdFileDownload
@@ -569,7 +639,7 @@ const OccasionPage = () => {
                   fontSize: "40px",
                   border: "2px solid #fff",
                   borderRadius: "50%",
-                  padding:"5px"
+                  padding: "5px",
                 }}
               />
             </div>
@@ -587,6 +657,7 @@ const OccasionPage = () => {
             />
             <div className="h1">{occasion?.title || "-"}</div>
           </div>
+
           {occasion?.posters?.length ? (
             <div className="slide-container">
               {occasion?.posters.length ? (
@@ -598,74 +669,80 @@ const OccasionPage = () => {
           ) : (
             ""
           )}
-          <div className="occasion_container">
-            {baseImages
-              .sort((a, b) => +a.sort_order - b.sort_order)
-              .map((imgItem, index) => (
-                <div className="image_container">
-                  <img
-                    onClick={() => setSelectedImage(imgItem)}
-                    src={imgItem?.img_url ? imgItem?.img_url : NoImage}
-                    alt=""
-                    style={{
-                      width: "44vw",
-                      height: "61vw",
-                      objectFit: "cover",
-                    }}
-                  />
-                  {location.pathname.includes("AdminOccasion") ? (
-                    <div
+          {loading ? (
+            <div className="flex" style={{ marginTop: "50px" }}>
+              <CircularProgress />
+            </div>
+          ) : (
+            <div className="occasion_container">
+              {baseImages
+                .sort((a, b) => +a.sort_order - b.sort_order)
+                .map((imgItem, index) => (
+                  <div className="image_container">
+                    <img
+                      onClick={() => getSelectedBaseImageData(imgItem)}
+                      src={imgItem?.img_url ? imgItem?.img_url : NoImage}
+                      alt=""
                       style={{
-                        width: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
+                        width: "44vw",
+                        height: "61vw",
+                        objectFit: "cover",
                       }}
-                    >
-                      <button
-                        type="button"
-                        onClick={() => setDeleteImage(imgItem)}
-                        className="deleteBtn"
+                    />
+                    {location.pathname.includes("AdminOccasion") ? (
+                      <div
+                        style={{
+                          width: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                        }}
                       >
-                        Delete
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setCopyPopup(imgItem)}
-                        className="deleteBtn copybtn"
-                      >
-                        Copy
-                      </button>
-                      <div className="updateContainer">
-                        <input
-                          style={{ width: "30px" }}
-                          placeholder={imgItem.sort_order || index + 1}
-                          onChange={(e) =>
-                            setUpdateImageData({
-                              ...imgItem,
-                              sort_order: e.target.value,
-                            })
-                          }
-                        />
-                        {updateImageData?._id === imgItem?._id ? (
-                          <button
-                            type="button"
-                            onClick={() => updateImage(updateImageData)}
-                            className="updateButton"
-                          >
-                            Update
-                          </button>
-                        ) : (
-                          ""
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => setDeleteImage(imgItem)}
+                          className="deleteBtn"
+                        >
+                          Delete
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setCopyPopup(imgItem)}
+                          className="deleteBtn copybtn"
+                        >
+                          Copy
+                        </button>
+                        <div className="updateContainer">
+                          <input
+                            style={{ width: "30px" }}
+                            placeholder={imgItem.sort_order || index + 1}
+                            onChange={(e) =>
+                              setUpdateImageData({
+                                ...imgItem,
+                                sort_order: e.target.value,
+                              })
+                            }
+                          />
+                          {updateImageData?._id === imgItem?._id ? (
+                            <button
+                              type="button"
+                              onClick={() => updateImage(updateImageData)}
+                              className="updateButton"
+                            >
+                              Update
+                            </button>
+                          ) : (
+                            ""
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    ""
-                  )}
-                </div>
-              ))}
-          </div>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+                ))}
+            </div>
+          )}
         </div>
         {deleteImage ? (
           <Popup
@@ -701,16 +778,11 @@ const Popup = ({ close, deleteHandler, type, usersData, item }) => {
     deleteHandler();
     close();
   };
-  useEffect(
-    user
-      ? () => {
-          var input = document.getElementById("myTextInput");
-          input.focus();
-          input.select();
-        }
-      : () => {},
-    [user]
-  );
+  useEffect(() => {
+    if (user) var input = document.getElementById("myTextInput");
+    input.focus();
+    input.select();
+  }, [user]);
   return (
     <div className="popup_bg overlay">
       <div className="popup_img">
@@ -849,6 +921,7 @@ const Popup = ({ close, deleteHandler, type, usersData, item }) => {
     </div>
   );
 };
+
 const Tag = ({
   url,
   type,
@@ -862,470 +935,41 @@ const Tag = ({
   setSeletedHolder,
   setSwitchBtn,
   mirrorRevert,
+  scale,
 }) => {
-  const ref = useRef(null);
-  const refLeft = useRef(null);
-  const refTop = useRef(null);
-  const refRight = useRef(null);
-  const refBottom = useRef(null);
-  const sizeRef = useRef(null);
-  const heightWeight = useWindowDimensions();
+  const [baseImage, setBaseImage] = useState();
   useEffect(() => {
-    const resizeableEle = ref.current;
-    const styles = window.getComputedStyle(resizeableEle);
-    let width = parseInt(styles.width, 10);
-    let height = parseInt(styles.height, 10);
-    let x = 0;
-    let y = 0;
+    let img_url = url?.img_url?.sort((a, b) => +a.sort_order - +b.sort_order)[
+      (item?.index || 1) % url?.img_url?.length
+    ]?.img_url;
+    console.log(item);
 
-    resizeableEle.style.top = styles.top;
-    resizeableEle.style.left = styles.left;
-    // Right resize
-    const onMouseMoveRightResize = (event) => {
-      const dx = event.clientX - x;
-      x = event.clientX;
-      width = width + dx;
-      resizeableEle.style.width = `${width}px`;
-      resizeableEle.style.fontSize = width / 100 + "rem";
-    };
-
-    const onMouseUpRightResize = (event) => {
-      document.removeEventListener("mousemove", onMouseMoveRightResize);
-    };
-
-    const onMouseDownRightResize = (event) => {
-      x = event.clientX;
-      resizeableEle.style.left = styles.left;
-      resizeableEle.style.right = null;
-      document.addEventListener("mousemove", onMouseMoveRightResize);
-      document.addEventListener("mouseup", onMouseUpRightResize);
-    };
-
-    // Top resize
-    const onMouseMoveTopResize = (event) => {
-      const dy = event.clientY - y;
-      height = height - dy;
-      y = event.clientY;
-      resizeableEle.style.height = `${height}px`;
-    };
-
-    const onMouseUpTopResize = (event) => {
-      document.removeEventListener("mousemove", onMouseMoveTopResize);
-    };
-
-    const onMouseDownTopResize = (event) => {
-      y = event.clientY;
-      const styles = window.getComputedStyle(resizeableEle);
-      resizeableEle.style.bottom = styles.bottom;
-      resizeableEle.style.top = null;
-      document.addEventListener("mousemove", onMouseMoveTopResize);
-      document.addEventListener("mouseup", onMouseUpTopResize);
-    };
-
-    // Bottom resize
-    const onMouseMoveBottomResize = (event) => {
-      const dy = event.clientY - y;
-      height = height + dy;
-      y = event.clientY;
-      resizeableEle.style.height = `${height}px`;
-    };
-
-    const onMouseUpBottomResize = (event) => {
-      document.removeEventListener("mousemove", onMouseMoveBottomResize);
-    };
-
-    const onMouseDownBottomResize = (event) => {
-      y = event.clientY;
-      const styles = window.getComputedStyle(resizeableEle);
-      resizeableEle.style.top = styles.top;
-      resizeableEle.style.bottom = null;
-      document.addEventListener("mousemove", onMouseMoveBottomResize);
-      document.addEventListener("mouseup", onMouseUpBottomResize);
-    };
-
-    // Left resize
-    const onMouseMoveLeftResize = (event) => {
-      const dx = event.clientX - x;
-      x = event.clientX;
-      width = width - dx;
-      resizeableEle.style.width = `${width}px`;
-      resizeableEle.style.fontSize = width / 100 + "rem";
-    };
-
-    const onMouseUpLeftResize = (event) => {
-      document.removeEventListener("mousemove", onMouseMoveLeftResize);
-    };
-
-    const onMouseDownLeftResize = (event) => {
-      x = event.clientX;
-      resizeableEle.style.right = styles.right;
-      resizeableEle.style.left = null;
-      document.addEventListener("mousemove", onMouseMoveLeftResize);
-      document.addEventListener("mouseup", onMouseUpLeftResize);
-    };
-    const onMouseSelect = (event) => {
-      const { clientX, clientY } = event;
-      resizeableEle.style.top = clientY - 100 + "px";
-      resizeableEle.style.left =
-        heightWeight.width >= 1000
-          ? clientX - heightWeight.width / 4 + "px"
-          : clientX - 100 + "px";
-      document.addEventListener("mousemove", onMouseSelectResize);
-      document.addEventListener("mouseup", onMouseUpSelectResize);
-    };
-    const onMouseSelectResize = (event) => {
-      const dx = event.clientX - x;
-      x = event.clientX;
-      width = width - dx;
-      const dy = event.clientY - y;
-      height = height + dy;
-      y = event.clientY;
-      resizeableEle.style.top = y - 100 + "px";
-      resizeableEle.style.left =
-        heightWeight.width >= 1000
-          ? x - heightWeight.width / 4 + "px"
-          : x - 100 + "px";
-    };
-
-    const onMouseUpSelectResize = (event) => {
-      document.removeEventListener("mousemove", onMouseSelectResize);
-    };
-
-    // Add mouse down event listener
-
-    if (selectedHolder?._id === item?._id) {
-      const resizerRight = refRight.current;
-      resizerRight.addEventListener("mousedown", onMouseDownRightResize);
-      const resizerTop = refTop.current;
-      resizerTop.addEventListener("mousedown", onMouseDownTopResize);
-      const resizerBottom = refBottom.current;
-      resizerBottom.addEventListener("mousedown", onMouseDownBottomResize);
-      const resizerLeft = refLeft.current;
-      resizerLeft.addEventListener("mousedown", onMouseDownLeftResize);
-      const reposition = sizeRef.current;
-      reposition.addEventListener("mousedown", onMouseSelect);
-      return () => {
-        resizerRight.removeEventListener("mousedown", onMouseDownRightResize);
-        resizerTop.removeEventListener("mousedown", onMouseDownTopResize);
-        resizerBottom.removeEventListener("mousedown", onMouseDownBottomResize);
-        resizerLeft.removeEventListener("mousedown", onMouseDownLeftResize);
-        reposition.removeEventListener("mousedown", onMouseSelect);
-      };
+    if (img_url) {
+      axios({
+        method: "get",
+        url: img_url,
+        responseType: "blob",
+      }).then(function (response) {
+        var reader = new FileReader();
+        reader.readAsDataURL(response.data);
+        reader.onloadend = function () {
+          var base64data = reader.result;
+          console.log(base64data);
+          setBaseImage(base64data);
+        };
+      });
     }
-  }, [switchBtn, selectedHolder]);
+  }, [item, item?.index, url]);
 
   return (
-    <div
-      ref={ref}
-      className="resizeable"
-      style={{
-        cursor: "pointer",
-        left: coordinates[0] + "px",
-        top: coordinates[1] + "px",
-        width: width + "px",
-        height: height + "px",
-        position: "absolute",
-        transform: mirrorRevert.find((a) => a === item?.label_uuid)
-          ? "scaleX(-1)"
-          : "scaleX(1)",
+    <motion.div
+      dragConstraints={{
+        top: -100,
+        left: -150,
+        right: 150,
+        bottom: 100,
       }}
-    >
-      <div
-        ref={sizeRef}
-        className="holders img"
-        onClick={
-          switchBtn === "delete"
-            ? deleteHandler
-            : (e) => {
-                e.stopPropagation();
-                setSwitchBtn("position");
-                setSeletedHolder(item);
-              }
-        }
-        style={{
-          border:
-            selectedHolder?._id === item?._id ? "2px solid black" : "none",
-          width: "100%",
-          height: "100%",
-        }}
-      >
-        {type === "T" &&
-        url?.text?.sort((a, b) => +a.sort_order - +b.sort_order)[
-          item.index % url?.text?.length
-        ]?.text ? (
-          <div
-            className="holders"
-            style={{
-              border:
-                selectedHolder?._id === item?._id ? "2px solid black" : "none",
-              width: "100%",
-              height: "100%",
-              pointerEvents: "none",
-              textAlign: "center",
-              color: item?.text_color || "#000",
-              fontFamily: item?.fontFamily || "",
-            }}
-          >
-            {
-              url?.text.sort((a, b) => +a.sort_order - +b.sort_order)[
-                item.index % url?.text?.length
-              ].text
-            }
-          </div>
-        ) : url?.img_url?.sort((a, b) => +a.sort_order - +b.sort_order)[
-            item.index % url?.img_url?.length
-          ]?.img_url ? (
-          // eslint-disable-next-line jsx-a11y/alt-text
-          <img
-            src={
-              url?.img_url?.sort((a, b) => +a.sort_order - +b.sort_order)[
-                item.index % url?.img_url?.length
-              ]?.img_url
-            }
-            className="holders"
-            style={{ width: "100%", height: "100%", pointerEvents: "none" }}
-            alt={NoImage}
-          />
-        ) : (
-          <></>
-        )}
-      </div>
-      <div
-        ref={refLeft}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSwitchBtn("resize");
-        }}
-        style={
-          selectedHolder?._id === item?._id
-            ? { display: "flex" }
-            : { display: "none" }
-        }
-        className="resizer resizer-l"
-      >
-        <MdKeyboardArrowLeft style={{ fontSize: "30px" }} />
-      </div>
-      <div
-        ref={refTop}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSwitchBtn("resize");
-        }}
-        style={
-          selectedHolder?._id === item?._id
-            ? { display: "flex" }
-            : { display: "none" }
-        }
-        className="resizer resizer-t"
-      >
-        <MdKeyboardArrowUp style={{ fontSize: "30px" }} />
-      </div>
-      <div
-        ref={refRight}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSwitchBtn("resize");
-        }}
-        style={
-          selectedHolder?._id === item?._id
-            ? { display: "flex" }
-            : { display: "none" }
-        }
-        className="resizer resizer-r"
-      >
-        <MdKeyboardArrowRight style={{ fontSize: "30px" }} />
-      </div>
-      <div
-        ref={refBottom}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSwitchBtn("resize");
-        }}
-        style={
-          selectedHolder?._id === item?._id
-            ? { display: "flex" }
-            : { display: "none" }
-        }
-        className="resizer resizer-b"
-      >
-        <MdKeyboardArrowDown style={{ fontSize: "30px" }} />
-      </div>
-    </div>
-  );
-};
-
-const TagMobile = ({
-  url,
-  type,
-  coordinates,
-  width,
-  height,
-  deleteHandler,
-  switchBtn,
-  item,
-  selectedHolder,
-  setSeletedHolder,
-  setSwitchBtn,
-  mirrorRevert,
-}) => {
-  const ref = useRef(null);
-  const refLeft = useRef(null);
-  const refTop = useRef(null);
-  const refRight = useRef(null);
-  const refBottom = useRef(null);
-  const heightWidth = useWindowDimensions();
-  const sizeRef = useRef(null);
-  useEffect(() => {
-    const resizeableEle = ref.current;
-    const styles = window.getComputedStyle(resizeableEle);
-    let width = parseInt(styles.width, 10);
-    let height = parseInt(styles.height, 10);
-    let x = 0;
-    let y = 0;
-
-    resizeableEle.style.top = styles.top;
-    resizeableEle.style.left = styles.left;
-    // Right resize
-    const onMouseMoveRightResize = (event) => {
-      const dx = event.changedTouches[0].clientX - x;
-      x = event.changedTouches[0].clientX;
-      width = width + dx;
-      resizeableEle.style.width = `${width}px`;
-      resizeableEle.style.fontSize = width / 100 + "rem";
-    };
-
-    const onMouseUpRightResize = (event) => {
-      document.removeEventListener("touchmove", onMouseMoveRightResize);
-    };
-
-    const onMouseDownRightResize = (event) => {
-      x = event.changedTouches[0].clientX;
-      resizeableEle.style.left = styles.left;
-      resizeableEle.style.right = null;
-      document.addEventListener("touchmove", onMouseMoveRightResize);
-      document.addEventListener("touchend", onMouseUpRightResize);
-    };
-
-    // Top resize
-    const onMouseMoveTopResize = (event) => {
-      const dy = event.changedTouches[0].clientY - y;
-      height = height - dy;
-      y = event.changedTouches[0].clientY;
-      resizeableEle.style.height = `${height}px`;
-    };
-
-    const onMouseUpTopResize = (event) => {
-      document.removeEventListener("touchmove", onMouseMoveTopResize);
-    };
-
-    const onMouseDownTopResize = (event) => {
-      y = event.changedTouches[0].clientY;
-      const styles = window.getComputedStyle(resizeableEle);
-      resizeableEle.style.bottom = styles.bottom;
-      resizeableEle.style.top = null;
-      document.addEventListener("touchmove", onMouseMoveTopResize);
-      document.addEventListener("touchend", onMouseUpTopResize);
-    };
-
-    // Bottom resize
-    const onMouseMoveBottomResize = (event) => {
-      const dy = event.changedTouches[0].clientY - y;
-      height = height + dy;
-      y = event.changedTouches[0].clientY;
-      resizeableEle.style.height = `${height}px`;
-    };
-
-    const onMouseUpBottomResize = (event) => {
-      document.removeEventListener("touchmove", onMouseMoveBottomResize);
-    };
-
-    const onMouseDownBottomResize = (event) => {
-      y = event.changedTouches[0].clientY;
-      const styles = window.getComputedStyle(resizeableEle);
-      resizeableEle.style.top = styles.top;
-      resizeableEle.style.bottom = null;
-      document.addEventListener("touchmove", onMouseMoveBottomResize);
-      document.addEventListener("touchend", onMouseUpBottomResize);
-    };
-
-    // Left resize
-    const onMouseMoveLeftResize = (event) => {
-      const dx = event.changedTouches[0].clientX - x;
-      x = event.changedTouches[0].clientX;
-      width = width - dx;
-      resizeableEle.style.width = `${width}px`;
-      resizeableEle.style.fontSize = width / 100 + "rem";
-    };
-
-    const onMouseUpLeftResize = (event) => {
-      document.removeEventListener("touchmove", onMouseMoveLeftResize);
-    };
-
-    const onMouseDownLeftResize = (event) => {
-      x = event.changedTouches[0].clientX;
-      resizeableEle.style.right = styles.right;
-      resizeableEle.style.left = null;
-      document.addEventListener("touchmove", onMouseMoveLeftResize);
-      document.addEventListener("touchend", onMouseUpLeftResize);
-    };
-    const onMouseSelect = (event) => {
-      console.log(event);
-      const { clientX, clientY } = event.changedTouches[0];
-      resizeableEle.style.top = clientY - 100 + "px";
-      resizeableEle.style.left =
-        heightWidth.width >= 1000
-          ? clientX - heightWidth.width / 4 + "px"
-          : clientX - 100 + "px";
-      document.addEventListener("touchmove", onMouseSelectResize);
-      document.addEventListener("touchend", onMouseUpSelectResize);
-    };
-    const onMouseSelectResize = (event) => {
-      const dx = event.changedTouches[0].clientX - x;
-      x = event.changedTouches[0].clientX;
-      width = width - dx;
-      const dy = event.changedTouches[0].clientY - y;
-      height = height + dy;
-      y = event.changedTouches[0].clientY;
-      resizeableEle.style.top = y - 100 + "px";
-      resizeableEle.style.left =
-        heightWidth.width >= 1000
-          ? x - heightWidth.width / 4 + "px"
-          : x - 100 + "px";
-    };
-
-    const onMouseUpSelectResize = (event) => {
-      document.removeEventListener("touchmove", onMouseSelectResize);
-    };
-
-    // Add mouse down event listener
-
-    if (selectedHolder?._id === item?._id) {
-      const resizerRight = refRight.current;
-      resizerRight.addEventListener("touchstart", onMouseDownRightResize);
-      const resizerTop = refTop.current;
-      resizerTop.addEventListener("touchstart", onMouseDownTopResize);
-      const resizerBottom = refBottom.current;
-      resizerBottom.addEventListener("touchstart", onMouseDownBottomResize);
-      const resizerLeft = refLeft.current;
-      resizerLeft.addEventListener("touchstart", onMouseDownLeftResize);
-      const reposition = sizeRef.current;
-      reposition.addEventListener("touchstart", onMouseSelect);
-      return () => {
-        resizerRight.removeEventListener("touchstart", onMouseDownRightResize);
-        resizerTop.removeEventListener("touchstart", onMouseDownTopResize);
-        resizerBottom.removeEventListener(
-          "touchstart",
-          onMouseDownBottomResize
-        );
-        resizerLeft.removeEventListener("touchstart", onMouseDownLeftResize);
-        reposition.removeEventListener("touchstart", onMouseSelect);
-      };
-    }
-  }, [switchBtn, selectedHolder]);
-
-  return (
-    <div
-      ref={ref}
+      drag
       className="resizeable"
       style={{
         cursor: "pointer",
@@ -1335,13 +979,12 @@ const TagMobile = ({
         height: height + "px",
         position: "absolute",
         transform: mirrorRevert.find((a) => a === item?.label_uuid)
-          ? "scaleX(-1)"
-          : "scaleX(1)",
+          ? `scaleX(-1)`
+          : `scaleX(1)`,
       }}
       onTouchEnd={() => setSwitchBtn("resize")}
     >
       <div
-        ref={sizeRef}
         className="holders img"
         onMouseLeave={() => setSwitchBtn("resize")}
         onClick={
@@ -1358,6 +1001,7 @@ const TagMobile = ({
             selectedHolder?._id === item?._id ? "2px solid black" : "none",
           width: "100%",
           height: "100%",
+          transform: `scale(${scale})`,
         }}
       >
         {type === "T" &&
@@ -1381,16 +1025,10 @@ const TagMobile = ({
               ].text
             }
           </div>
-        ) : url?.img_url?.sort((a, b) => +a.sort_order - +b.sort_order)[
-            item.index % url?.img_url?.length
-          ]?.img_url ? (
+        ) : baseImage ? (
           // eslint-disable-next-line jsx-a11y/alt-text
           <img
-            src={
-              url.img_url.sort((a, b) => +a.sort_order - +b.sort_order)[
-                item.index % url?.img_url?.length
-              ]?.img_url
-            }
+            src={baseImage}
             className="holders"
             style={{ width: "100%", height: "100%", pointerEvents: "none" }}
             alt={NoImage}
@@ -1399,66 +1037,6 @@ const TagMobile = ({
           <></>
         )}
       </div>
-      <div
-        ref={refLeft}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSwitchBtn("resize");
-        }}
-        style={
-          selectedHolder?._id === item?._id
-            ? { display: "flex" }
-            : { display: "none" }
-        }
-        className="resizer resizer-l"
-      >
-        <MdKeyboardArrowLeft style={{ fontSize: "30px" }} />
-      </div>
-      <div
-        ref={refTop}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSwitchBtn("resize");
-        }}
-        style={
-          selectedHolder?._id === item?._id
-            ? { display: "flex" }
-            : { display: "none" }
-        }
-        className="resizer resizer-t"
-      >
-        <MdKeyboardArrowUp style={{ fontSize: "30px" }} />
-      </div>
-      <div
-        ref={refRight}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSwitchBtn("resize");
-        }}
-        style={
-          selectedHolder?._id === item?._id
-            ? { display: "flex" }
-            : { display: "none" }
-        }
-        className="resizer resizer-r"
-      >
-        <MdKeyboardArrowRight style={{ fontSize: "30px" }} />
-      </div>
-      <div
-        ref={refBottom}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSwitchBtn("resize");
-        }}
-        style={
-          selectedHolder?._id === item?._id
-            ? { display: "flex" }
-            : { display: "none" }
-        }
-        className="resizer resizer-b"
-      >
-        <MdKeyboardArrowDown style={{ fontSize: "30px" }} />
-      </div>
-    </div>
+    </motion.div>
   );
 };

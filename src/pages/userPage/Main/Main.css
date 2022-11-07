@@ -8,12 +8,15 @@
   flex-direction: column;
   overflow-y: scroll;
   overflow-x: hidden;
+  padding-top: 50px;
   /* background-color: black; */
 }
 
 .profile-Icon {
-  padding: 10px;
+  color: #fff;
+  /* padding: 0 20px ; */
 }
+
 .navbar .user_name {
   font-size: 1rem;
   font-weight: bold;
@@ -116,8 +119,9 @@
 }
 .slide-container {
   width: 100vw;
-  height: 230px;
-  margin-top: 40px;
+
+  margin: 10px 0;
+  /* background-color: #fff; */
 }
 .indicator {
   background: #fff;
@@ -134,10 +138,9 @@
   color: #666;
   transform: scale(1.5);
 }
-.images_container{
-width: max-content;
+.images_container {
+  width: max-content;
   display: flex;
   overflow-x: scroll;
-   align-items: flex-start;
-
+  align-items: flex-start;
 }

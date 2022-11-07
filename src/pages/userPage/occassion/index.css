@@ -8,6 +8,7 @@
   flex-direction: column;
   overflow-y: scroll;
   overflow: hidden;
+  padding-top: 40px;
   /* background: #000; */
 }
 .navbar .h1 {
@@ -27,6 +28,7 @@
   z-index: 9999999999;
   background: var(--main-color);
   width: 100vw;
+  height: 50px;
   padding: 5px;
   display: flex;
   align-items: center;
@@ -96,6 +98,7 @@
   align-items: center;
   justify-content: center;
   border: 2px solid #000;
+  margin-top: 60px;
 }
 .DisplayImg {
   position: relative;

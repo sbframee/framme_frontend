@@ -35,9 +35,9 @@ export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
   const imgRef = useRef(null);
   const [crop, setCrop] = useState();
   const [completedCrop, setCompletedCrop] = useState({
-    height: 300,
+    height: 100,
     unit: "px",
-    width: 400,
+    width: 100,
     x: 0,
     y: 0,
   });

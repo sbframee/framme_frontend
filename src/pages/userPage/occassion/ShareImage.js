@@ -1,29 +1,59 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import {  useNavigate, useParams } from "react-router-dom";
 import NoImage from "../../../assets/noImage.jpg";
 import * as htmlToImage from "html-to-image";
 import download from "downloadjs";
-import { FaWhatsapp } from "react-icons/fa";
+import { motion } from "framer-motion";
 import ShareIcon from "@mui/icons-material/Share";
-import { Slide } from "react-slideshow-image";
 import "react-slideshow-image/dist/styles.css";
-import {
-  MdKeyboardArrowDown,
-  MdKeyboardArrowLeft,
-  MdKeyboardArrowRight,
-  MdKeyboardArrowUp,
-} from "react-icons/md";
-import {
-  HiOutlineArrowCircleRight,
-  HiOutlineArrowCircleLeft,
-} from "react-icons/hi";
-
 import "./index.css";
 import axios from "axios";
 import useWindowDimensions from "../../../components/useWidthDimenshion";
 import { MdFileDownload } from "react-icons/md";
 import { Home, Image } from "@mui/icons-material";
-
+import { Box, Slider } from "@mui/material";
+import { styled } from "@mui/system";
+const PrettoSlider = styled(Slider)({
+  color: "#fff",
+  height: 4,
+  "& .MuiSlider-track": {
+    border: "none",
+  },
+  "& .MuiSlider-thumb": {
+    height: 15,
+    width: 15,
+    backgroundColor: "#fff",
+    border: "2px solid currentColor",
+    "&:focus, &:hover, &.Mui-active, &.Mui-focusVisible": {
+      boxShadow: "inherit",
+      height: 24,
+      width: 24,
+    },
+    "&:before": {
+      display: "none",
+    },
+  },
+  "& .MuiSlider-valueLabel": {
+    lineHeight: 1.2,
+    fontSize: 12,
+    background: "unset",
+    padding: 0,
+    width: 32,
+    height: 32,
+    color: "var(--main-color)",
+    borderRadius: "50% 50% 50% 0",
+    backgroundColor: "#fff",
+    transformOrigin: "bottom left",
+    transform: "translate(50%, -100%) rotate(-45deg) scale(0)",
+    "&:before": { display: "none" },
+    "&.MuiSlider-valueLabelOpen": {
+      transform: "translate(50%, -100%) rotate(-45deg) scale(1)",
+    },
+    "& > *": {
+      transform: "rotate(45deg)",
+    },
+  },
+});
 const ShareImage = () => {
   const [tags, setTags] = useState([]);
   const [selectedImage, setSelectedImage] = useState(false);
@@ -328,86 +358,47 @@ const ShareImage = () => {
                     : item.d.split(",")[1] / 2.5 - coordinates[1];
 
                 if (url?.tag_type === "I") {
-                  if (width > 1000)
-                    return (
-                      <Tag
-                        switchBtn={switchBtn}
-                        setHoldersImges={setHoldersImges}
-                        setSwitchBtn={setSwitchBtn}
-                        setSeletedHolder={setSeletedHolder}
-                        selectedHolder={selectedHolder}
-                        item={item}
-                        url={url}
-                        type="I"
-                        coordinates={coordinates}
-                        width={width1}
-                        height={height}
-                        mirrorRevert={mirrorRevert}
-                        deleteHandler={() =>
-                          setDeleteHolders((prev) => [...prev, item])
-                        }
-                      />
-                    );
-                  else
-                    return (
-                      <TagMobile
-                        switchBtn={switchBtn}
-                        setSwitchBtn={setSwitchBtn}
-                        setHoldersImges={setHoldersImges}
-                        setSeletedHolder={setSeletedHolder}
-                        selectedHolder={selectedHolder}
-                        item={item}
-                        url={url}
-                        mirrorRevert={mirrorRevert}
-                        type="I"
-                        coordinates={coordinates}
-                        width={width1}
-                        height={height}
-                        deleteHandler={() =>
-                          setDeleteHolders((prev) => [...prev, item])
-                        }
-                      />
-                    );
+                  return (
+                    <Tag
+                      switchBtn={switchBtn}
+                      setHoldersImges={setHoldersImges}
+                      setSwitchBtn={setSwitchBtn}
+                      setSeletedHolder={setSeletedHolder}
+                      selectedHolder={selectedHolder}
+                      item={item}
+                      url={url}
+                      type="I"
+                      coordinates={coordinates}
+                      width={width1}
+                      height={height}
+                      mirrorRevert={mirrorRevert}
+                      deleteHandler={() =>
+                        setDeleteHolders((prev) => [...prev, item])
+                      }
+                      scale={item?.scale}
+                    />
+                  );
                 } else if (url?.tag_type === "T") {
-                  if (width > 1000)
-                    return (
-                      <Tag
-                        switchBtn={switchBtn}
-                        setSwitchBtn={setSwitchBtn}
-                        setHoldersImges={setHoldersImges}
-                        setSeletedHolder={setSeletedHolder}
-                        selectedHolder={selectedHolder}
-                        item={item}
-                        mirrorRevert={mirrorRevert}
-                        type="T"
-                        coordinates={coordinates}
-                        width={width1}
-                        height={height}
-                        url={url}
-                        deleteHandler={() =>
-                          setDeleteHolders((prev) => [...prev, item])
-                        }
-                      />
-                    );
-                  else
-                    return (
-                      <TagMobile
-                        switchBtn={switchBtn}
-                        setSwitchBtn={setSwitchBtn}
-                        setSeletedHolder={setSeletedHolder}
-                        selectedHolder={selectedHolder}
-                        item={item}
-                        mirrorRevert={mirrorRevert}
-                        type="T"
-                        coordinates={coordinates}
-                        width={width1}
-                        height={height}
-                        url={url}
-                        deleteHandler={() =>
-                          setDeleteHolders((prev) => [...prev, item])
-                        }
-                      />
-                    );
+                  return (
+                    <Tag
+                      switchBtn={switchBtn}
+                      setSwitchBtn={setSwitchBtn}
+                      setHoldersImges={setHoldersImges}
+                      setSeletedHolder={setSeletedHolder}
+                      selectedHolder={selectedHolder}
+                      item={item}
+                      mirrorRevert={mirrorRevert}
+                      type="T"
+                      coordinates={coordinates}
+                      width={width1}
+                      height={height}
+                      url={url}
+                      scale={item?.scale}
+                      deleteHandler={() =>
+                        setDeleteHolders((prev) => [...prev, item])
+                      }
+                    />
+                  );
                 }
               })}
           </div>
@@ -416,6 +407,29 @@ const ShareImage = () => {
         )}
       </div>
       <div className="container_buttons">
+      <div className="container_buttons_container">
+              <Box width={250}>
+                <PrettoSlider
+                  aria-label="pretto slider"
+                  valueLabelDisplay="auto"
+                  value={
+                    selectedImage?.holder?.find(
+                      (b) => b._id === selectedHolder._id
+                    )?.scale * 25 || 0
+                  }
+                  onChange={(e) =>
+                    setSelectedImage((prev) => ({
+                      ...prev,
+                      holder: selectedImage?.holder?.map((b) =>
+                        b._id === selectedHolder._id
+                          ? { ...b, scale: Math.abs(e.target.value / 25) }
+                          : b
+                      ),
+                    }))
+                  }
+                />
+              </Box>
+            </div>
         <div className="container_buttons_container">
           <button
             className="image_btn"
@@ -556,333 +570,6 @@ export default ShareImage;
 const Tag = ({
   url,
   type,
-  coordinates,
-  width,
-  height,
-  deleteHandler,
-  switchBtn,
-  item,
-  selectedHolder,
-  setSeletedHolder,
-  setSwitchBtn,
-  mirrorRevert,
-  setHoldersImges,
-}) => {
-  const ref = useRef(null);
-  const refLeft = useRef(null);
-  const refTop = useRef(null);
-  const refRight = useRef(null);
-  const refBottom = useRef(null);
-  const sizeRef = useRef(null);
-  const heightWeight = useWindowDimensions();
-  const [image, setImage] = useState("");
-  useEffect(() => {
-    if (image)
-      setHoldersImges((prev) => [
-        ...(prev || []),
-        { img_type: "UI", sort_order: 1, image, tag_uuid: url?.tag_uuid },
-      ]);
-  }, [image, url]);
-  useEffect(() => {
-    const resizeableEle = ref.current;
-    const styles = window.getComputedStyle(resizeableEle);
-    let width = parseInt(styles.width, 10);
-    let height = parseInt(styles.height, 10);
-    let x = 0;
-    let y = 0;
-
-    resizeableEle.style.top = styles.top;
-    resizeableEle.style.left = styles.left;
-    // Right resize
-    const onMouseMoveRightResize = (event) => {
-      const dx = event.clientX - x;
-      x = event.clientX;
-      width = width + dx;
-      resizeableEle.style.width = `${width}px`;
-      resizeableEle.style.fontSize = width / 100 + "rem";
-    };
-
-    const onMouseUpRightResize = (event) => {
-      document.removeEventListener("mousemove", onMouseMoveRightResize);
-    };
-
-    const onMouseDownRightResize = (event) => {
-      x = event.clientX;
-      resizeableEle.style.left = styles.left;
-      resizeableEle.style.right = null;
-      document.addEventListener("mousemove", onMouseMoveRightResize);
-      document.addEventListener("mouseup", onMouseUpRightResize);
-    };
-
-    // Top resize
-    const onMouseMoveTopResize = (event) => {
-      const dy = event.clientY - y;
-      height = height - dy;
-      y = event.clientY;
-      resizeableEle.style.height = `${height}px`;
-    };
-
-    const onMouseUpTopResize = (event) => {
-      document.removeEventListener("mousemove", onMouseMoveTopResize);
-    };
-
-    const onMouseDownTopResize = (event) => {
-      y = event.clientY;
-      const styles = window.getComputedStyle(resizeableEle);
-      resizeableEle.style.bottom = styles.bottom;
-      resizeableEle.style.top = null;
-      document.addEventListener("mousemove", onMouseMoveTopResize);
-      document.addEventListener("mouseup", onMouseUpTopResize);
-    };
-
-    // Bottom resize
-    const onMouseMoveBottomResize = (event) => {
-      const dy = event.clientY - y;
-      height = height + dy;
-      y = event.clientY;
-      resizeableEle.style.height = `${height}px`;
-    };
-
-    const onMouseUpBottomResize = (event) => {
-      document.removeEventListener("mousemove", onMouseMoveBottomResize);
-    };
-
-    const onMouseDownBottomResize = (event) => {
-      y = event.clientY;
-      const styles = window.getComputedStyle(resizeableEle);
-      resizeableEle.style.top = styles.top;
-      resizeableEle.style.bottom = null;
-      document.addEventListener("mousemove", onMouseMoveBottomResize);
-      document.addEventListener("mouseup", onMouseUpBottomResize);
-    };
-
-    // Left resize
-    const onMouseMoveLeftResize = (event) => {
-      const dx = event.clientX - x;
-      x = event.clientX;
-      width = width - dx;
-      resizeableEle.style.width = `${width}px`;
-      resizeableEle.style.fontSize = width / 100 + "rem";
-    };
-
-    const onMouseUpLeftResize = (event) => {
-      document.removeEventListener("mousemove", onMouseMoveLeftResize);
-    };
-
-    const onMouseDownLeftResize = (event) => {
-      x = event.clientX;
-      resizeableEle.style.right = styles.right;
-      resizeableEle.style.left = null;
-      document.addEventListener("mousemove", onMouseMoveLeftResize);
-      document.addEventListener("mouseup", onMouseUpLeftResize);
-    };
-    const onMouseSelect = (event) => {
-      const { clientX, clientY } = event;
-      resizeableEle.style.top = clientY - 100 + "px";
-      resizeableEle.style.left =
-        heightWeight.width >= 1000
-          ? clientX - heightWeight.width / 4 + "px"
-          : clientX - 100 + "px";
-      document.addEventListener("mousemove", onMouseSelectResize);
-      document.addEventListener("mouseup", onMouseUpSelectResize);
-    };
-    const onMouseSelectResize = (event) => {
-      const dx = event.clientX - x;
-      x = event.clientX;
-      width = width - dx;
-      const dy = event.clientY - y;
-      height = height + dy;
-      y = event.clientY;
-      resizeableEle.style.top = y - 100 + "px";
-      resizeableEle.style.left =
-        heightWeight.width >= 1000
-          ? x - heightWeight.width / 4 + "px"
-          : x - 100 + "px";
-    };
-
-    const onMouseUpSelectResize = (event) => {
-      document.removeEventListener("mousemove", onMouseSelectResize);
-    };
-
-    // Add mouse down event listener
-
-    if (selectedHolder?._id === item?._id) {
-      const resizerRight = refRight.current;
-      resizerRight.addEventListener("mousedown", onMouseDownRightResize);
-      const resizerTop = refTop.current;
-      resizerTop.addEventListener("mousedown", onMouseDownTopResize);
-      const resizerBottom = refBottom.current;
-      resizerBottom.addEventListener("mousedown", onMouseDownBottomResize);
-      const resizerLeft = refLeft.current;
-      resizerLeft.addEventListener("mousedown", onMouseDownLeftResize);
-      const reposition = sizeRef.current;
-      reposition.addEventListener("mousedown", onMouseSelect);
-      return () => {
-        resizerRight.removeEventListener("mousedown", onMouseDownRightResize);
-        resizerTop.removeEventListener("mousedown", onMouseDownTopResize);
-        resizerBottom.removeEventListener("mousedown", onMouseDownBottomResize);
-        resizerLeft.removeEventListener("mousedown", onMouseDownLeftResize);
-        reposition.removeEventListener("mousedown", onMouseSelect);
-      };
-    }
-  }, [switchBtn, selectedHolder]);
-
-  return (
-    <div
-      ref={ref}
-      className="resizeable"
-      style={{
-        cursor: "pointer",
-        left: coordinates[0] + "px",
-        top: coordinates[1] + "px",
-        width: width + "px",
-        height: height + "px",
-        position: "absolute",
-        transform: mirrorRevert.find((a) => a === item?.label_uuid)
-          ? "scaleX(-1)"
-          : "scaleX(1)",
-      }}
-    >
-      <div
-        ref={sizeRef}
-        className="holders img"
-        onClick={
-          switchBtn === "delete"
-            ? deleteHandler
-            : (e) => {
-                e.stopPropagation();
-                setSwitchBtn("position");
-                setSeletedHolder(item);
-              }
-        }
-        style={{
-          border:
-            selectedHolder?._id === item?._id ? "2px solid black" : "none",
-          width: "100%",
-          height: "100%",
-        }}
-      >
-        {type === "I" ? (
-          image ? (
-            // eslint-disable-next-line jsx-a11y/alt-text
-            <img
-              src={URL.createObjectURL(image)}
-              className="holders"
-              style={{ width: "100%", height: "100%", pointerEvents: "none" }}
-              alt={NoImage}
-            />
-          ) : (
-            <label
-              htmlFor={url?.tag_uuid}
-              className="flex"
-              style={{
-                // color: "rgba(142,198,13,255)",
-                // border: "4px solid #fff",
-                padding: "10px",
-                backgroundColor: "#000",
-                margin: "10px 0",
-                width: "100%",
-                textAlign: "left",
-                fontSize: "10px",
-                fontWeight: "1000",
-                color: "#fff",
-              }}
-            >
-              <span style={{ width: "250px" }} className="flex">
-                <Image />
-                Click Here
-              </span>
-              {item.value ? (
-                <img
-                  src={URL.createObjectURL(item.value)}
-                  className="previwImages"
-                  alt="yourimage"
-                  style={{ width: "100px", objectFit: "contain" }}
-                />
-              ) : (
-                ""
-              )}
-              <input
-                id={url?.tag_uuid}
-                type="file"
-                style={{ display: "none" }}
-                onChange={(e) => {
-                  setImage(e.target.files[0]);
-                }}
-              />
-            </label>
-          )
-        ) : (
-          <></>
-        )}
-      </div>
-      <div
-        ref={refLeft}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSwitchBtn("resize");
-        }}
-        style={
-          selectedHolder?._id === item?._id
-            ? { display: "flex" }
-            : { display: "none" }
-        }
-        className="resizer resizer-l"
-      >
-        <MdKeyboardArrowLeft style={{ fontSize: "30px" }} />
-      </div>
-      <div
-        ref={refTop}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSwitchBtn("resize");
-        }}
-        style={
-          selectedHolder?._id === item?._id
-            ? { display: "flex" }
-            : { display: "none" }
-        }
-        className="resizer resizer-t"
-      >
-        <MdKeyboardArrowUp style={{ fontSize: "30px" }} />
-      </div>
-      <div
-        ref={refRight}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSwitchBtn("resize");
-        }}
-        style={
-          selectedHolder?._id === item?._id
-            ? { display: "flex" }
-            : { display: "none" }
-        }
-        className="resizer resizer-r"
-      >
-        <MdKeyboardArrowRight style={{ fontSize: "30px" }} />
-      </div>
-      <div
-        ref={refBottom}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSwitchBtn("resize");
-        }}
-        style={
-          selectedHolder?._id === item?._id
-            ? { display: "flex" }
-            : { display: "none" }
-        }
-        className="resizer resizer-b"
-      >
-        <MdKeyboardArrowDown style={{ fontSize: "30px" }} />
-      </div>
-    </div>
-  );
-};
-
-const TagMobile = ({
-  url,
-  type,
   setHoldersImges,
   coordinates,
   width,
@@ -894,14 +581,8 @@ const TagMobile = ({
   setSeletedHolder,
   setSwitchBtn,
   mirrorRevert,
+  scale,
 }) => {
-  const ref = useRef(null);
-  const refLeft = useRef(null);
-  const refTop = useRef(null);
-  const refRight = useRef(null);
-  const refBottom = useRef(null);
-  const heightWidth = useWindowDimensions();
-  const sizeRef = useRef(null);
   const [image, setImage] = useState();
   useEffect(() => {
     if (image)
@@ -910,157 +591,16 @@ const TagMobile = ({
         { img_type: "UI", sort_order: 1, image, tag_uuid: url?.tag_uuid },
       ]);
   }, [image, url]);
-  useEffect(() => {
-    const resizeableEle = ref.current;
-    const styles = window.getComputedStyle(resizeableEle);
-    let width = parseInt(styles.width, 10);
-    let height = parseInt(styles.height, 10);
-    let x = 0;
-    let y = 0;
-
-    resizeableEle.style.top = styles.top;
-    resizeableEle.style.left = styles.left;
-    // Right resize
-    const onMouseMoveRightResize = (event) => {
-      const dx = event.changedTouches[0].clientX - x;
-      x = event.changedTouches[0].clientX;
-      width = width + dx;
-      resizeableEle.style.width = `${width}px`;
-      resizeableEle.style.fontSize = width / 100 + "rem";
-    };
-
-    const onMouseUpRightResize = (event) => {
-      document.removeEventListener("touchmove", onMouseMoveRightResize);
-    };
-
-    const onMouseDownRightResize = (event) => {
-      x = event.changedTouches[0].clientX;
-      resizeableEle.style.left = styles.left;
-      resizeableEle.style.right = null;
-      document.addEventListener("touchmove", onMouseMoveRightResize);
-      document.addEventListener("touchend", onMouseUpRightResize);
-    };
-
-    // Top resize
-    const onMouseMoveTopResize = (event) => {
-      const dy = event.changedTouches[0].clientY - y;
-      height = height - dy;
-      y = event.changedTouches[0].clientY;
-      resizeableEle.style.height = `${height}px`;
-    };
-
-    const onMouseUpTopResize = (event) => {
-      document.removeEventListener("touchmove", onMouseMoveTopResize);
-    };
-
-    const onMouseDownTopResize = (event) => {
-      y = event.changedTouches[0].clientY;
-      const styles = window.getComputedStyle(resizeableEle);
-      resizeableEle.style.bottom = styles.bottom;
-      resizeableEle.style.top = null;
-      document.addEventListener("touchmove", onMouseMoveTopResize);
-      document.addEventListener("touchend", onMouseUpTopResize);
-    };
-
-    // Bottom resize
-    const onMouseMoveBottomResize = (event) => {
-      const dy = event.changedTouches[0].clientY - y;
-      height = height + dy;
-      y = event.changedTouches[0].clientY;
-      resizeableEle.style.height = `${height}px`;
-    };
-
-    const onMouseUpBottomResize = (event) => {
-      document.removeEventListener("touchmove", onMouseMoveBottomResize);
-    };
-
-    const onMouseDownBottomResize = (event) => {
-      y = event.changedTouches[0].clientY;
-      const styles = window.getComputedStyle(resizeableEle);
-      resizeableEle.style.top = styles.top;
-      resizeableEle.style.bottom = null;
-      document.addEventListener("touchmove", onMouseMoveBottomResize);
-      document.addEventListener("touchend", onMouseUpBottomResize);
-    };
-
-    // Left resize
-    const onMouseMoveLeftResize = (event) => {
-      const dx = event.changedTouches[0].clientX - x;
-      x = event.changedTouches[0].clientX;
-      width = width - dx;
-      resizeableEle.style.width = `${width}px`;
-      resizeableEle.style.fontSize = width / 100 + "rem";
-    };
-
-    const onMouseUpLeftResize = (event) => {
-      document.removeEventListener("touchmove", onMouseMoveLeftResize);
-    };
-
-    const onMouseDownLeftResize = (event) => {
-      x = event.changedTouches[0].clientX;
-      resizeableEle.style.right = styles.right;
-      resizeableEle.style.left = null;
-      document.addEventListener("touchmove", onMouseMoveLeftResize);
-      document.addEventListener("touchend", onMouseUpLeftResize);
-    };
-    const onMouseSelect = (event) => {
-      console.log(event);
-      const { clientX, clientY } = event.changedTouches[0];
-      resizeableEle.style.top = clientY - 100 + "px";
-      resizeableEle.style.left =
-        heightWidth.width >= 1000
-          ? clientX - heightWidth.width / 4 + "px"
-          : clientX - 100 + "px";
-      document.addEventListener("touchmove", onMouseSelectResize);
-      document.addEventListener("touchend", onMouseUpSelectResize);
-    };
-    const onMouseSelectResize = (event) => {
-      const dx = event.changedTouches[0].clientX - x;
-      x = event.changedTouches[0].clientX;
-      width = width - dx;
-      const dy = event.changedTouches[0].clientY - y;
-      height = height + dy;
-      y = event.changedTouches[0].clientY;
-      resizeableEle.style.top = y - 100 + "px";
-      resizeableEle.style.left =
-        heightWidth.width >= 1000
-          ? x - heightWidth.width / 4 + "px"
-          : x - 100 + "px";
-    };
-
-    const onMouseUpSelectResize = (event) => {
-      document.removeEventListener("touchmove", onMouseSelectResize);
-    };
-
-    // Add mouse down event listener
-
-    if (selectedHolder?._id === item?._id) {
-      const resizerRight = refRight.current;
-      resizerRight.addEventListener("touchstart", onMouseDownRightResize);
-      const resizerTop = refTop.current;
-      resizerTop.addEventListener("touchstart", onMouseDownTopResize);
-      const resizerBottom = refBottom.current;
-      resizerBottom.addEventListener("touchstart", onMouseDownBottomResize);
-      const resizerLeft = refLeft.current;
-      resizerLeft.addEventListener("touchstart", onMouseDownLeftResize);
-      const reposition = sizeRef.current;
-      reposition.addEventListener("touchstart", onMouseSelect);
-      return () => {
-        resizerRight.removeEventListener("touchstart", onMouseDownRightResize);
-        resizerTop.removeEventListener("touchstart", onMouseDownTopResize);
-        resizerBottom.removeEventListener(
-          "touchstart",
-          onMouseDownBottomResize
-        );
-        resizerLeft.removeEventListener("touchstart", onMouseDownLeftResize);
-        reposition.removeEventListener("touchstart", onMouseSelect);
-      };
-    }
-  }, [switchBtn, selectedHolder]);
 
   return (
-    <div
-      ref={ref}
+    <motion.div
+      dragConstraints={{
+        top: -100,
+        left: -150,
+        right: 150,
+        bottom: 100,
+      }}
+      drag
       className="resizeable"
       style={{
         cursor: "pointer",
@@ -1076,7 +616,6 @@ const TagMobile = ({
       onTouchEnd={() => setSwitchBtn("resize")}
     >
       <div
-        ref={sizeRef}
         className="holders img"
         onMouseLeave={() => setSwitchBtn("resize")}
         onClick={
@@ -1093,6 +632,7 @@ const TagMobile = ({
             selectedHolder?._id === item?._id ? "2px solid black" : "none",
           width: "100%",
           height: "100%",
+          transform: `scale(${scale})`,
         }}
       >
         {type === "I" ? (
@@ -1149,66 +689,6 @@ const TagMobile = ({
           <></>
         )}
       </div>
-      <div
-        ref={refLeft}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSwitchBtn("resize");
-        }}
-        style={
-          selectedHolder?._id === item?._id
-            ? { display: "flex" }
-            : { display: "none" }
-        }
-        className="resizer resizer-l"
-      >
-        <MdKeyboardArrowLeft style={{ fontSize: "30px" }} />
-      </div>
-      <div
-        ref={refTop}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSwitchBtn("resize");
-        }}
-        style={
-          selectedHolder?._id === item?._id
-            ? { display: "flex" }
-            : { display: "none" }
-        }
-        className="resizer resizer-t"
-      >
-        <MdKeyboardArrowUp style={{ fontSize: "30px" }} />
-      </div>
-      <div
-        ref={refRight}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSwitchBtn("resize");
-        }}
-        style={
-          selectedHolder?._id === item?._id
-            ? { display: "flex" }
-            : { display: "none" }
-        }
-        className="resizer resizer-r"
-      >
-        <MdKeyboardArrowRight style={{ fontSize: "30px" }} />
-      </div>
-      <div
-        ref={refBottom}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSwitchBtn("resize");
-        }}
-        style={
-          selectedHolder?._id === item?._id
-            ? { display: "flex" }
-            : { display: "none" }
-        }
-        className="resizer resizer-b"
-      >
-        <MdKeyboardArrowDown style={{ fontSize: "30px" }} />
-      </div>
-    </div>
+    </motion.div>
   );
 };
