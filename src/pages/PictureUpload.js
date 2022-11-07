@@ -195,7 +195,7 @@ const PictureUpload = () => {
           {selectedFile ? (
             <>
               <div className="image_container">
-                <img src={preview} ref={imageArea} />
+                <img src={preview} ref={imageArea} alt=""/>
                 <Canvas
                   templateHoldersData={templateHoldersData}
                   imageArea={imageArea}

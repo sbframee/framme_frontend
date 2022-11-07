@@ -7,6 +7,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import NavigationBar from "../../../components/usersComponent/NavigationBar";
 import Sliders from "../../../components/Sliders";
 import "react-slideshow-image/dist/styles.css";
+import Navbar from "../../../components/Sidebar/navbar";
 const Main = () => {
   const [categories, setCategories] = useState([]);
   const [occasions, setOccasions] = useState([]);
@@ -94,11 +95,7 @@ const Main = () => {
   return (
     <>
       <div className="main">
-        <div className="navbar">
-          <div className="h1" style={{ width: "100%", textAlign: "right" }}>
-            {user?.user_title || "Test"}
-          </div>
-        </div>
+        <Navbar/>
         <div className="slide-container">
           {posters.length ? <Sliders item={posters} /> : ""}
         </div>

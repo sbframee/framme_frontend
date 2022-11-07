@@ -6,6 +6,7 @@ import { MdDelete } from "react-icons/md";
 import axios from "axios";
 import { v4 as uuid } from "uuid";
 import Header from "../../components/Sidebar/Header";
+import { Delete, DeleteOutline } from "@mui/icons-material";
 const Tags = () => {
   const [tagsData, setTagsData] = useState([]);
   const [popup, setPopup] = useState(false);
@@ -31,104 +32,98 @@ const Tags = () => {
   }, []);
   return (
     <>
-    <SideBar />
-    <Header />
-    <div className="item-sales-container orders-report-container">
-      <div className="tags">
-        <h1>Tags</h1>
-        <div style={{ width: "80%" }}>
-          <button
-            className="add_button"
-            type="button"
-            onClick={() => {
-              setPopupInfo({ type: "new" });
-              setPopup(true);
-            }}
-          >
-            Add Tags
-          </button>
-        </div>
-        <table className="table">
-          <thead>
-            <tr>
-              <th>SR. No</th>
-              <th>Title</th>
-              <th>Type</th>
+      <SideBar />
+      <Header />
+      <div className="item-sales-container orders-report-container">
+        <div className="tags">
+          <h1>Tags</h1>
+          <div style={{ width: "80%" }}>
+            <button
+              className="add_button"
+              type="button"
+              onClick={() => {
+                setPopupInfo({ type: "new" });
+                setPopup(true);
+              }}
+            >
+              Add Tags
+            </button>
+          </div>
+          <table className="table">
+            <thead>
+              <tr>
+                <th>SR. No</th>
+                <th>Title</th>
+                <th>Type</th>
 
-              <th></th>
-            </tr>
-          </thead>
+                <th></th>
+              </tr>
+            </thead>
 
-          <tbody>
-            {tagsData.length ? (
-              tagsData.map((item, i) => (
+            <tbody>
+              {tagsData.length ? (
+                tagsData.map((item, i) => (
+                  <tr>
+                    <td>{i + 1}</td>
+                    <td>{item?.tag_title || "-"}</td>
+                    <td>
+                      {item?.tag_type === "I"
+                        ? "Image"
+                        : item.tag_type === "T"
+                        ? "Text"
+                        : "-"}
+                    </td>
+
+                    <td style={{ textAlign: "center" }}>
+                      <button
+                        className="edit_button"
+                        type="button"
+                        onClick={() => {
+                          setPopupInfo({ type: "edit", item });
+                          setPopup(true);
+                        }}
+                      >
+                        Edit
+                      </button>
+                    </td>
+                    <td style={{ textAlign: "center" }}>
+                      <DeleteOutline onClick={() => setDeleteItem(item)} />
+                    </td>
+                  </tr>
+                ))
+              ) : (
                 <tr>
-                  <td>{i + 1}</td>
-                  <td>{item?.tag_title || "-"}</td>
-                  <td>
-                    {item?.tag_type === "I"
-                      ? "Image"
-                      : item.tag_type === "T"
-                      ? "Text"
-                      : "-"}
-                  </td>
-
-                  <td style={{ textAlign: "center" }}>
-                    <button
-                      className="edit_button"
-                      type="button"
-                      onClick={() => {
-                        setPopupInfo({ type: "edit", item });
-                        setPopup(true);
-                      }}
-                    >
-                      Edit
-                    </button>
-                  </td>
-                  <td style={{ textAlign: "center" }}>
-                    <MdDelete
-                      className="edit_button"
-                      style={{ backgroundColor: "red" }}
-                      type="button"
-                      onClick={() => setDeleteItem(item)}
-                    >
-                      Edit
-                    </MdDelete>
+                  <td colSpan={5} style={{ textAlign: "center" }}>
+                    No Content
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={5} style={{ textAlign: "center" }}>
-                  No Content
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-        {deleteItem ? (
-          <ConfirmPopup
-            close={() => setDeleteItem(null)}
-            deleteHandler={deleteTagData}
-          />
-        ) : (
-          ""
-        )}
+              )}
+            </tbody>
+          </table>
+          {deleteItem ? (
+            <ConfirmPopup
+              close={() => setDeleteItem(null)}
+              deleteHandler={deleteTagData}
+            />
+          ) : (
+            ""
+          )}
 
-        {popup ? (
-          <Popup
-            popupInfo={popupInfo}
-            close={() => {
-              setPopup(false);
-              setPopupInfo({});
-            }}
-            setTagsData={setTagsData}
-          />
-        ) : (
-          ""
-        )}
+          {popup ? (
+            <Popup
+              popupInfo={popupInfo}
+              close={() => {
+                setPopup(false);
+                setPopupInfo({});
+              }}
+              setTagsData={setTagsData}
+            />
+          ) : (
+            ""
+          )}
+        </div>
       </div>
-    </div></>
+    </>
   );
 };
 const Popup = ({ popupInfo, setTagsData, close }) => {
@@ -173,8 +168,8 @@ const Popup = ({ popupInfo, setTagsData, close }) => {
     }
   };
   return (
-    <div className="popup_bg">
-      <div className="popup">
+    <div className="popup_bg overlay">
+      <div className="popup_img">
         <div className="popup_header">
           <h3>
             {popupInfo.type === "edit" ? data?.tag_title || "-" : "New Tags"}
@@ -237,11 +232,8 @@ const ConfirmPopup = ({ close, deleteHandler }) => {
     close();
   };
   return (
-    <div className="popup_bg">
-      <div className="popup">
-        <div className="popup_header">
-          <h3></h3>
-        </div>
+    <div className="popup_bg overlay">
+      <div className="popup_img">
         <div className="popup_body">
           <h2>Confirm Delete?</h2>
           <div
@@ -250,6 +242,7 @@ const ConfirmPopup = ({ close, deleteHandler }) => {
               alignItems: "center",
               justifyContent: "space-between",
               width: "100%",
+              paddingTop:"30px"
             }}
           >
             <button

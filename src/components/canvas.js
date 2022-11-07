@@ -542,44 +542,73 @@ const Canvas = ({
           height: `${imageArea?.current?.offsetHeight || "100%"}`,
         }}
       >
-        <div style={{ position: "fixed", bottom: "0", left: "100px" }}>
-          <input
-            type="radio"
-            id="selection"
-            checked={tool === "selection"}
-            onChange={() => setTool("selection")}
-          />
-          <label htmlFor="selection">Selection</label>
+        <div
+          className="flex"
+          style={{
+            position: "fixed",
+            bottom: "30px",
+            flexDirection: "column",
+            left: "10px",
+            zIndex: "9999999999999",
+            alignItems: "flex-start",
+          }}
+        >
+          <div>Options</div>
 
-          <input
-            type="radio"
-            id="rectangle"
-            checked={tool === "rectangle"}
-            onChange={() => setTool("rectangle")}
-          />
-          <label htmlFor="rectangle">Rectangle</label>
-          <input
-            type="radio"
-            id="delete"
-            checked={tool === "delete"}
-            onChange={() => setTool("delete")}
-          />
-          <label htmlFor="rectangle">Delete</label>
-          <input
-            type="radio"
-            id="copy"
-            checked={tool === "copy"}
-            onChange={() => setTool("copy")}
-          />
-          <label htmlFor="rectangle">Copy</label>
+          <label htmlFor="selection">
+            <input
+              type="radio"
+              id="selection"
+              checked={tool === "selection"}
+              onChange={() => setTool("selection")}
+            />
+            Selection
+          </label>
+
+          <label htmlFor="rectangle">
+            <input
+              type="radio"
+              id="rectangle"
+              checked={tool === "rectangle"}
+              onChange={() => setTool("rectangle")}
+            />
+            Rectangle
+          </label>
+          <label htmlFor="rectangle">
+            <input
+              type="radio"
+              id="delete"
+              checked={tool === "delete"}
+              onChange={() => setTool("delete")}
+            />
+            Delete
+          </label>
+          <label htmlFor="rectangle">
+            <input
+              type="radio"
+              id="copy"
+              checked={tool === "copy"}
+              onChange={() => setTool("copy")}
+            />
+            Copy
+          </label>
           {/* 
                 <input type="radio" id="text" checked={tool === "text"} onChange={() => setTool("text")} />
                 <label htmlFor="text">Text</label> */}
         </div>
-        <div style={{ position: "fixed", top: "0", right: "0" }}>
+        <div
+          style={{
+            position: "fixed",
+            bottom: "250px",
+            left: "10px",
+            zIndex: "999999999999999",
+          }}
+        >
+          <div>Saved Tags</div>
           <select
             value={templateHolders.ht_uuid}
             onChange={(e) => setTemplateHolders(e.target.value)}
+            style={{width:"90px"}}
           >
             <option value={""}>None</option>
             {templateHoldersData.map((data) => (
@@ -587,11 +616,24 @@ const Canvas = ({
             ))}
           </select>
         </div>
-        <div style={{ position: "fixed", bottom: "0", right: "0px" }}>
+        <div
+          className="flex"
+          style={{
+            position: "fixed",
+            bottom: "150px",
+            flexDirection: "column",
+            left: "10px",
+            zIndex: "9999999999999",
+            alignItems: "flex-start",
+            width: "100px",
+          }}
+        >
+          <div>Custome Tags</div>
           <input
             type="text"
             placeholder="width"
             id="width"
+            style={{ width: "90px" }}
             value={inputValues?.width}
             onChange={(e) =>
               setInputValues({
@@ -605,6 +647,7 @@ const Canvas = ({
             placeholder="height"
             id="height"
             value={inputValues?.height}
+            style={{ width: "90px" }}
             onChange={(e) =>
               setInputValues({
                 ...inputValues,
@@ -612,7 +655,17 @@ const Canvas = ({
               })
             }
           />
-          <button type="button" onClick={addRectangle}>
+          <button
+            className="flex"
+            style={{
+              padding: "2px 5px",
+              backgroundColor: "var(--main-color)",
+              border: "none",
+              color: "#fff",
+            }}
+            type="button"
+            onClick={addRectangle}
+          >
             Add
           </button>
         </div>

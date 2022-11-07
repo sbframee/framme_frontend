@@ -271,7 +271,7 @@ body {
   border-radius: 20px;
   overflow: hidden;
 }
-.popup_bg .popup_img .popup_header {
+ .popup_header {
   display: flex;
   padding: 0 10px;
   justify-content: space-between;
@@ -281,7 +281,7 @@ body {
   background-color: black;
   color: #ffffff;
 }
-.popup_bg .popup_img .popup_header .exit_btn {
+ .popup_header .exit_btn {
   cursor: pointer;
 }
 .popup_bg .popup_img .popup_body {
@@ -426,7 +426,7 @@ body {
   border-radius: 10px;
 }
 :root {
-  --main-color: #317EEB;
+  --main-color: #5b5b5b;
   --hover-color: #2764BA;
   --body-color: #E0E0E0;
   --box-color: white;

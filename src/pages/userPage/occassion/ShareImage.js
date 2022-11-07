@@ -13,6 +13,7 @@ import { MdFileDownload } from "react-icons/md";
 import { Home, Image } from "@mui/icons-material";
 import { Box, Slider } from "@mui/material";
 import { styled } from "@mui/system";
+import Navbar from "../../../components/Sidebar/navbar";
 const PrettoSlider = styled(Slider)({
   color: "#fff",
   height: 4,
@@ -89,11 +90,11 @@ const ShareImage = () => {
       });
     }
   }, [selectedImage]);
-  const getBaseImageData = async () => {
-    if (params.img_url) {
+  const getBaseImageData = async (img_url) => {
+    if (img_url) {
       const response = await axios({
         method: "get",
-        url: "/images/getBaseImages/" + params.img_url,
+        url: "/images/getBaseImages/" + img_url,
       });
       if (response.data.success) {
         setSelectedImage(response.data.result);
@@ -112,10 +113,9 @@ const ShareImage = () => {
     if (response.data.success) setTags(response.data.result);
   };
 
-  // console.log(images.filter(a => a.img_type === "B" ))
   useEffect(() => {
-    getBaseImageData();
-  }, []);
+    getBaseImageData(params?.img_url);
+  }, [params?.img_url]);
   useEffect(() => {
     getTags();
   }, []);
@@ -143,10 +143,7 @@ const ShareImage = () => {
       );
 
       for (let data of holdersImges) {
-        console.log("------------------", data);
-        // let formData = new FormData();
-        // formData.append("value", JSON.stringify(data));
-        // formData.append("images", data.image);
+        // console.log("------------------", data);
         const mainThumbnailURL = await axios({
           url: "/s3Url",
           method: "get",
@@ -183,25 +180,25 @@ const ShareImage = () => {
     setSwitchBtn("");
 
     htmlToImage.toPng(ref.current).then(function (dataUrl) {
-      //   console.log(dataUrl);
       download(dataUrl, "text-img.png");
       setLogin(true);
     });
   };
 
-  // console.log(occasion);
   return (
     <div className="container">
       {login ? (
-        <div className="navbar" style={{ justifyContent: "space-between" }}>
-          <Home
-            className="backArrow"
-            onClick={() => {
-              if (params.img_url) navigate("/users");
-            }}
-            style={{ color: "#fff", marginLeft: "20px" }}
-          />
-        </div>
+        <Navbar
+          Tag={() => (
+            <Home
+              className="backArrow"
+              onClick={() => {
+                if (params.img_url) navigate("/users");
+              }}
+              style={{ color: "#fff", marginLeft: "20px" }}
+            />
+          )}
+        />
       ) : (
         ""
       )}
@@ -401,7 +398,7 @@ const ShareImage = () => {
                       }
                     />
                   );
-                }
+                } else return "";
               })}
           </div>
         ) : (
@@ -638,7 +635,7 @@ const Tag = ({
         }}
       >
         {type === "I" ? (
-           holdersImges.find((a) => a.tag_uuid === url?.tag_uuid)?.image ? (
+          holdersImges.find((a) => a.tag_uuid === url?.tag_uuid)?.image ? (
             // eslint-disable-next-line jsx-a11y/alt-text
             <img
               src={URL.createObjectURL(

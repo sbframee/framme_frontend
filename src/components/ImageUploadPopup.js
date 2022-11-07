@@ -11,6 +11,49 @@ import { useDebounceEffect } from "./useDebounceEffect";
 import { BiRotateRight, BiRotateLeft } from "react-icons/bi";
 import "react-image-crop/dist/ReactCrop.css";
 import { GoMirror } from "react-icons/go";
+import { Box, Slider } from "@mui/material";
+import { styled } from "@mui/system";
+const PrettoSlider = styled(Slider)({
+  color: "#fff",
+  height: 4,
+  "& .MuiSlider-track": {
+    border: "none",
+  },
+  "& .MuiSlider-thumb": {
+    height: 15,
+    width: 15,
+    backgroundColor: "#fff",
+    border: "2px solid currentColor",
+    "&:focus, &:hover, &.Mui-active, &.Mui-focusVisible": {
+      boxShadow: "inherit",
+      height: 24,
+      width: 24,
+    },
+    "&:before": {
+      display: "none",
+    },
+  },
+  "& .MuiSlider-valueLabel": {
+    lineHeight: 1.2,
+    fontSize: 12,
+    background: "unset",
+    padding: 0,
+    width: 32,
+    height: 32,
+    color: "var(--main-color)",
+    borderRadius: "50% 50% 50% 0",
+    backgroundColor: "#fff",
+    transformOrigin: "bottom left",
+    transform: "translate(50%, -100%) rotate(-45deg) scale(0)",
+    "&:before": { display: "none" },
+    "&.MuiSlider-valueLabelOpen": {
+      transform: "translate(50%, -100%) rotate(-45deg) scale(1)",
+    },
+    "& > *": {
+      transform: "rotate(45deg)",
+    },
+  },
+});
 // This is to demonstate how to make and center a % aspect crop
 // which is a bit trickier so we use some helper functions.
 function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
@@ -31,6 +74,7 @@ function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
 
 export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
   const [imgSrc, setImgSrc] = useState("");
+
   const previewCanvasRef = useRef(null);
   const imgRef = useRef(null);
   const [crop, setCrop] = useState();
@@ -101,7 +145,7 @@ export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
     handleToggleAspectClick();
   }, []);
   return (
-    <div className="popup_bg overlay" >
+    <div className="popup_bg overlay">
       <div className="popup_img">
         <div className="popup_header">
           <h3>Upload Image</h3>
@@ -109,15 +153,17 @@ export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
             X
           </div>
         </div>
-        <div className="popup_body" style={{ overflowY: "scroll",height:"450px" }}>
+        <div
+          className="popup_body"
+          style={{ overflowY: "scroll", height: "max-content" }}
+        >
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
               flexDirection: "column",
-              maxHeight:"400px"
-              
+              maxHeight: "400px",
             }}
           >
             {Boolean(completedCrop) && (
@@ -129,6 +175,7 @@ export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
                   objectFit: "contain",
                   width: completedCrop.width,
                   height: completedCrop.height,
+                  display: "none",
                 }}
               />
             )}
@@ -138,7 +185,7 @@ export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
                 onChange={(_, percentCrop) => setCrop(percentCrop)}
                 onComplete={(c) => setCompletedCrop(c)}
                 aspect={aspect}
-                style={{marginTop:"20px"}}
+                style={{ marginTop: "20px" }}
               >
                 <img
                   ref={imgRef}
@@ -148,7 +195,6 @@ export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
                     transform: `scale(${scale}) rotate(${rotate}deg)`,
                     height: "200px",
                     maxHeight: "50vh",
-        
                   }}
                   onLoad={onImageLoad}
                 />
@@ -192,7 +238,19 @@ export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
               style={{ width: "50%", fontSize: "20px", cursor: "pointer" }}
             />
           </div>
-
+          <div
+            className="flex"
+            style={{ width: "100%", backgroundColor: "var(--main-color)" }}
+          >
+       
+              <PrettoSlider
+                aria-label="pretto slider"
+                valueLabelDisplay="auto"
+                value={scale * 25 || 0}
+                onChange={(e) => setScale(Math.abs(e.target.value / 25))}
+              />
+        
+          </div>
           <button
             type="button"
             onClick={() => {
@@ -203,6 +261,8 @@ export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
                 onClose();
               });
             }}
+            style={{ position: "relative", top: "0", left: "0" }}
+            className="inputButton"
           >
             Save
           </button>

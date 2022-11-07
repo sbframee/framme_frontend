@@ -7,7 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { v4 as uuid } from "uuid";
 import { MdDelete } from "react-icons/md";
 import ImageUploadPopup from "../../components/ImageUploadPopup";
-import { Upload } from "@mui/icons-material";
+import { ArrowBack, Upload } from "@mui/icons-material";
+import Navbar from "../../components/Sidebar/navbar";
 const InputPage = () => {
   const [tagsData, setTagsData] = useState([]);
   const [seletiveCropFile, setSelectiveCropFile] = useState();
@@ -314,7 +315,7 @@ const InputPage = () => {
               border: "1px solid #000",
               margin: "10px 0",
             }}
-            htmlFor={item?.tag_uuid}
+            htmlFor={item?.tag_uuid + i}
           >
             <span className="flex">
               <Upload />
@@ -323,11 +324,12 @@ const InputPage = () => {
                 : " Upload Tag Image"}
             </span>
             <input
-              id={item?.tag_uuid}
+              id={item?.tag_uuid + i}
               type="file"
               onChange={(e) => {
                 setSelectiveCropFile(e.target.files[0]);
-                setPopupCrop({ item, i });
+
+                setPopupCrop({ item, i: i });
               }}
               style={{ display: "none" }}
               accept="image/png, image/jpeg"
@@ -359,7 +361,19 @@ const InputPage = () => {
   return (
     <>
       {/* <SideBar /> */}
-      <div className="inputPage" >
+      <div className="inputPage" style={{paddingTop:"50px"}}>
+        <Navbar
+          Tag={() => (
+            <>
+              <ArrowBack
+                className="backArrow"
+                onClick={() => navigate("/users")}
+                style={{ color: "#fff" }}
+              />
+              <div className="h1">Inputs</div>
+            </>
+          )}
+        />
         {tagsData.map((item) => (
           <div className="tagsInput" style={{ marginTop: "20px" }}>
             <h2>{item.tag_title === "image" ? "IMAGE" : "TEXT"}</h2>
@@ -373,6 +387,7 @@ const InputPage = () => {
                 flexDirection: "column",
               }}
             >
+              {console.log(item)}
               {getRows(item)}
             </div>
           </div>
@@ -381,6 +396,7 @@ const InputPage = () => {
           Save
         </button>
       </div>
+      {console.log(inputData)}
       {seletiveCropFile && popupCrop ? (
         <ImageUploadPopup
           file={seletiveCropFile}

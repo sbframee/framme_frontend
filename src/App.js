@@ -1,7 +1,5 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import Tags from "./pages/tags/Tags";
-import SideBar from "./components/Sidebar/SideBar";
-// import InputToSpeach from "./pages/InputToSpeach";
 import Occasion from "./pages/occasions/Occasion";
 import PictureUpload from "./pages/PictureUpload";
 import Main from "./pages/userPage/Main/Main";

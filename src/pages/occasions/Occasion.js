@@ -124,8 +124,7 @@ const Occasion = () => {
                       </button>
                     </td>
                     <td style={{ textAlign: "center" }}>
-                      <DeleteOutline onClick={() => setDeleteItem(item)}/>
-                      
+                      <DeleteOutline onClick={() => setDeleteItem(item)} />
                     </td>
                   </tr>
                 ))
@@ -582,7 +581,6 @@ const ConfirmPopup = ({ close, deleteHandler }) => {
   return (
     <div className="popup_bg overlay">
       <div className="popup_img">
-        <div className="popup_header"></div>
         <div className="popup_body">
           <h2>Confirm Delete?</h2>
           <div

@@ -21,6 +21,7 @@ import { MdFileDownload } from "react-icons/md";
 import { ArrowBack } from "@mui/icons-material";
 import { Box, CircularProgress, Slider } from "@mui/material";
 import { styled } from "@mui/system";
+import Navbar from "../../../components/Sidebar/navbar";
 const PrettoSlider = styled(Slider)({
   color: "#fff",
   height: 4,
@@ -291,16 +292,19 @@ const OccasionPage = () => {
     selectedImage ? (
       <>
         <div className="container">
-          <div className="navbar" style={{ justifyContent: "space-between" }}>
-            <ArrowBack
-              className="backArrow"
-              onClick={() => {
-                if (params.img_url) navigate(`/occasion/${occasion?.occ_uuid}`);
-                setSelectedImage(false);
-              }}
-              style={{ color: "#fff" }}
-            />
-          </div>
+          <Navbar
+            Tag={() => (
+              <ArrowBack
+                className="backArrow"
+                onClick={() => {
+                  if (params.img_url)
+                    navigate(`/occasion/${occasion?.occ_uuid}`);
+                  setSelectedImage(false);
+                }}
+                style={{ color: "#fff" }}
+              />
+            )}
+          />
           {loading ? (
             <div className="flex">
               <CircularProgress />
@@ -480,6 +484,7 @@ const OccasionPage = () => {
                               setDeleteHolders((prev) => [...prev, item])
                             }
                             scale={item?.scale}
+                            selectedImage={selectedImage}
                           />
                         );
                       } else if (url?.tag_type === "T") {
@@ -615,7 +620,7 @@ const OccasionPage = () => {
                     ...selectedImage,
                     holder: selectedImage.holder.map((b) =>
                       b._id === selectedHolder._id
-                        ? { ...b, index: b.index + 1 }
+                        ? { ...b, index: (b.index || 0) + 1 }
                         : b
                     ),
                   })
@@ -689,14 +694,18 @@ const OccasionPage = () => {
     ) : (
       <>
         <div className="userOccasion">
-          <div className="navbar">
-            <ArrowBack
-              className="backArrow"
-              onClick={() => navigate("/users")}
-              style={{ color: "#fff" }}
-            />
-            <div className="h1">{occasion?.title || "-"}</div>
-          </div>
+          <Navbar
+            Tag={() => (
+              <>
+                <ArrowBack
+                  className="backArrow"
+                  onClick={() => navigate("/users")}
+                  style={{ color: "#fff" }}
+                />
+                <div className="h1">{occasion?.title || "-"}</div>
+              </>
+            )}
+          />
 
           {occasion?.posters?.length ? (
             <div className="slide-container">
@@ -977,13 +986,13 @@ const Tag = ({
   mirrorRevert,
   scale,
   image,
+  selectedImage,
 }) => {
   const [baseImage, setBaseImage] = useState();
   useEffect(() => {
     let img_url = url?.img_url?.sort((a, b) => +a.sort_order - +b.sort_order)[
-      (item?.index || 1) % url?.img_url?.length
+      (item?.index || 0) % url?.img_url?.length
     ]?.img_url;
-    console.log(item);
 
     if (img_url) {
       axios({
@@ -1000,7 +1009,7 @@ const Tag = ({
         };
       });
     }
-  }, [item, item?.index, url]);
+  }, [item, item?.index, url, selectedImage]);
 
   return (
     <motion.div
