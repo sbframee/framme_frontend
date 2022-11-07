@@ -26,15 +26,37 @@ const NavigationBar = () => {
       </div>
       <div
         className="icon-container flex"
-        style={{ flexDirection: "column" }}
+        style={{
+          flexDirection: "column",
+          justifyContent: "flex-end",
+          position: "relative",
+          height: "66px",
+        }}
         onClick={() => navigate("/customInput")}
       >
-        <AddIcon className="customBtn" />
+        <span
+          className="flex"
+          style={{
+            position: "absolute",
+            border: "5px solid red",
+            borderRadius: "50%",
+            top: "-35px",
+            width: "70px",
+            height:"70px"
+          }}
+        >
+          <AddIcon className="customBtn" />
+        </span>
+
         <div>Custom</div>
       </div>
-      <div className="icon-container flex" style={{ flexDirection: "column" }}>
-        <NotificationsIcon />
-        <div>Home</div>
+      <div
+        className="icon-container flex"
+        style={{ flexDirection: "column" }}
+        onClick={() => navigate("/tagInput")}
+      >
+        <PersonIcon />
+        <div>Inputs</div>
       </div>
       <div
         className="icon-container flex"

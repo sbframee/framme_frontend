@@ -110,7 +110,7 @@ const Main = () => {
             <div
               className="occasion_container"
               style={index===0? { marginTop: "40px" } :
-                index + 1 === categories?.length ? { marginBottom: "50px" } : {}
+                index + 1 === categories?.length ? { marginBottom: "100px" } : {}
               }
               key={Math.random()}
             >

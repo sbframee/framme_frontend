@@ -89,6 +89,7 @@ const OccasionPage = () => {
   const location = useLocation();
   useEffect(() => {
     if (selectedImage?.img_url) {
+      setLoading(true);
       axios({
         method: "get",
         url: selectedImage?.img_url,
@@ -100,11 +101,13 @@ const OccasionPage = () => {
           var base64data = reader.result;
           console.log(base64data);
           setBaseImage(base64data);
+          setLoading(false);
         };
       });
     }
   }, [selectedImage]);
   const getSelectedBaseImageData = async (image) => {
+    console.log("datadata", image?.img_url === selectedImage?.img_url);
     if (image.img_url) {
       setLoading(true);
       const response = await axios({
@@ -120,6 +123,7 @@ const OccasionPage = () => {
             scale: 1,
             _id: Math?.random(),
           })),
+          sort_order: image?.sort_order || 1,
         };
         setSelectedImage(data);
         setLoading(false);
@@ -197,7 +201,7 @@ const OccasionPage = () => {
           .sort((a, b) => +a.sort_order - b.sort_order)
           .map((a, i) => ({
             ...a,
-            sort_order: a.sort_order ? a.sort_order : i + 1,
+            sort_order: i + 1,
           }))
           .map((a) => ({
             ...a,
@@ -212,7 +216,6 @@ const OccasionPage = () => {
         });
     }
   };
-
   const getTags = async () => {
     let data = localStorage.getItem("user_uuid");
     const response = await axios({
@@ -284,7 +287,6 @@ const OccasionPage = () => {
     if (response.data.success) getImageData();
   };
 
-  // console.log(occasion);
   return localStorage.getItem("user_uuid") ? (
     selectedImage ? (
       <>
@@ -462,6 +464,7 @@ const OccasionPage = () => {
                       if (url?.tag_type === "I") {
                         return (
                           <Tag
+                            image={item?.image}
                             switchBtn={switchBtn}
                             setSwitchBtn={setSwitchBtn}
                             setSeletedHolder={setSeletedHolder}
@@ -508,29 +511,65 @@ const OccasionPage = () => {
             </div>
           )}
           <div className="container_buttons">
-            <div className="container_buttons_container">
-              <Box width={250}>
-                <PrettoSlider
-                  aria-label="pretto slider"
-                  valueLabelDisplay="auto"
-                  value={
-                    selectedImage?.holder?.find(
-                      (b) => b._id === selectedHolder._id
-                    )?.scale * 25 || 0
-                  }
-                  onChange={(e) =>
-                    setSelectedImage((prev) => ({
-                      ...prev,
-                      holder: selectedImage?.holder?.map((b) =>
-                        b._id === selectedHolder._id
-                          ? { ...b, scale: Math.abs(e.target.value / 25) }
-                          : b
-                      ),
-                    }))
-                  }
-                />
-              </Box>
-            </div>
+            {selectedHolder ? (
+              <>
+                <div className="container_buttons_container">
+                  <Box width={250}>
+                    <PrettoSlider
+                      aria-label="pretto slider"
+                      valueLabelDisplay="auto"
+                      value={
+                        selectedImage?.holder?.find(
+                          (b) => b._id === selectedHolder._id
+                        )?.scale * 25 || 0
+                      }
+                      onChange={(e) =>
+                        setSelectedImage((prev) => ({
+                          ...prev,
+                          holder: selectedImage?.holder?.map((b) =>
+                            b._id === selectedHolder._id
+                              ? { ...b, scale: Math.abs(e.target.value / 25) }
+                              : b
+                          ),
+                        }))
+                      }
+                    />
+                  </Box>
+                </div>
+
+                {selectedHolder?.tag_type === "I" ? (
+                  <div className="container_buttons_container">
+                    <label htmlFor="inputImage">
+                      Change Image
+                      <input
+                        id="inputImage"
+                        style={{ display: "none" }}
+                        type="file"
+                        // value={
+                        //   selectedImage?.holder?.find(
+                        //     (b) => b._id === selectedHolder._id
+                        //   )?.image
+                        // }
+                        onChange={(e) =>
+                          setSelectedImage((prev) => ({
+                            ...prev,
+                            holder: selectedImage?.holder?.map((b) =>
+                              b._id === selectedHolder._id
+                                ? { ...b, image: e.target.files[0] }
+                                : b
+                            ),
+                          }))
+                        }
+                      />
+                    </label>
+                  </div>
+                ) : (
+                  ""
+                )}
+              </>
+            ) : (
+              ""
+            )}
             <div className="container_buttons_container">
               <button
                 onClick={() =>
@@ -603,11 +642,12 @@ const OccasionPage = () => {
                   getSelectedBaseImageData(
                     baseImages?.find((a) => {
                       let b =
-                        selectedImage?.sort_order + 1 < baseImages?.length
+                        selectedImage?.sort_order + 1
                           ? selectedImage?.sort_order + 1
-                          : 0;
+                          : baseImages?.length;
+
                       return a?.sort_order === b;
-                    }) || selectedImage
+                    }) || baseImage[0]
                   )
                 }
                 style={{
@@ -936,6 +976,7 @@ const Tag = ({
   setSwitchBtn,
   mirrorRevert,
   scale,
+  image,
 }) => {
   const [baseImage, setBaseImage] = useState();
   useEffect(() => {
@@ -993,7 +1034,7 @@ const Tag = ({
             : (e) => {
                 e.stopPropagation();
                 setSwitchBtn("position");
-                setSeletedHolder(item);
+                setSeletedHolder({ ...url, ...item });
               }
         }
         style={{
@@ -1025,10 +1066,10 @@ const Tag = ({
               ].text
             }
           </div>
-        ) : baseImage ? (
+        ) : image || baseImage ? (
           // eslint-disable-next-line jsx-a11y/alt-text
           <img
-            src={baseImage}
+            src={image ? URL.createObjectURL(image) : baseImage}
             className="holders"
             style={{ width: "100%", height: "100%", pointerEvents: "none" }}
             alt={NoImage}

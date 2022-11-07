@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import {  useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import NoImage from "../../../assets/noImage.jpg";
 import * as htmlToImage from "html-to-image";
 import download from "downloadjs";
@@ -360,6 +360,7 @@ const ShareImage = () => {
                 if (url?.tag_type === "I") {
                   return (
                     <Tag
+                      holdersImges={holdersImges}
                       switchBtn={switchBtn}
                       setHoldersImges={setHoldersImges}
                       setSwitchBtn={setSwitchBtn}
@@ -382,6 +383,7 @@ const ShareImage = () => {
                   return (
                     <Tag
                       switchBtn={switchBtn}
+                      holdersImges={holdersImges}
                       setSwitchBtn={setSwitchBtn}
                       setHoldersImges={setHoldersImges}
                       setSeletedHolder={setSeletedHolder}
@@ -407,29 +409,28 @@ const ShareImage = () => {
         )}
       </div>
       <div className="container_buttons">
-      <div className="container_buttons_container">
-              <Box width={250}>
-                <PrettoSlider
-                  aria-label="pretto slider"
-                  valueLabelDisplay="auto"
-                  value={
-                    selectedImage?.holder?.find(
-                      (b) => b._id === selectedHolder._id
-                    )?.scale * 25 || 0
-                  }
-                  onChange={(e) =>
-                    setSelectedImage((prev) => ({
-                      ...prev,
-                      holder: selectedImage?.holder?.map((b) =>
-                        b._id === selectedHolder._id
-                          ? { ...b, scale: Math.abs(e.target.value / 25) }
-                          : b
-                      ),
-                    }))
-                  }
-                />
-              </Box>
-            </div>
+        <div className="container_buttons_container">
+          <Box width={250}>
+            <PrettoSlider
+              aria-label="pretto slider"
+              valueLabelDisplay="auto"
+              value={
+                selectedImage?.holder?.find((b) => b._id === selectedHolder._id)
+                  ?.scale * 25 || 0
+              }
+              onChange={(e) =>
+                setSelectedImage((prev) => ({
+                  ...prev,
+                  holder: selectedImage?.holder?.map((b) =>
+                    b._id === selectedHolder._id
+                      ? { ...b, scale: Math.abs(e.target.value / 25) }
+                      : b
+                  ),
+                }))
+              }
+            />
+          </Box>
+        </div>
         <div className="container_buttons_container">
           <button
             className="image_btn"
@@ -582,6 +583,7 @@ const Tag = ({
   setSwitchBtn,
   mirrorRevert,
   scale,
+  holdersImges,
 }) => {
   const [image, setImage] = useState();
   useEffect(() => {
@@ -636,10 +638,12 @@ const Tag = ({
         }}
       >
         {type === "I" ? (
-          image ? (
+           holdersImges.find((a) => a.tag_uuid === url?.tag_uuid)?.image ? (
             // eslint-disable-next-line jsx-a11y/alt-text
             <img
-              src={URL.createObjectURL(image)}
+              src={URL.createObjectURL(
+                holdersImges.find((a) => a.tag_uuid === url?.tag_uuid)?.image
+              )}
               className="holders"
               style={{ width: "100%", height: "100%", pointerEvents: "none" }}
               alt={NoImage}

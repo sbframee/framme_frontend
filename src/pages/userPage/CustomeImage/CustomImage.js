@@ -379,6 +379,7 @@ const CustomImage = () => {
                     <img
                       onClick={() => setSelectedImage(imgItem)}
                       src={imgItem.img_url ? imgItem.img_url : NoImage}
+                      alt=""
                     />
                   </div>
                 ))}
