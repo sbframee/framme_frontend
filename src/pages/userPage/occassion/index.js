@@ -106,9 +106,8 @@ const OccasionPage = () => {
         };
       });
     }
-  }, [selectedImage]);
+  }, [selectedImage?.img_url]);
   const getSelectedBaseImageData = async (image) => {
-    console.log("datadata", image?.img_url === selectedImage?.img_url);
     if (image.img_url) {
       setLoading(true);
       const response = await axios({
@@ -252,12 +251,12 @@ const OccasionPage = () => {
       } else loginHandler();
     }
   }, [state]);
-  useEffect(() => {
-    if (localStorage.getItem("user_uuid")) {
-      setDeleteHolders([]);
-      setSwitchBtn("");
-    }
-  }, [selectedImage, state]);
+  // useEffect(() => {
+  //   if (localStorage.getItem("user_uuid")) {
+  //     setDeleteHolders([]);
+  //     setSwitchBtn("");
+  //   }
+  // }, [selectedImage, state]);
   useEffect(() => {
     if (localStorage.getItem("user_uuid")) {
       if (params.occ_uuid) getOccasionData(params.occ_uuid);
@@ -306,7 +305,7 @@ const OccasionPage = () => {
             )}
           />
           {loading ? (
-            <div className="flex">
+            <div className="flex" style={{ marginTop: "100px" }}>
               <CircularProgress />
             </div>
           ) : (

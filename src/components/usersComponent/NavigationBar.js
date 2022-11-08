@@ -35,17 +35,17 @@ const NavigationBar = () => {
         onClick={() => navigate("/customInput")}
       >
         <span
-          className="flex"
+          className="customeGoldenButton flex"
           style={{
             position: "absolute",
-            border: "5px solid red",
+
             borderRadius: "50%",
             top: "-35px",
             width: "70px",
-            height:"70px"
+            height: "70px",
           }}
         >
-          <AddIcon className="customBtn" />
+          <AddIcon />
         </span>
 
         <div>Custom</div>
