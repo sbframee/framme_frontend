@@ -273,7 +273,7 @@ body {
 }
  .popup_header {
   display: flex;
-  padding: 0 10px;
+  padding:  10px;
   justify-content: space-between;
 
   align-items: center;

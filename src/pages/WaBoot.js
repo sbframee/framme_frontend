@@ -26,6 +26,8 @@ const WaBoot = () => {
       "https://api.whatsapp.com/send/?phone=91{phone}&text=" +
       mssage
         .replace(/\n/g, "%0A")
+        .replace(/ /g, "%20")
+        .replace(/,/g, "%2C")
         ?.replace(
           "{link}",
           `http://www.framee.in/login/{user_uuid}/{img_uuid}`
@@ -139,7 +141,7 @@ const WaBoot = () => {
       sheetData.push({
         Link: finalLink
           ?.replace("{phone}", order?.user_name)
-          .replace("{user_uuid}", order?.user_uuid||"new")
+          .replace("{user_uuid}", order?.user_uuid || "new")
           .replace(
             "{img_uuid}",
             selectedOrder[index % selectedOrder?.length].img_url.split("/")[3]
@@ -777,13 +779,12 @@ const WaBoot = () => {
       {mssagePopup ? (
         <div
           className="overlay"
-          style={{  zIndex: 9999999999 }}
+          style={{ zIndex: 9999999999 }}
           // style={{ position: "fixed", top: 0, left: 0, zIndex: 9999999999 }}
         >
           <div
             className="modal"
             style={{ height: "fit-content", width: "fit-content" }}
-             
           >
             <div
               className="content"
@@ -842,10 +843,7 @@ const WaBoot = () => {
         ""
       )}
       {Custome ? (
-        <div
-          className="overlay"
-          style={{  zIndex: 9999999999 }}
-        >
+        <div className="overlay" style={{ zIndex: 9999999999 }}>
           <div
             className="modal"
             style={{ height: "fit-content", width: "fit-content" }}
@@ -864,14 +862,15 @@ const WaBoot = () => {
                   onSubmit={(e) => {
                     e.preventDefault();
                     setCustome(false);
-                    setMessagePopup(true)
+                    setMessagePopup(true);
                   }}
                 >
                   <div className="formGroup">
                     <div
                       className="row"
                       style={{ flexDirection: "column", alignItems: "start" }}
-                    >{console.log(selectedUser)}
+                    >
+                      {console.log(selectedUser)}
                       <label className="selectLabel flex">
                         <textarea
                           type="text"
@@ -885,7 +884,7 @@ const WaBoot = () => {
                             setSelectedUser(
                               e.target.value
                                 ?.split("\n")
-                                ?.map((a) => ({ user_name: a }))||[]
+                                ?.map((a) => ({ user_name: a })) || []
                             )
                           }
                           onWheel={(e) => e.preventDefault()}
@@ -895,12 +894,22 @@ const WaBoot = () => {
                     </div>
 
                     <div className="row">
-                      <button className="simple_Logout_button" type="submit">
-                        Save
-                      </button>
+                      {selectedUser?.length ? (
+                        <button className="simple_Logout_button" type="submit">
+                          Next
+                        </button>
+                      ) : (
+                        ""
+                      )}
                     </div>
                   </div>
                 </form>
+                <button
+                  onClick={() => setCustome(false)}
+                  className="closeButton"
+                >
+                  x
+                </button>
               </div>
             </div>
           </div>

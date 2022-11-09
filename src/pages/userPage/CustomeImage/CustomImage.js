@@ -1,11 +1,79 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import NoImage from "../../../assets/noImage.jpg";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Box, CircularProgress, Slider } from "@mui/material";
+import { motion } from "framer-motion";
+import { styled } from "@mui/system";
+import {
+  HiOutlineArrowCircleRight,
+  HiOutlineArrowCircleLeft,
+} from "react-icons/hi";
+import html2canvas from "html2canvas";
+
+import { MdFileDownload } from "react-icons/md";
+
 import * as htmlToImage from "html-to-image";
 import download from "downloadjs";
 import { v4 as uuid } from "uuid";
 import axios from "axios";
 import "./index.css";
+import Navbar from "../../../components/Sidebar/navbar";
+import { ArrowBack, Cached } from "@mui/icons-material";
+import useWindowDimensions from "../../../components/useWidthDimenshion";
+import ShareIcon from "@mui/icons-material/Share";
+import Sliders from "../../../components/Sliders";
 import ImageUploadPopup from "../../../components/ImageUploadPopup";
+const tagsInitials = {
+  a: "0,0",
+  b: "100,10",
+  c: "100,100",
+  d: "0,100",
+  fontFamily: "sans-serif",
+
+  scale: 1,
+  text_color: "#000",
+};
+const PrettoSlider = styled(Slider)({
+  color: "#fff",
+  height: 4,
+  "& .MuiSlider-track": {
+    border: "none",
+  },
+  "& .MuiSlider-thumb": {
+    height: 15,
+    width: 15,
+    backgroundColor: "#fff",
+    border: "2px solid currentColor",
+    "&:focus, &:hover, &.Mui-active, &.Mui-focusVisible": {
+      boxShadow: "inherit",
+      height: 24,
+      width: 24,
+    },
+    "&:before": {
+      display: "none",
+    },
+  },
+  "& .MuiSlider-valueLabel": {
+    lineHeight: 1.2,
+    fontSize: 12,
+    background: "unset",
+    padding: 0,
+    width: 32,
+    height: 32,
+    color: "var(--main-color)",
+    borderRadius: "50% 50% 50% 0",
+    backgroundColor: "#fff",
+    transformOrigin: "bottom left",
+    transform: "translate(50%, -100%) rotate(-45deg) scale(0)",
+    "&:before": { display: "none" },
+    "&.MuiSlider-valueLabelOpen": {
+      transform: "translate(50%, -100%) rotate(-45deg) scale(1)",
+    },
+    "& > *": {
+      transform: "rotate(45deg)",
+    },
+  },
+});
 const CustomImage = () => {
   const [selectedFile, setSelectedFile] = useState("");
   const [popupCrop, setPopupCrop] = useState();
@@ -15,10 +83,45 @@ const CustomImage = () => {
   const [customHolders, setCustomHolders] = useState([]);
   const [deleteHolders, setDeleteHolders] = useState([]);
   const [tags, setTags] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const [selectedHolder, setSeletedHolder] = useState("");
+  const [mirrorRevert, setMirrorevert] = useState([]);
+  const [baseImage, setBaseImage] = useState();
+  const { width } = useWindowDimensions();
+  const ref = useRef();
   const [data, setData] = useState([]);
   const [type, setType] = useState("");
   const [uploadMsg, setUploadMsg] = useState(false);
   const [baseImages, setBaseImages] = useState([]);
+  const handlePng = () => {
+    setSeletedHolder("");
+    setSwitchBtn("");
+
+    htmlToImage.toPng(ref.current).then(function (dataUrl) {
+      console.log("dataurl", dataUrl);
+      download(dataUrl, "text-img.png");
+    });
+  };
+  useEffect(() => {
+    if (selectedImage?.img_url) {
+      setLoading(true);
+      axios({
+        method: "get",
+        url: selectedImage?.img_url,
+        responseType: "blob",
+      }).then(function (response) {
+        var reader = new FileReader();
+        reader.readAsDataURL(response.data);
+        reader.onloadend = function () {
+          var base64data = reader.result;
+          console.log(base64data);
+          setBaseImage(base64data);
+          setLoading(false);
+        };
+      });
+    }
+  }, [selectedImage?.img_url]);
   const imageArea = useRef();
   const getBaseImageData = async () => {
     let user_category_uuid = localStorage.getItem("user_category_uuid");
@@ -35,10 +138,7 @@ const CustomImage = () => {
     if (response.data.success) {
       setBaseImages(
         response.data.result
-          .filter(
-            (a) =>
-              a.img_type === "B" && a.user.filter((a) => a === user_uuid).length
-          )
+          .filter((a) => a.img_type === "B")
           .sort((a, b) => +a.sort_order - b.sort_order)
           .map((a, i) => ({
             ...a,
@@ -126,15 +226,7 @@ const CustomImage = () => {
       setTimeout(() => setUploadMsg(false), 2000);
     }
   };
-  const handlePng = () => {
-    setSwitchBtn("");
-    htmlToImage
-      .toPng(document.getElementById("my-img"))
-      .then(function (dataUrl) {
-        console.log(dataUrl);
-        download(dataUrl, "text-img.png");
-      });
-  };
+
   const onChangeHandler = (e) => {
     if (e.target.value === "none") {
       setData([]);
@@ -155,235 +247,601 @@ const CustomImage = () => {
 
     setData(catData);
   };
-  console.log(selectedImage);
+  const handleShare = async () => {
+    const canvas = await html2canvas(ref.current);
+    canvas.toBlob(async (blob) => {
+      // Even if you want to share just one file you need to
+      // send them as an array of files.
+      const files = [new File([blob], "image.png", { type: blob.type })];
+      const shareData = {
+        text: "",
+        title: "",
+        files,
+      };
+      if (navigator.canShare(shareData)) {
+        try {
+          await navigator.share(shareData);
+        } catch (err) {
+          if (err.name !== "AbortError") {
+            console.error(err.name, err.message);
+          }
+        }
+      } else {
+        console.warn("Sharing not supported", shareData);
+      }
+    });
+  };
+  const getSelectedBaseImageData = async (image) => {
+    if (image.img_url) {
+      setLoading(true);
+      const response = await axios({
+        method: "get",
+        url: "/images/getBaseImages/" + image.img_url.split("/")[3],
+      });
+      if (response.data.success) {
+        let data = response.data.result;
+        data = {
+          ...data,
+          holder: data.holder.map((a) => ({
+            ...a,
+            scale: 1,
+            _id: Math?.random(),
+          })),
+          sort_order: image?.sort_order || 1,
+        };
+        setSelectedImage(data);
+        setLoading(false);
+      }
+    }
+  };
+  useEffect(() => {
+    setCustomHolders(selectedImage?.holder);
+  }, [selectedImage?.holder]);
+  console.log(selectedHolder);
   return (
     <>
       {selectedImage ? (
-        <div className="customImage">
-          <div style={{ position: "fixed", bottom: "0", right: "100px" }}>
-            <input
-              type="radio"
-              id="delete-selection"
-              checked={switchBtn === "delete"}
-              onClick={() =>
-                setSwitchBtn((prev) => (prev === "delete" ? "" : "delete"))
-              }
-            />
-            <label htmlFor="delete-selection">Delete</label>
-            <input
-              type="radio"
-              id="resize-selection"
-              checked={switchBtn === "resize"}
-              onClick={() =>
-                setSwitchBtn((prev) => (prev === "resize" ? "" : "resize"))
-              }
-            />
-            <label htmlFor="resize-selection">Resize</label>
-            <input
-              type="radio"
-              id="position-selection"
-              checked={switchBtn === "position"}
-              onClick={() =>
-                setSwitchBtn((prev) => (prev === "position" ? "" : "position"))
-              }
-            />
-            <label htmlFor="position-selection">Position</label>
-          </div>
-          <div
-            onClick={() => setSelectedImage(false)}
-            style={{
-              position: "absolute",
-              right: "100px",
-              top: "50px",
-              cursor: "pointer",
-              fontSize: "25px",
-              backgroundColor: "black",
-              color: "#fff",
-              padding: "10px 15px",
-              borderRadius: "30px",
-            }}
-          >
-            X
-          </div>
+        <div className="container">
+          <Navbar
+            Tag={() => (
+              <div
+                className="flex"
+                style={{
+                  color: "#fff",
+                  width: "85vw",
+                  justifyContent: "flex-start",
+                }}
+              >
+                <ArrowBack
+                  className="backArrow"
+                  onClick={() => {
+                    setSelectedImage(false);
+                  }}
+                />
+              </div>
+            )}
+          />
+          {loading ? (
+            <div className="flex" style={{ marginTop: "100px" }}>
+              <CircularProgress />
+            </div>
+          ) : (
+            <div className="display_image_container">
+              <div
+                id="my-img"
+                ref={ref}
+                className="DisplayImg"
+                style={
+                  type === "new"
+                    ? {
+                        width: imageArea?.current?.offsetWidth,
+                        height: imageArea?.current?.offsetHeight,
+                        maxHeight: "100%",
+                      }
+                    : {
+                        width:
+                          (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                          width
+                            ? selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                              selectedImage?.coordinates[0]?.a?.split(",")[0]
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
+                                1.5 <
+                              width
+                            ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
+                              1.5
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
+                                2 <
+                              width
+                            ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
+                              2
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
+                              2.5) + "px",
+                        height:
+                          (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                          width
+                            ? selectedImage?.coordinates[0]?.d?.split(",")[1] -
+                              selectedImage?.coordinates[0]?.a?.split(",")[1]
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
+                                1.5 <
+                              width
+                            ? (selectedImage?.coordinates[0]?.d?.split(",")[1] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[1]) /
+                              1.5
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
+                                2 <
+                              width
+                            ? (selectedImage?.coordinates[0]?.d?.split(",")[1] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[1]) /
+                              2
+                            : (selectedImage?.coordinates[0]?.d?.split(",")[1] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[1]) /
+                              2.5) + "px",
+                        maxHeight: "100%",
+                      }
+                }
+              >
+                <img
+                  src={type === "new" ? selectedImage : baseImage}
+                  ref={imageArea}
+                  style={{
+                    width: "100%",
+                    // height: "100%",
+                    position: "absolute",
+                    pointerEvents: "none",
 
-          <div
-            id="my-img"
-            className="image_container"
-            style={
-              type === "new"
-                ? {}
-                : {
-                    width:
-                      selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                      selectedImage?.coordinates[0]?.a?.split(",")[0] +
-                      "px",
-                  }
-            }
-          >
-            <img
-              src={type === "new" ? selectedImage : `${selectedImage?.img_url}`}
-              ref={imageArea}
-              style={{ maxWidth: "100vw", maxHeight: "100vh" }}
-              unselectable="on"
-            />
+                    // transform: mirrorRevert ? "scaleX(-1)" : "scaleX(1)",
+                  }}
+                  unselectable="on"
+                  alt=""
+                />
 
-            {type === "new"
-              ? customHolders
+                {customHolders
                   ?.filter((a) => {
                     let value = deleteHolders?.filter((b) => a?._id === b?._id)
                       ?.length
                       ? false
                       : true;
-                    console.log("value", deleteHolders, a, value);
+
                     return value;
                   })
                   ?.map((item) => {
                     let url = tags.find((a) => a.tag_uuid === item.label_uuid);
+                    let coordinates;
+                    let height;
+                    let width1;
+                    if (type === "new") {
+                      coordinates = [100, 100];
+                      height = 100;
+                      width1 = 100;
+                    } else {
+                      coordinates = item.a.split(",");
+                      coordinates[0] =
+                        selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                        width
+                          ? coordinates[0]
+                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                              1.5 <
+                            width
+                          ? coordinates[0] / 1.5
+                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                              2 <
+                            width
+                          ? coordinates[0] / 2
+                          : coordinates[0] / 2.5;
 
-                    let width = 100;
-                    let height = 100;
+                      coordinates[1] =
+                        selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                        width
+                          ? coordinates[1]
+                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                              1.5 <
+                            width
+                          ? coordinates[1] / 1.5
+                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                              2 <
+                            width
+                          ? coordinates[1] / 2
+                          : coordinates[1] / 2.5;
 
-                    if (url?.tag_type === "I")
+                      width1 =
+                        selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                        width
+                          ? item.b.split(",")[0] - coordinates[0]
+                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                              1.5 <
+                            width
+                          ? item.b.split(",")[0] / 1.5 - coordinates[0]
+                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                              2 <
+                            width
+                          ? item.b.split(",")[0] / 2 - coordinates[0]
+                          : item.b.split(",")[0] / 2.5 - coordinates[0];
+
+                      height =
+                        selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                        width
+                          ? item.d.split(",")[1] - coordinates[1]
+                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                              1.5 <
+                            width
+                          ? item.d.split(",")[1] / 1.5 - coordinates[1]
+                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                              2 <
+                            width
+                          ? item.d.split(",")[1] / 2 - coordinates[1]
+                          : item.d.split(",")[1] / 2.5 - coordinates[1];
+                    }
+                    if (url?.tag_type === "I") {
                       return (
                         <Tag
+                          image={item?.image}
                           switchBtn={switchBtn}
-                          url={url}
-                          type="I"
-                          width={width}
-                          height={height}
-                          deleteHandler={() =>
-                            setDeleteHolders((prev) => [...prev, item])
-                          }
-                        />
-                      );
-                    else if (url?.tag_type === "T")
-                      return (
-                        <Tag
-                          switchBtn={switchBtn}
+                          setSwitchBtn={setSwitchBtn}
+                          setSeletedHolder={setSeletedHolder}
+                          selectedHolder={selectedHolder}
                           item={item}
-                          type="T"
-                          width={width}
-                          height={height}
-                          url={url}
-                          deleteHandler={() =>
-                            setDeleteHolders((prev) => [...prev, item])
-                          }
-                        />
-                      );
-                  })
-              : selectedImage.holder
-                  ?.filter((a) => {
-                    let value = deleteHolders?.filter((b) => a?._id === b?._id)
-                      ?.length
-                      ? false
-                      : true;
-                    console.log("value", deleteHolders, a, value);
-                    return value;
-                  })
-                  ?.map((item) => {
-                    let url = tags.find((a) => a.tag_uuid === item.label_uuid);
-                    let coordinates = [100, 100];
-                    let width = 100;
-                    let height = 100;
-                    console.log(item, url, tags);
-                    if (url?.tag_type === "I")
-                      return (
-                        <Tag
-                          switchBtn={switchBtn}
                           url={url}
                           type="I"
                           coordinates={coordinates}
-                          width={width}
+                          width={width1}
                           height={height}
+                          mirrorRevert={mirrorRevert}
                           deleteHandler={() =>
                             setDeleteHolders((prev) => [...prev, item])
                           }
+                          scale={item?.scale}
+                          selectedImage={selectedImage}
                         />
                       );
-                    else if (url?.tag_type === "T")
+                    } else if (url?.tag_type === "T") {
                       return (
                         <Tag
                           switchBtn={switchBtn}
+                          setSwitchBtn={setSwitchBtn}
+                          setSeletedHolder={setSeletedHolder}
+                          selectedHolder={selectedHolder}
                           item={item}
+                          mirrorRevert={mirrorRevert}
                           type="T"
                           coordinates={coordinates}
-                          width={width}
+                          width={width1}
                           height={height}
                           url={url}
+                          scale={item?.scale}
                           deleteHandler={() =>
                             setDeleteHolders((prev) => [...prev, item])
                           }
                         />
                       );
+                    }
                   })}
-          </div>
-          <button
-            type="button"
-            className="downloadButton"
-            style={{ position: "fixed" }}
-            onClick={() => handlePng()}
-          >
-            Download
-          </button>
-          <button
-            type="button"
-            className="downloadButton"
-            style={{ position: "fixed", left: "150px" }}
-            onClick={() => submitHandler()}
-          >
-            Save
-          </button>
-          <div
-            type="button"
-            className={`uploadMsg ${uploadMsg ? "uploadActive" : ""}`}
-          >
-            Saved
-          </div>
-          <div className="tags_popup">
-            <h1>Add Tags</h1>
-            <select
-              className="label_popup_input"
-              style={{ width: "200px" }}
-              value={data}
-              onChange={onChangeHandler}
-              multiple
-            >
-              {/* <option selected={occasionsTemp.length===occasionsData.length} value="all">All</option> */}
-              <option value="none">None</option>
-              {tags.map((cat) => (
-                <option value={cat.tag_uuid}>{cat.tag_title}</option>
-              ))}
-            </select>
-            <button
-              type="button"
-              onClick={() => {
-                setCustomHolders([
-                  ...customHolders,
-                  ...data.map((a) => ({ label_uuid: a })),
-                ]);
-                setData([]);
-              }}
-            >
-              Add
-            </button>
-          </div>
+              </div>
+              {/* <div
+                type="button"
+                className={`uploadMsg ${uploadMsg ? "uploadActive" : ""}`}
+              >
+                Saved
+              </div> */}
+              <div className="container_buttons">
+                <div className="container_buttons_container">
+                  <h5>Add Tags</h5>
+                  <select
+                    className="label_popup_input"
+                    // style={{ width: "200px" }}
+                    value={data}
+                    onChange={onChangeHandler}
+                  >
+                    {/* <option selected={occasionsTemp.length===occasionsData.length} value="all">All</option> */}
+                    <option value="none">None</option>
+                    {tags.map((cat) => (
+                      <option value={cat.tag_uuid}>{cat.tag_title}</option>
+                    ))}
+                  </select>
+                  {data.length ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCustomHolders([
+                          ...(customHolders || []),
+                          ...data.map((a) => {
+                            let data = {
+                              label_uuid: a,
+                              ...tagsInitials,
+                              _id: Math.random(),
+                              ...(tags.find((b) => b.tag_uuid === a) || {}),
+                            };
+                            setSeletedHolder(data);
+                            return data;
+                          }),
+                        ]);
+                        setData([]);
+                      }}
+                    >
+                      Add
+                    </button>
+                  ) : (
+                    ""
+                  )}
+                </div>
+                {console.log(customHolders)}
+                {selectedHolder ? (
+                  <>
+                    <div className="container_buttons_container">
+                      <Box width={250}>
+                        <PrettoSlider
+                          aria-label="pretto slider"
+                          valueLabelDisplay="auto"
+                          value={
+                            customHolders?.find(
+                              (b) => b._id === selectedHolder._id
+                            )?.scale * 25 || 0
+                          }
+                          onChange={(e) =>
+                            setCustomHolders((prev) =>
+                              prev?.map((b) =>
+                                b._id === selectedHolder._id
+                                  ? {
+                                      ...b,
+                                      scale: Math.abs(e.target.value / 25),
+                                    }
+                                  : b
+                              )
+                            )
+                          }
+                        />
+                      </Box>
+                    </div>
+
+                    {selectedHolder?.tag_type === "I" ? (
+                      <div className="container_buttons_container">
+                        <label htmlFor="inputImage">
+                          Change Image
+                          <input
+                            id="inputImage"
+                            style={{ display: "none" }}
+                            type="file"
+                            // value={
+                            //   selectedImage?.holder?.find(
+                            //     (b) => b._id === selectedHolder._id
+                            //   )?.image
+                            // }
+                            onChange={(e) =>
+                              setSelectedImage((prev) => ({
+                                ...prev,
+                                holder: selectedImage?.holder?.map((b) =>
+                                  b._id === selectedHolder._id
+                                    ? { ...b, image: e.target.files[0] }
+                                    : b
+                                ),
+                              }))
+                            }
+                          />
+                        </label>
+                      </div>
+                    ) : (
+                      ""
+                    )}
+                  </>
+                ) : (
+                  ""
+                )}
+                <div className="container_buttons_container">
+                  <button
+                    onClick={() =>
+                      getSelectedBaseImageData(
+                        baseImages?.find((a) => {
+                          let b =
+                            selectedImage?.sort_order - 1
+                              ? selectedImage?.sort_order - 1
+                              : baseImages?.length;
+                          return a?.sort_order === b;
+                        }) || selectedImage
+                      )
+                    }
+                    style={{
+                      cursor: "pointer",
+                      fontSize: "35px",
+                      color: "#fff",
+                      borderRadius: "30px",
+                      backgroundColor: "transparent",
+                      border: "none",
+                    }}
+                  >
+                    <HiOutlineArrowCircleLeft />
+                  </button>
+                  <button
+                    className="image_btn"
+                    onClick={() =>
+                      setMirrorevert((prev) =>
+                        prev?.length
+                          ? prev?.find((a) => a === selectedHolder?.label_uuid)
+                            ? prev?.filter(
+                                (a) => a !== selectedHolder?.label_uuid
+                              )
+                            : [...prev, selectedHolder?.label_uuid]
+                          : [selectedHolder?.label_uuid]
+                      )
+                    }
+                  >
+                    Mirror
+                  </button>
+                  <button
+                    className="image_btn"
+                    onClick={() =>
+                      setSelectedImage({
+                        ...selectedImage,
+                        holder: selectedImage.holder.map((b) =>
+                          b._id === selectedHolder._id
+                            ? { ...b, index: (b.index || 0) + 1 }
+                            : b
+                        ),
+                      })
+                    }
+                  >
+                    <Cached />
+                  </button>
+                  <button
+                    className="image_btn"
+                    onClick={() =>
+                      setDeleteHolders((prev) => [
+                        ...prev,
+                        selectedImage.holder.find(
+                          (a) => a._id === selectedHolder._id
+                        ),
+                      ])
+                    }
+                  >
+                    Delete
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      getSelectedBaseImageData(
+                        baseImages?.find((a) => {
+                          let b =
+                            selectedImage?.sort_order + 1
+                              ? selectedImage?.sort_order + 1
+                              : baseImages?.length;
+
+                          return a?.sort_order === b;
+                        }) || baseImage[0]
+                      )
+                    }
+                    style={{
+                      cursor: "pointer",
+                      fontSize: "35px",
+                      color: "#fff",
+                      borderRadius: "30px",
+                      backgroundColor: "transparent",
+                      border: "none",
+                    }}
+                  >
+                    <HiOutlineArrowCircleRight />
+                  </button>
+                </div>
+                <div className="container_buttons_container">
+                  <ShareIcon
+                    style={{
+                      fontSize: "40px",
+                      marginRight: "40px",
+                      border: "2px solid #fff",
+                      borderRadius: "50%",
+                      padding: "5px",
+                    }}
+                    onClick={handleShare}
+                  />
+                  {/* <button
+                    type="button"
+                    onClick={submitHandler}
+                    style={{
+                      fontSize: "15px",
+                      marginRight: "40px",
+                      border: "2px solid #fff",
+                      borderRadius: "50%",
+                      padding: "5px",
+                    }}
+                  >
+                    Save
+                  </button> */}
+                  <MdFileDownload
+                    className="backArrow"
+                    onClick={() => handlePng()}
+                    style={{
+                      fontSize: "40px",
+                      border: "2px solid #fff",
+                      borderRadius: "50%",
+                      padding: "5px",
+                    }}
+                  />
+                </div>
+              </div>{" "}
+            </div>
+          )}
         </div>
       ) : (
         <>
           <div className="userOccasion">
-            <div className="occasion_container">
-              {baseImages
-                .sort((a, b) => +a.sort_order - b.sort_order)
-                .map((imgItem, index) => (
-                  <div className="image_container">
-                    <img
-                      onClick={() => setSelectedImage(imgItem)}
-                      src={imgItem.img_url ? imgItem.img_url : NoImage}
-                      alt=""
-                    />
+            <Navbar
+              Tag={() => (
+                <div className="flex">
+                  <ArrowBack
+                    className="backArrow"
+                    onClick={() => navigate("/users")}
+                    style={{ color: "#fff" }}
+                  />
+                  <div className="h1" style={{ width: "80vw" }}>
+                    Customs
                   </div>
-                ))}
-            </div>
+                </div>
+              )}
+            />
+
+            {loading ? (
+              <div className="flex" style={{ marginTop: "50px" }}>
+                <CircularProgress />
+              </div>
+            ) : (
+              <div className="occasion_container">
+                {console.log(baseImages)}
+                {baseImages
+                  .sort((a, b) => +a.sort_order - b.sort_order)
+                  .map((imgItem, index) => (
+                    <div className="image_container">
+                      <img
+                        onClick={() => getSelectedBaseImageData(imgItem)}
+                        src={imgItem?.img_url ? imgItem?.img_url : NoImage}
+                        alt=""
+                        style={{
+                          width: "44vw",
+                          height: "61vw",
+                          objectFit: "cover",
+                        }}
+                      />
+                    </div>
+                  ))}
+              </div>
+            )}
           </div>
           <label
             htmlFor="new_image"
@@ -415,290 +873,148 @@ const CustomImage = () => {
 };
 
 export default CustomImage;
-const Tag = ({ url, type, width, height, deleteHandler, switchBtn, item }) => {
-  const [index, setIndex] = useState(0);
-  const ref = useRef(null);
-  const refLeft = useRef(null);
-  const refTop = useRef(null);
-  const refRight = useRef(null);
-  const refBottom = useRef(null);
+const Tag = ({
+  url,
+  type,
+  coordinates,
+  width,
+  height,
+  deleteHandler,
+  switchBtn,
+  item,
+  selectedHolder,
+  setSeletedHolder,
+  setSwitchBtn,
+  mirrorRevert,
+  scale,
+  image,
+  selectedImage,
+}) => {
+  const [baseImage, setBaseImage] = useState();
 
   useEffect(() => {
-    const resizeableEle = ref.current;
-    const styles = window.getComputedStyle(resizeableEle);
-    let width = parseInt(styles.width, 10);
-    let height = parseInt(styles.height, 10);
-    let x = 0;
-    let y = 0;
+    let img_url = url?.img_url?.sort((a, b) => +a.sort_order - +b.sort_order)[
+      (item?.index || 0) % url?.img_url?.length
+    ]?.img_url;
 
-    resizeableEle.style.top = styles.top;
-    resizeableEle.style.left = styles.left;
-    // Right resize
-    const onMouseMoveRightResize = (event) => {
-      const dx = event.clientX - x;
-      x = event.clientX;
-      width = width + dx;
-      resizeableEle.style.width = `${width}px`;
-      resizeableEle.style.fontSize = width / 100 + "rem";
-    };
-
-    const onMouseUpRightResize = (event) => {
-      document.removeEventListener("mousemove", onMouseMoveRightResize);
-    };
-
-    const onMouseDownRightResize = (event) => {
-      x = event.clientX;
-      resizeableEle.style.left = styles.left;
-      resizeableEle.style.right = null;
-      document.addEventListener("mousemove", onMouseMoveRightResize);
-      document.addEventListener("mouseup", onMouseUpRightResize);
-    };
-
-    // Top resize
-    const onMouseMoveTopResize = (event) => {
-      const dy = event.clientY - y;
-      height = height - dy;
-      y = event.clientY;
-      resizeableEle.style.height = `${height}px`;
-    };
-
-    const onMouseUpTopResize = (event) => {
-      document.removeEventListener("mousemove", onMouseMoveTopResize);
-    };
-
-    const onMouseDownTopResize = (event) => {
-      y = event.clientY;
-      const styles = window.getComputedStyle(resizeableEle);
-      resizeableEle.style.bottom = styles.bottom;
-      resizeableEle.style.top = null;
-      document.addEventListener("mousemove", onMouseMoveTopResize);
-      document.addEventListener("mouseup", onMouseUpTopResize);
-    };
-
-    // Bottom resize
-    const onMouseMoveBottomResize = (event) => {
-      const dy = event.clientY - y;
-      height = height + dy;
-      y = event.clientY;
-      resizeableEle.style.height = `${height}px`;
-    };
-
-    const onMouseUpBottomResize = (event) => {
-      document.removeEventListener("mousemove", onMouseMoveBottomResize);
-    };
-
-    const onMouseDownBottomResize = (event) => {
-      y = event.clientY;
-      const styles = window.getComputedStyle(resizeableEle);
-      resizeableEle.style.top = styles.top;
-      resizeableEle.style.bottom = null;
-      document.addEventListener("mousemove", onMouseMoveBottomResize);
-      document.addEventListener("mouseup", onMouseUpBottomResize);
-    };
-
-    // Left resize
-    const onMouseMoveLeftResize = (event) => {
-      const dx = event.clientX - x;
-      x = event.clientX;
-      width = width - dx;
-      resizeableEle.style.width = `${width}px`;
-      resizeableEle.style.fontSize = width / 100 + "rem";
-    };
-
-    const onMouseUpLeftResize = (event) => {
-      document.removeEventListener("mousemove", onMouseMoveLeftResize);
-    };
-
-    const onMouseDownLeftResize = (event) => {
-      x = event.clientX;
-      resizeableEle.style.right = styles.right;
-      resizeableEle.style.left = null;
-      document.addEventListener("mousemove", onMouseMoveLeftResize);
-      document.addEventListener("mouseup", onMouseUpLeftResize);
-    };
-    const onMouseSelect = (event) => {
-      const { clientX, clientY } = event;
-      resizeableEle.style.top = clientY + "px";
-      resizeableEle.style.left = clientX + "px";
-      document.addEventListener("mousemove", onMouseSelectResize);
-      document.addEventListener("mouseup", onMouseUpSelectResize);
-    };
-    const onMouseSelectResize = (event) => {
-      const dx = event.clientX - x;
-      x = event.clientX;
-      width = width - dx;
-      const dy = event.clientY - y;
-      height = height + dy;
-      y = event.clientY;
-      resizeableEle.style.top = y + "px";
-      resizeableEle.style.left = x + "px";
-    };
-
-    const onMouseUpSelectResize = (event) => {
-      document.removeEventListener("mousemove", onMouseSelectResize);
-    };
-
-    // Add mouse down event listener
-    if (switchBtn === "resize") {
-      const resizerRight = refRight.current;
-      resizerRight.addEventListener("mousedown", onMouseDownRightResize);
-      const resizerTop = refTop.current;
-      resizerTop.addEventListener("mousedown", onMouseDownTopResize);
-      const resizerBottom = refBottom.current;
-      resizerBottom.addEventListener("mousedown", onMouseDownBottomResize);
-      const resizerLeft = refLeft.current;
-      resizerLeft.addEventListener("mousedown", onMouseDownLeftResize);
-      return () => {
-        resizerRight.removeEventListener("mousedown", onMouseDownRightResize);
-        resizerTop.removeEventListener("mousedown", onMouseDownTopResize);
-        resizerBottom.removeEventListener("mousedown", onMouseDownBottomResize);
-        resizerLeft.removeEventListener("mousedown", onMouseDownLeftResize);
-      };
-    } else if (switchBtn === "position") {
-      const reposition = ref.current;
-      reposition.addEventListener("mousedown", onMouseSelect);
-      return () => reposition.removeEventListener("mousedown", onMouseSelect);
+    if (img_url) {
+      axios({
+        method: "get",
+        url: img_url,
+        responseType: "blob",
+      }).then(function (response) {
+        var reader = new FileReader();
+        reader.readAsDataURL(response.data);
+        reader.onloadend = function () {
+          var base64data = reader.result;
+          console.log(base64data);
+          setBaseImage(base64data);
+        };
+      });
     }
-  }, [switchBtn]);
-  console.log(url);
-  return type === "T" &&
-    url?.text?.sort((a, b) => +a.sort_order - +b.sort_order)[index]?.text ? (
-    <div
-      ref={ref}
-      className="resizeable"
-      style={{
-        // overflow: "visible",
-        fontSize: width / 100 + "rem",
-        overflow: "hidden",
-        left: 100 + "px",
-        top: 100 + "px",
-        width: width + "px",
-        height: height + "px",
-        position: "absolute",
-        color: item.text_color,
-        fontFamily: item.fontFamily||"sans-serif",
+  }, [item, item?.index, url, selectedImage]);
+  const text = useMemo(() => {
+    if (type === "I") return "";
+    else {
+      return url?.text?.sort((a, b) => +a.sort_order - +b.sort_order)[
+        (item.index || 0) % url?.text?.length
+      ];
+    }
+  }, [item.index, type, url?.text]);
+  return (
+    <motion.div
+      dragConstraints={{
+        top: -300,
+        left: -300,
+        right: 300,
+        bottom: 300,
       }}
-    >
-      <div
-        style={{ cursor: "pointer", overflow: "visible" }}
-        onClick={() =>
-          switchBtn === "delete"
-            ? deleteHandler()
-            : setIndex(
-                (prev) =>
-                  (prev + 1) %
-                  url.text.sort((a, b) => +a.sort_order - +b.sort_order).length
-              )
-        }
-      >
-        {url?.text.sort((a, b) => +a.sort_order - +b.sort_order)[index].text}
-      </div>
-      <div
-        ref={refLeft}
-        style={
-          switchBtn === "resize"
-            ? { width: `5px`, height: "100%", background: `#000` }
-            : {}
-        }
-        className="resizer resizer-l"
-      ></div>
-      <div
-        ref={refTop}
-        style={
-          switchBtn === "resize"
-            ? { height: `5px`, width: "100%", background: `#000` }
-            : {}
-        }
-        className="resizer resizer-t"
-      ></div>
-      <div
-        ref={refRight}
-        style={
-          switchBtn === "resize" ? { width: `5px`, background: `#000` } : {}
-        }
-        className="resizer resizer-r"
-      ></div>
-      <div
-        ref={refBottom}
-        style={
-          switchBtn === "resize"
-            ? { height: `5px`, width: "100%", background: `#000` }
-            : {}
-        }
-        className="resizer resizer-b"
-      ></div>
-    </div>
-  ) : (
-    <div
-      ref={ref}
+      drag
       className="resizeable"
       style={{
         cursor: "pointer",
-        left: 100 + "px",
-        top: 100 + "px",
+        left: coordinates[0] + "px",
+        top: coordinates[1] + "px",
         width: width + "px",
         height: height + "px",
         position: "absolute",
+        transform: mirrorRevert.find((a) => a === item?.label_uuid)
+          ? `scaleX(-1)`
+          : `scaleX(1)`,
       }}
+      onTouchEnd={() => setSwitchBtn("resize")}
     >
-      {url?.img_url?.sort((a, b) => +a.sort_order - +b.sort_order)[index]
-        ?.img_url ? (
-        <img
-          onClick={() =>
+      {type === "T" && text?.text ? (
+        <div
+          className="holders img"
+          onMouseLeave={() => setSwitchBtn("resize")}
+          onClick={
             switchBtn === "delete"
-              ? deleteHandler()
-              : setIndex(
-                  (prev) =>
-                    (prev + 1) %
-                    url?.img_url?.sort((a, b) => +a.sort_order - +b.sort_order)
-                      ?.length
-                )
+              ? deleteHandler
+              : (e) => {
+                  e.stopPropagation();
+                  setSwitchBtn("position");
+                  setSeletedHolder({ ...url, ...item });
+                }
           }
-          src={
-            url.img_url.sort((a, b) => +a.sort_order - +b.sort_order)[index]
-              ?.img_url
+          style={{
+            border:
+              selectedHolder?._id === item?._id ? "2px solid black" : "none",
+            width: "100%",
+            height: "100%",
+          }}
+        >
+          <div
+            className="holders"
+            style={{
+              width: "100%",
+              height: "100%",
+              pointerEvents: "none",
+              textAlign: "center",
+              color: text?.text_color || item?.text_color || "#000",
+              fontFamily: text?.fontFamily || item?.fontFamily || "",
+              fontSize: scale + "rem",
+            }}
+          >
+            {text.text}
+          </div>
+        </div>
+      ) : image || baseImage ? (
+        // eslint-disable-next-line jsx-a11y/alt-text
+        <div
+          className="holders img"
+          onMouseLeave={() => setSwitchBtn("resize")}
+          onClick={
+            switchBtn === "delete"
+              ? deleteHandler
+              : (e) => {
+                  e.stopPropagation();
+                  setSwitchBtn("position");
+                  setSeletedHolder({ ...url, ...item });
+                }
           }
-          className="holders"
-          style={{ width: "100%", height: "100%" }}
-        />
+          style={{
+            border:
+              selectedHolder?._id === item?._id ? "2px solid black" : "none",
+            width: "100%",
+            height: "100%",
+            transform: `scale(${scale})`,
+          }}
+        >
+          <img
+            src={image ? URL.createObjectURL(image) : baseImage}
+            className="holders"
+            style={{
+              width: "100%",
+              height: "100%",
+              pointerEvents: "none",
+            }}
+            alt={NoImage}
+          />
+        </div>
       ) : (
         <></>
       )}
-
-      <div
-        ref={refLeft}
-        style={
-          switchBtn === "resize"
-            ? { width: `5px`, height: "100%", background: `#000` }
-            : {}
-        }
-        className="resizer resizer-l"
-      ></div>
-      <div
-        ref={refTop}
-        style={
-          switchBtn === "resize"
-            ? { height: `5px`, width: "100%", background: `#000` }
-            : {}
-        }
-        className="resizer resizer-t"
-      ></div>
-      <div
-        ref={refRight}
-        style={
-          switchBtn === "resize" ? { width: `5px`, background: `#000` } : {}
-        }
-        className="resizer resizer-r"
-      ></div>
-      <div
-        ref={refBottom}
-        style={
-          switchBtn === "resize"
-            ? { height: `5px`, width: "100%", background: `#000` }
-            : {}
-        }
-        className="resizer resizer-b"
-      ></div>
-    </div>
+    </motion.div>
   );
 };

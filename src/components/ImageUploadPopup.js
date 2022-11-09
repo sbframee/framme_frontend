@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 
 import ReactCrop, {
   centerCrop,
@@ -91,7 +91,9 @@ export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
 
   function onSelectFile(file) {
     if (file) {
-      setCrop(undefined); // Makes crop preview update between images.
+      setCrop(
+        centerAspectCrop(completedCrop?.width, completedCrop?.height, aspect)
+      ); // Makes crop preview update between images.
       const reader = new FileReader();
       reader.addEventListener("load", () =>
         setImgSrc(reader.result.toString() || "")
@@ -101,7 +103,7 @@ export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
   }
   useEffect(() => {
     onSelectFile(file);
-  }, []);
+  }, [file]);
   function onImageLoad(e) {
     if (aspect) {
       const { width, height } = e.currentTarget;
@@ -242,14 +244,12 @@ export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
             className="flex"
             style={{ width: "100%", backgroundColor: "var(--main-color)" }}
           >
-       
-              <PrettoSlider
-                aria-label="pretto slider"
-                valueLabelDisplay="auto"
-                value={scale * 25 || 0}
-                onChange={(e) => setScale(Math.abs(e.target.value / 25))}
-              />
-        
+            <PrettoSlider
+              aria-label="pretto slider"
+              valueLabelDisplay="auto"
+              value={scale * 25 || 0}
+              onChange={(e) => setScale(Math.abs(e.target.value / 25))}
+            />
           </div>
           <button
             type="button"

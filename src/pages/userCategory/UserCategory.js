@@ -1,15 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import SideBar from "../../components/Sidebar/SideBar";
 import { v4 as uuid } from "uuid";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import Header from "../../components/Sidebar/Header";
+import { ArrowDropDown, ArrowDropUp, DeleteOutline } from "@mui/icons-material";
+
 const UserCategory = () => {
   const [usersData, setUsersData] = useState([]);
   const [popup, setPopup] = useState(false);
   const [subCategoryPopup, setSubCategoryPopup] = useState(false);
   const [popupInfo, setPopupInfo] = useState({});
+  const [filterTitle, setFilterTitle] = useState("");
+
   const getUsersData = async () => {
     const response = await axios({
       method: "get",
@@ -21,11 +25,69 @@ const UserCategory = () => {
   useEffect(() => {
     getUsersData();
   }, []);
+  const filterItemsData = useMemo(
+    () =>
+      usersData
+        .filter((a) => a.user_category_title)
+        .filter(
+          (a) =>
+            !filterTitle ||
+            a.title
+              .toLocaleLowerCase()
+              .includes(filterTitle.toLocaleLowerCase())
+        ),
+    [filterTitle, usersData]
+  );
   return (
     <>
       <SideBar />
       <Header />
       <div className="item-sales-container orders-report-container">
+        <div id="heading">
+          <h2>Tags</h2>
+        </div>
+        <div id="item-sales-top">
+          <div
+            id="date-input-container"
+            style={{
+              overflow: "visible",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+            }}
+          >
+            <input
+              type="text"
+              onChange={(e) => setFilterTitle(e.target.value)}
+              value={filterTitle}
+              placeholder="Search Tag Title..."
+              className="searchInput"
+            />
+
+            <div>Total Items: {filterItemsData.length}</div>
+
+            <button
+              className="item-sales-search"
+              onClick={() => {
+                setPopupInfo({ type: "new" });
+                setPopup(true);
+              }}
+            >
+              Add
+            </button>
+          </div>
+        </div>
+        <div className="table-container-user item-sales-container">
+          <Table
+            itemsDetails={filterItemsData}
+            setPopupInfo={setPopupInfo}
+            setSubCategoryPopup={setSubCategoryPopup}
+            setPopup={setPopup}
+          />
+        </div>
+      </div>
+      {/* <div className="item-sales-container orders-report-container">
         <div className="tags">
           <h1>Users Categories</h1>
           <div style={{ width: "80%" }}>
@@ -72,15 +134,7 @@ const UserCategory = () => {
                       </button>
                     </td>
                     <td style={{ textAlign: "center" }}>
-                      <button
-                        className="edit_button"
-                        type="button"
-                        onClick={() => {
-                          setSubCategoryPopup(item.user_category_uuid);
-                        }}
-                      >
-                        Sub Categories
-                      </button>
+                     
                     </td>
                   </tr>
                 ))
@@ -93,34 +147,129 @@ const UserCategory = () => {
               )}
             </tbody>
           </table>
-          {popup ? (
-            <Popup
-              popupInfo={popupInfo}
-              close={() => {
-                setPopup(false);
-                setPopupInfo({});
-              }}
-              setUsersData={setUsersData}
-            />
-          ) : (
-            ""
-          )}
-          {subCategoryPopup ? (
-            <SubCategory
-              user_category_uuid={subCategoryPopup}
-              close={() => {
-                setSubCategoryPopup(false);
-              }}
-            />
-          ) : (
-            ""
-          )}
-        </div>
-      </div>
+          </div>
+        </div> */}
+      {popup ? (
+        <Popup
+          popupInfo={popupInfo}
+          close={() => {
+            setPopup(false);
+            setPopupInfo({});
+          }}
+          setUsersData={setUsersData}
+        />
+      ) : (
+        ""
+      )}
+      {subCategoryPopup ? (
+        <SubCategory
+          user_category_uuid={subCategoryPopup}
+          close={() => {
+            setSubCategoryPopup(false);
+          }}
+        />
+      ) : (
+        ""
+      )}
     </>
   );
 };
 
+function Table({
+  itemsDetails,
+
+  setPopupInfo,
+  setSubCategoryPopup,
+
+  setPopup,
+}) {
+  const [items, setItems] = useState("sort_order");
+  const [order, setOrder] = useState("");
+
+  console.log(items);
+  return (
+    <table
+      className="user-table"
+      style={{ maxWidth: "100vw", height: "fit-content", overflowX: "scroll" }}
+    >
+      <thead>
+        <tr>
+          <th>S.N</th>
+          <th colSpan={3}>
+            <div className="t-head-element">
+              <span>User Category Title</span>
+              <div className="sort-buttons-container">
+                <button
+                  onClick={() => {
+                    setItems("user_category_title");
+                    setOrder("asc");
+                  }}
+                >
+                  <ArrowDropUp className="sort-up sort-button" />
+                </button>
+                <button
+                  onClick={() => {
+                    setItems("user_category_title");
+                    setOrder("desc");
+                  }}
+                >
+                  <ArrowDropDown className="sort-down sort-button" />
+                </button>
+              </div>
+            </div>
+          </th>
+
+          <th colSpan={2} style={{ width: "30vw" }}>
+            Actions
+          </th>
+        </tr>
+      </thead>
+      <tbody className="tbody">
+        {itemsDetails
+          .sort((a, b) =>
+            order === "asc"
+              ? typeof a[items] === "string"
+                ? a[items]?.localeCompare(b[items])
+                : a[items] - b[items]
+              : typeof a[items] === "string"
+              ? b[items]?.localeCompare(a[items])
+              : b[items] - a[items]
+          )
+          ?.map((item, i) => (
+            <tr key={Math.random()} style={{ height: "30px" }}>
+              <td>{i + 1}</td>
+              <td colSpan={3}>{item.user_category_title}</td>
+
+              <td>
+                <button
+                  className="edit_button"
+                  type="button"
+                  onClick={() => {
+                    setPopupInfo({ type: "edit", item });
+                    setPopup(true);
+                  }}
+                >
+                  Edit
+                </button>
+              </td>
+
+              <td colSpan={1}>
+                <button
+                  className="edit_button"
+                  type="button"
+                  onClick={() => {
+                    setSubCategoryPopup(item.user_category_uuid);
+                  }}
+                >
+                  Sub Categories
+                </button>
+              </td>
+            </tr>
+          ))}
+      </tbody>
+    </table>
+  );
+}
 export default UserCategory;
 const Popup = ({ popupInfo, setUsersData, close }) => {
   const [data, setData] = useState({});

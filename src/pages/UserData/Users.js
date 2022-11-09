@@ -1,15 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import SideBar from "../../components/Sidebar/SideBar";
 import { v4 as uuid } from "uuid";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/Sidebar/Header";
+import { ArrowDropDown, ArrowDropUp, DeleteOutline } from "@mui/icons-material";
+
 const Users = () => {
   const [usersData, setUsersData] = useState([]);
   const [popup, setPopup] = useState(false);
   const [popupInfo, setPopupInfo] = useState({});
   const [categoriesData, setCategoriesData] = useState([]);
   const [subCategoriesData, setSubCategoriesData] = useState([]);
+  const [filterTitle, setFilterTitle] = useState("");
+
   const navigate = useNavigate();
   const getUsersData = async () => {
     const response = await axios({ method: "get", url: "/users/getUsers" });
@@ -41,11 +45,69 @@ const Users = () => {
   useEffect(() => {
     getCategoriesData();
   }, []);
+  const filterItemsData = useMemo(
+    () =>
+      usersData
+        .filter((a) => a.user_title)
+        .filter(
+          (a) =>
+            !filterTitle ||
+            a.title
+              .toLocaleLowerCase()
+              .includes(filterTitle.toLocaleLowerCase())
+        ),
+    [filterTitle, usersData]
+  );
   return (
     <>
       <SideBar />
       <Header />
       <div className="item-sales-container orders-report-container">
+        <div id="heading">
+          <h2>Tags</h2>
+        </div>
+        <div id="item-sales-top">
+          <div
+            id="date-input-container"
+            style={{
+              overflow: "visible",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+            }}
+          >
+            <input
+              type="text"
+              onChange={(e) => setFilterTitle(e.target.value)}
+              value={filterTitle}
+              placeholder="Search User Title..."
+              className="searchInput"
+            />
+
+            <div>Total Items: {filterItemsData.length}</div>
+
+            <button
+              className="item-sales-search"
+              onClick={() => {
+                setPopupInfo({ type: "new" });
+                setPopup(true);
+              }}
+            >
+              Add
+            </button>
+          </div>
+        </div>
+        <div className="table-container-user item-sales-container">
+          <Table
+            itemsDetails={filterItemsData}
+            setPopupInfo={setPopupInfo}
+            navigate={navigate}
+            setPopup={setPopup}
+          />
+        </div>
+      </div>
+      {/* <div className="item-sales-container orders-report-container">
         <div className="tags">
           <h1>Users</h1>
           <div style={{ width: "80%" }}>
@@ -80,30 +142,8 @@ const Users = () => {
                     <td>{item?.user_name || "-"}</td>
 
                     <td style={{ textAlign: "center" }}>
-                      <button
-                        className="edit_button"
-                        type="button"
-                        onClick={() => {
-                          setPopupInfo({ type: "edit", item });
-                          setPopup(true);
-                        }}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="edit_button"
-                        type="button"
-                        onClick={() => {
-                          localStorage.setItem("user_uuid", item.user_uuid);
-                          localStorage.setItem(
-                            "user_category_uuid",
-                            JSON.stringify(item.user_category_uuid)
-                          );
-                          navigate("/tagInput");
-                        }}
-                      >
-                        Upload
-                      </button>
+                    
+                     
                     </td>
                   </tr>
                 ))
@@ -116,27 +156,150 @@ const Users = () => {
               )}
             </tbody>
           </table>
-          {popup ? (
-            <Popup
-              categoriesData={categoriesData}
-              popupInfo={popupInfo}
-              close={() => {
-                setPopup(false);
-                setPopupInfo({});
-              }}
-              setUsersData={setUsersData}
-              subCategoriesData={subCategoriesData}
-            />
-          ) : (
-            ""
-          )}
-        </div>
-      </div>
+          </div>
+        </div> */}
+      {popup ? (
+        <Popup
+          categoriesData={categoriesData}
+          popupInfo={popupInfo}
+          close={() => {
+            setPopup(false);
+            setPopupInfo({});
+          }}
+          setUsersData={setUsersData}
+          subCategoriesData={subCategoriesData}
+        />
+      ) : (
+        ""
+      )}
     </>
   );
 };
 
 export default Users;
+function Table({
+  itemsDetails,
+
+  setPopupInfo,
+  navigate,
+
+  setPopup,
+}) {
+  const [items, setItems] = useState("sort_order");
+  const [order, setOrder] = useState("");
+
+  console.log(items);
+  return (
+    <table
+      className="user-table"
+      style={{ maxWidth: "100vw", height: "fit-content", overflowX: "scroll" }}
+    >
+      <thead>
+        <tr>
+          <th>S.N</th>
+          <th colSpan={3}>
+            <div className="t-head-element">
+              <span>User Title</span>
+              <div className="sort-buttons-container">
+                <button
+                  onClick={() => {
+                    setItems("user_title");
+                    setOrder("asc");
+                  }}
+                >
+                  <ArrowDropUp className="sort-up sort-button" />
+                </button>
+                <button
+                  onClick={() => {
+                    setItems("user_title");
+                    setOrder("desc");
+                  }}
+                >
+                  <ArrowDropDown className="sort-down sort-button" />
+                </button>
+              </div>
+            </div>
+          </th>
+          <th colSpan={3}>
+            <div className="t-head-element">
+              <span>User Name</span>
+              <div className="sort-buttons-container">
+                <button
+                  onClick={() => {
+                    setItems("user_name");
+                    setOrder("asc");
+                  }}
+                >
+                  <ArrowDropUp className="sort-up sort-button" />
+                </button>
+                <button
+                  onClick={() => {
+                    setItems("user_name");
+                    setOrder("desc");
+                  }}
+                >
+                  <ArrowDropDown className="sort-down sort-button" />
+                </button>
+              </div>
+            </div>
+          </th>
+
+          <th colSpan={2} style={{ width: "30vw" }}>
+            Actions
+          </th>
+        </tr>
+      </thead>
+      <tbody className="tbody">
+        {itemsDetails
+          .sort((a, b) =>
+            order === "asc"
+              ? typeof a[items] === "string"
+                ? a[items]?.localeCompare(b[items])
+                : a[items] - b[items]
+              : typeof a[items] === "string"
+              ? b[items]?.localeCompare(a[items])
+              : b[items] - a[items]
+          )
+          ?.map((item, i) => (
+            <tr key={Math.random()}>
+              <td>{i + 1}</td>
+              <td colSpan={3}>{item.user_title}</td>
+              <td colSpan={3}>{item?.user_name}</td>
+
+              <td>
+                <button
+                  className="edit_button"
+                  type="button"
+                  onClick={() => {
+                    setPopupInfo({ type: "edit", item });
+                    setPopup(true);
+                  }}
+                >
+                  Edit
+                </button>
+              </td>
+              <td>
+                <button
+                  className="edit_button"
+                  type="button"
+                  onClick={() => {
+                    localStorage.setItem("user_uuid", item.user_uuid);
+                    localStorage.setItem(
+                      "user_category_uuid",
+                      JSON.stringify(item.user_category_uuid)
+                    );
+                    navigate("/tagInput");
+                  }}
+                >
+                  Upload
+                </button>
+              </td>
+            </tr>
+          ))}
+      </tbody>
+    </table>
+  );
+}
 const Popup = ({
   popupInfo,
   setUsersData,

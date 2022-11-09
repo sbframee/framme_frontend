@@ -163,8 +163,16 @@ const InputPage = () => {
                     inputData.map((a) =>
                       a.tag_uuid === item.tag_uuid
                         ? {
+                            ...defaultObject,
                             ...a,
-                            fontFamily: e.target.value,
+                            tag_uuid: item.tag_uuid,
+                            text: [
+                              ...a.text.map((b) =>
+                                +b.sort_order === i + 1
+                                  ? { ...b, fontFamily: e.target.value }
+                                  : b
+                              ),
+                            ],
                           }
                         : a
                     )
@@ -234,7 +242,13 @@ const InputPage = () => {
                             ...defaultObject,
                             ...a,
                             tag_uuid: item.tag_uuid,
-                            text_color: e.target.value,
+                            text: [
+                              ...a.text.map((b) =>
+                                +b.sort_order === i + 1
+                                  ? { ...b, text_color: e.target.value }
+                                  : b
+                              ),
+                            ],
                           }
                         : a
                     )
@@ -361,37 +375,45 @@ const InputPage = () => {
   return (
     <>
       {/* <SideBar /> */}
-      <div className="inputPage" style={{paddingTop:"50px"}}>
+      <div className="inputPage">
         <Navbar
           Tag={() => (
-            <>
+            <div className="flex">
               <ArrowBack
                 className="backArrow"
                 onClick={() => navigate("/users")}
                 style={{ color: "#fff" }}
               />
-              <div className="h1">Inputs</div>
-            </>
+              <div className="h1" style={{ width: "80vw" }}>
+                Inputs
+              </div>
+            </div>
           )}
         />
-        {tagsData.map((item) => (
-          <div className="tagsInput" style={{ marginTop: "20px" }}>
-            <h2>{item.tag_title === "image" ? "IMAGE" : "TEXT"}</h2>
-            <div
-              style={{
-                border: "2px solid #000",
-                padding: "10px 20px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexDirection: "column",
-              }}
-            >
-              {console.log(item)}
-              {getRows(item)}
+        <div
+          style={{
+            height: "75vh",
+            overflowY: "scroll",
+          }}
+        >
+          {tagsData.map((item) => (
+            <div className="tagsInput" style={{ marginTop: "50px" }}>
+              <h2>{item.tag_title || ""}</h2>
+              <div
+                style={{
+                  border: "2px solid #000",
+                  padding: "10px 20px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexDirection: "column",
+                }}
+              >
+                {getRows(item)}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
         <button type="button" className="tagInputSaveButton" onClick={onSubmit}>
           Save
         </button>

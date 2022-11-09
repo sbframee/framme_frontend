@@ -8,6 +8,7 @@ import NavigationBar from "../../../components/usersComponent/NavigationBar";
 import Sliders from "../../../components/Sliders";
 import "react-slideshow-image/dist/styles.css";
 import Navbar from "../../../components/Sidebar/navbar";
+import { Favorite } from "@mui/icons-material";
 const Main = () => {
   const [categories, setCategories] = useState([]);
   const [occasions, setOccasions] = useState([]);
@@ -95,7 +96,16 @@ const Main = () => {
   return (
     <>
       <div className="main">
-        <Navbar/>
+        <Navbar
+          Tag={() => (
+            <div className="flex" style={{ color: "#fff" }}>
+              <div>{user?.user_title || "Test"}</div>
+              <div style={{ textAlign: "right", width: "70vw" }}>
+                <Favorite />
+              </div>
+            </div>
+          )}
+        />
         <div className="slide-container">
           {posters.length ? <Sliders item={posters} /> : ""}
         </div>
@@ -106,8 +116,12 @@ const Main = () => {
           .map((item, index) => (
             <div
               className="occasion_container"
-              style={index===0? { marginTop: "40px" } :
-                index + 1 === categories?.length ? { marginBottom: "100px" } : {}
+              style={
+                index === 0
+                  ? { marginTop: "40px" }
+                  : index + 1 === categories?.length
+                  ? { marginBottom: "100px" }
+                  : {}
               }
               key={Math.random()}
             >
@@ -136,7 +150,7 @@ const Main = () => {
                                   borderRadius: "10px",
                                   width: "120px",
                                   height: "120px",
-                                  marginRight:"20px"
+                                  marginRight: "20px",
                                 }
                               : {}
                           }

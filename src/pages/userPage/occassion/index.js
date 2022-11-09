@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import NoImage from "../../../assets/noImage.jpg";
 import * as htmlToImage from "html-to-image";
@@ -8,7 +8,7 @@ import ShareIcon from "@mui/icons-material/Share";
 import Sliders from "../../../components/Sliders";
 import "react-slideshow-image/dist/styles.css";
 import { motion } from "framer-motion";
-
+import html2canvas from "html2canvas";
 import {
   HiOutlineArrowCircleRight,
   HiOutlineArrowCircleLeft,
@@ -18,7 +18,7 @@ import "./index.css";
 import axios from "axios";
 import useWindowDimensions from "../../../components/useWidthDimenshion";
 import { MdFileDownload } from "react-icons/md";
-import { ArrowBack } from "@mui/icons-material";
+import { ArrowBack, Cached } from "@mui/icons-material";
 import { Box, CircularProgress, Slider } from "@mui/material";
 import { styled } from "@mui/system";
 import Navbar from "../../../components/Sidebar/navbar";
@@ -277,6 +277,30 @@ const OccasionPage = () => {
       download(dataUrl, "text-img.png");
     });
   };
+  const handleShare = async () => {
+    const canvas = await html2canvas(ref.current);
+    canvas.toBlob(async (blob) => {
+      // Even if you want to share just one file you need to
+      // send them as an array of files.
+      const files = [new File([blob], "image.png", { type: blob.type })];
+      const shareData = {
+        text: "",
+        title: "",
+        files,
+      };
+      if (navigator.canShare(shareData)) {
+        try {
+          await navigator.share(shareData);
+        } catch (err) {
+          if (err.name !== "AbortError") {
+            console.error(err.name, err.message);
+          }
+        }
+      } else {
+        console.warn("Sharing not supported", shareData);
+      }
+    });
+  };
   const deleteHandler = async () => {
     const response = await axios({
       method: "delete",
@@ -293,15 +317,23 @@ const OccasionPage = () => {
         <div className="container">
           <Navbar
             Tag={() => (
-              <ArrowBack
-                className="backArrow"
-                onClick={() => {
-                  if (params.img_url)
-                    navigate(`/occasion/${occasion?.occ_uuid}`);
-                  setSelectedImage(false);
+              <div
+                className="flex"
+                style={{
+                  color: "#fff",
+                  width: "85vw",
+                  justifyContent: "flex-start",
                 }}
-                style={{ color: "#fff" }}
-              />
+              >
+                <ArrowBack
+                  className="backArrow"
+                  onClick={() => {
+                    if (params.img_url)
+                      navigate(`/occasion/${occasion?.occ_uuid}`);
+                    setSelectedImage(false);
+                  }}
+                />
+              </div>
             )}
           />
           {loading ? (
@@ -363,7 +395,6 @@ const OccasionPage = () => {
                             selectedImage?.coordinates[0]?.a?.split(",")[1]) /
                           2.5) + "px",
                     maxHeight: "100%",
-                    backgroundColor: "#000",
                   }}
                 >
                   <img
@@ -374,7 +405,7 @@ const OccasionPage = () => {
                       // height: "100%",
                       position: "absolute",
                       pointerEvents: "none",
-                      borderRadius: "20px",
+
                       // transform: mirrorRevert ? "scaleX(-1)" : "scaleX(1)",
                     }}
                     ref={imageArea}
@@ -463,7 +494,7 @@ const OccasionPage = () => {
                             width
                           ? item.d.split(",")[1] / 2 - coordinates[1]
                           : item.d.split(",")[1] / 2.5 - coordinates[1];
-
+                      console.log(coordinates, width1, height);
                       if (url?.tag_type === "I") {
                         return (
                           <Tag
@@ -625,7 +656,7 @@ const OccasionPage = () => {
                   })
                 }
               >
-                Swap
+                <Cached />
               </button>
               <button
                 className="image_btn"
@@ -675,6 +706,7 @@ const OccasionPage = () => {
                   borderRadius: "50%",
                   padding: "5px",
                 }}
+                onClick={handleShare}
               />
               <MdFileDownload
                 className="backArrow"
@@ -695,14 +727,16 @@ const OccasionPage = () => {
         <div className="userOccasion">
           <Navbar
             Tag={() => (
-              <>
+              <div className="flex">
                 <ArrowBack
                   className="backArrow"
                   onClick={() => navigate("/users")}
                   style={{ color: "#fff" }}
                 />
-                <div className="h1">{occasion?.title || "-"}</div>
-              </>
+                <div className="h1" style={{ width: "80vw" }}>
+                  {occasion?.title || "-"}
+                </div>
+              </div>
             )}
           />
 
@@ -733,7 +767,9 @@ const OccasionPage = () => {
                       alt=""
                       style={{
                         width: "44vw",
+                        maxWidth: "200px",
                         height: "61vw",
+                        maxHeight: "250px",
                         objectFit: "cover",
                       }}
                     />
@@ -797,6 +833,7 @@ const OccasionPage = () => {
             close={() => setDeleteImage(null)}
             type="delete"
             deleteHandler={deleteHandler}
+            getBaseImageData={getBaseImageData}
           />
         ) : (
           ""
@@ -819,23 +856,24 @@ const OccasionPage = () => {
 };
 
 export default OccasionPage;
-const Popup = ({ close, deleteHandler, type, usersData, item }) => {
+const Popup = ({ close, deleteHandler, type, usersData, item,getBaseImageData }) => {
   const [btnName, setBtnName] = useState("Copy");
   const [user, setUser] = useState("");
   const submitHandler = async () => {
     deleteHandler();
+    getBaseImageData();
     close();
   };
   useEffect(() => {
     if (user) var input = document.getElementById("myTextInput");
-    input.focus();
-    input.select();
+    input?.focus();
+    input?.select();
   }, [user]);
   return (
     <div className="popup_bg overlay">
       <div className="popup_img">
         <div className="popup_header">
-          <h3></h3>
+          <h3>Delete Image</h3>
           <AiOutlineClose
             style={{ width: "20px", cursor: "pointer" }}
             onClick={close}
@@ -843,7 +881,6 @@ const Popup = ({ close, deleteHandler, type, usersData, item }) => {
         </div>
         {type === "delete" ? (
           <div className="popup_body">
-            <h2>Delete Image?</h2>
             <div
               style={{
                 display: "flex",
@@ -988,6 +1025,7 @@ const Tag = ({
   selectedImage,
 }) => {
   const [baseImage, setBaseImage] = useState();
+  console.log(url);
   useEffect(() => {
     let img_url = url?.img_url?.sort((a, b) => +a.sort_order - +b.sort_order)[
       (item?.index || 0) % url?.img_url?.length
@@ -1009,14 +1047,21 @@ const Tag = ({
       });
     }
   }, [item, item?.index, url, selectedImage]);
-
+  const text = useMemo(() => {
+    if (type === "I") return "";
+    else {
+      return url?.text?.sort((a, b) => +a.sort_order - +b.sort_order)[
+        (item.index || 0) % url?.text?.length
+      ];
+    }
+  }, [item.index, type, url?.text]);
   return (
     <motion.div
       dragConstraints={{
-        top: -100,
-        left: -150,
-        right: 150,
-        bottom: 100,
+        top: -200,
+        left: -200,
+        right: 200,
+        bottom: 200,
       }}
       drag
       className="resizeable"
@@ -1033,30 +1078,26 @@ const Tag = ({
       }}
       onTouchEnd={() => setSwitchBtn("resize")}
     >
-      <div
-        className="holders img"
-        onMouseLeave={() => setSwitchBtn("resize")}
-        onClick={
-          switchBtn === "delete"
-            ? deleteHandler
-            : (e) => {
-                e.stopPropagation();
-                setSwitchBtn("position");
-                setSeletedHolder({ ...url, ...item });
-              }
-        }
-        style={{
-          border:
-            selectedHolder?._id === item?._id ? "2px solid black" : "none",
-          width: "100%",
-          height: "100%",
-          transform: `scale(${scale})`,
-        }}
-      >
-        {type === "T" &&
-        url?.text?.sort((a, b) => +a.sort_order - +b.sort_order)[
-          item.index % url?.text?.length
-        ]?.text ? (
+      {type === "T" && text?.text ? (
+        <div
+          className="holders img"
+          onMouseLeave={() => setSwitchBtn("resize")}
+          onClick={
+            switchBtn === "delete"
+              ? deleteHandler
+              : (e) => {
+                  e.stopPropagation();
+                  setSwitchBtn("position");
+                  setSeletedHolder({ ...url, ...item });
+                }
+          }
+          style={{
+            border:
+              selectedHolder?._id === item?._id ? "2px solid black" : "none",
+            width: "100%",
+            height: "100%",
+          }}
+        >
           <div
             className="holders"
             style={{
@@ -1064,28 +1105,50 @@ const Tag = ({
               height: "100%",
               pointerEvents: "none",
               textAlign: "center",
-              color: item?.text_color || "#000",
-              fontFamily: item?.fontFamily || "",
+              color: text?.text_color || item?.text_color || "#000",
+              fontFamily: text?.fontFamily || item?.fontFamily || "",
+              fontSize: scale + "rem",
             }}
           >
-            {
-              url?.text.sort((a, b) => +a.sort_order - +b.sort_order)[
-                item.index % url?.text?.length
-              ].text
-            }
+            {text.text}
           </div>
-        ) : image || baseImage ? (
-          // eslint-disable-next-line jsx-a11y/alt-text
+        </div>
+      ) : image || baseImage ? (
+        // eslint-disable-next-line jsx-a11y/alt-text
+        <div
+          className="holders img"
+          onMouseLeave={() => setSwitchBtn("resize")}
+          onClick={
+            switchBtn === "delete"
+              ? deleteHandler
+              : (e) => {
+                  e.stopPropagation();
+                  setSwitchBtn("position");
+                  setSeletedHolder({ ...url, ...item });
+                }
+          }
+          style={{
+            border:
+              selectedHolder?._id === item?._id ? "2px solid black" : "none",
+            width: "100%",
+            height: "100%",
+            transform: `scale(${scale})`,
+          }}
+        >
           <img
             src={image ? URL.createObjectURL(image) : baseImage}
             className="holders"
-            style={{ width: "100%", height: "100%", pointerEvents: "none" }}
+            style={{
+              width: "100%",
+              height: "100%",
+              pointerEvents: "none",
+            }}
             alt={NoImage}
           />
-        ) : (
-          <></>
-        )}
-      </div>
+        </div>
+      ) : (
+        <></>
+      )}
     </motion.div>
   );
 };

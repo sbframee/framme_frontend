@@ -6,7 +6,7 @@ import AddIcon from "@mui/icons-material/Add";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useNavigate } from "react-router-dom";
-import { Logout } from "@mui/icons-material";
+import { Logout, Videocam } from "@mui/icons-material";
 const NavigationBar = () => {
   const navigate = useNavigate();
   return (
@@ -19,10 +19,10 @@ const NavigationBar = () => {
       <div
         className="icon-container flex"
         style={{ flexDirection: "column" }}
-        onClick={() => navigate("/tagInput")}
+        // onClick={() => navigate("/tagInput")}
       >
-        <PersonIcon />
-        <div>Inputs</div>
+        <Videocam />
+        <div>Video</div>
       </div>
       <div
         className="icon-container flex"
@@ -41,14 +41,13 @@ const NavigationBar = () => {
 
             borderRadius: "50%",
             top: "-35px",
-            width: "70px",
-            height: "70px",
+            width: "80px",
+            height: "80px",
+            padding: "0",
           }}
         >
-          <AddIcon />
+          <AddIcon style={{ fontSize: "70px", fontWeight: "bolder" }} />
         </span>
-
-        <div>Custom</div>
       </div>
       <div
         className="icon-container flex"

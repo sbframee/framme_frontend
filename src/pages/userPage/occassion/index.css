@@ -92,13 +92,14 @@
 }
 .display_image_container {
   width: 100%;
+  height: max-content;
   max-height: 90vh;
   background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 2px solid #000;
-  margin-top: 60px;
+  margin-top: 70px;
 }
 .DisplayImg {
   position: relative;

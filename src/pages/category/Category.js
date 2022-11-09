@@ -1,19 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import "./category.css";
 import SideBar from "../../components/Sidebar/SideBar";
 import Compressor from "compressorjs";
 
 import axios from "axios";
 import { v4 as uuid } from "uuid";
-import { MdDelete } from "react-icons/md";
+
 import Header from "../../components/Sidebar/Header";
-import { Delete, DeleteOutline } from "@mui/icons-material";
+
+import { ArrowDropDown, ArrowDropUp, DeleteOutline } from "@mui/icons-material";
 
 const Category = () => {
   const [categoriesData, setCategoriesData] = useState([]);
   const [popup, setPopup] = useState(false);
   const [popupInfo, setPopupInfo] = useState({});
   const [deleteItem, setDeleteItem] = useState(null);
+  const [filterTitle, setFilterTitle] = useState("");
+
   const getCategoriesData = async (data) => {
     const response = await axios({
       method: "get",
@@ -35,11 +38,69 @@ const Category = () => {
   useEffect(() => {
     getCategoriesData();
   }, []);
+  const filterItemsData = useMemo(
+    () =>
+      categoriesData
+        .filter((a) => a.title)
+        .filter(
+          (a) =>
+            !filterTitle ||
+            a.title
+              .toLocaleLowerCase()
+              .includes(filterTitle.toLocaleLowerCase())
+        ),
+    [filterTitle, categoriesData]
+  );
   return (
     <>
       <SideBar />
       <Header />
       <div className="item-sales-container orders-report-container">
+        <div id="heading">
+          <h2>Tags</h2>
+        </div>
+        <div id="item-sales-top">
+          <div
+            id="date-input-container"
+            style={{
+              overflow: "visible",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+            }}
+          >
+            <input
+              type="text"
+              onChange={(e) => setFilterTitle(e.target.value)}
+              value={filterTitle}
+              placeholder="Search Tag Title..."
+              className="searchInput"
+            />
+
+            <div>Total Items: {filterItemsData.length}</div>
+
+            <button
+              className="item-sales-search"
+              onClick={() => {
+                setPopupInfo({ type: "new" });
+                setPopup(true);
+              }}
+            >
+              Add
+            </button>
+          </div>
+        </div>
+        <div className="table-container-user item-sales-container">
+          <Table
+            itemsDetails={filterItemsData}
+            setPopupInfo={setPopupInfo}
+            setDeleteItem={setDeleteItem}
+            setPopup={setPopup}
+          />
+        </div>
+      </div>
+      {/* <div className="item-sales-container orders-report-container">
         <div className="occasion">
           <h1>Categories</h1>
           <div style={{ width: "80%" }}>
@@ -100,6 +161,8 @@ const Category = () => {
               )}
             </tbody>
           </table>
+        </div>
+      </div> */}
           {deleteItem ? (
             <ConfirmPopup
               close={() => setDeleteItem(null)}
@@ -121,11 +184,151 @@ const Category = () => {
           ) : (
             ""
           )}
-        </div>
-      </div>
     </>
   );
 };
+function Table({
+  itemsDetails,
+
+  setPopupInfo,
+  setDeleteItem,
+
+  setPopup,
+}) {
+  const [items, setItems] = useState("sort_order");
+  const [order, setOrder] = useState("");
+
+  console.log(items);
+  return (
+    <table
+      className="user-table"
+      style={{ maxWidth: "100vw", height: "fit-content", overflowX: "scroll" }}
+    >
+      <thead>
+        <tr>
+          <th>S.N</th>
+          <th colSpan={3}>
+            <div className="t-head-element">
+              <span>Category Title</span>
+              <div className="sort-buttons-container">
+                <button
+                  onClick={() => {
+                    setItems("title");
+                    setOrder("asc");
+                  }}
+                >
+                  <ArrowDropUp className="sort-up sort-button" />
+                </button>
+                <button
+                  onClick={() => {
+                    setItems("title");
+                    setOrder("desc");
+                  }}
+                >
+                  <ArrowDropDown className="sort-down sort-button" />
+                </button>
+              </div>
+            </div>
+          </th>
+          <th colSpan={3}>
+            <div className="t-head-element">
+              <span>Sort Order</span>
+              <div className="sort-buttons-container">
+                <button
+                  onClick={() => {
+                    setItems("sort_order");
+                    setOrder("asc");
+                  }}
+                >
+                  <ArrowDropUp className="sort-up sort-button" />
+                </button>
+                <button
+                  onClick={() => {
+                    setItems("sort_order");
+                    setOrder("desc");
+                  }}
+                >
+                  <ArrowDropDown className="sort-down sort-button" />
+                </button>
+              </div>
+            </div>
+          </th>
+          <th colSpan={3}>
+            <div className="t-head-element">
+              <span>Status</span>
+              <div className="sort-buttons-container">
+                <button
+                  onClick={() => {
+                    setItems("status");
+                    setOrder("asc");
+                  }}
+                >
+                  <ArrowDropUp className="sort-up sort-button" />
+                </button>
+                <button
+                  onClick={() => {
+                    setItems("status");
+                    setOrder("desc");
+                  }}
+                >
+                  <ArrowDropDown className="sort-down sort-button" />
+                </button>
+              </div>
+            </div>
+          </th>
+
+          <th colSpan={2} style={{ width: "30vw" }}>
+            Actions
+          </th>
+        </tr>
+      </thead>
+      <tbody className="tbody">
+        {itemsDetails
+          .sort((a, b) =>
+            order === "asc"
+              ? typeof a[items] === "string"
+                ? a[items]?.localeCompare(b[items])
+                : a[items] - b[items]
+              : typeof a[items] === "string"
+              ? b[items]?.localeCompare(a[items])
+              : b[items] - a[items]
+          )
+          ?.map((item, i) => (
+            <tr key={Math.random()} style={{ height: "30px" }}>
+              <td>{i + 1}</td>
+              <td colSpan={3}>{item.title}</td>
+              <td colSpan={3}>{item?.sort_order}</td>
+              <td colSpan={3}>{item?.status}</td>
+
+              <td>
+                <button
+                  className="edit_button"
+                  type="button"
+                  onClick={() => {
+                    setPopupInfo({ type: "edit", item });
+                    setPopup(true);
+                  }}
+                >
+                  Edit
+                </button>
+              </td>
+
+              <td
+                colSpan={1}
+                onClick={(e) => {
+                  e.stopPropagation();
+
+                  setDeleteItem(item);
+                }}
+              >
+                <DeleteOutline />
+              </td>
+            </tr>
+          ))}
+      </tbody>
+    </table>
+  );
+}
 const Popup = ({ popupInfo, setCategoriesData, close }) => {
   const [data, setData] = useState({});
   const [preview, setPreview] = useState();
