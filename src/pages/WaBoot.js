@@ -28,6 +28,7 @@ const WaBoot = () => {
         .replace(/\n/g, "%0A")
         .replace(/ /g, "%20")
         .replace(/,/g, "%2C")
+        .replace(/:/g, "%3A")
         ?.replace(
           "{link}",
           `http://www.framee.in/login/{user_uuid}/{img_uuid}`
