@@ -21,20 +21,18 @@ const WaBoot = () => {
   const [mssage, setMessage] = useState("{link}");
   const [mssagePopup, setMessagePopup] = useState("");
   const [step, setStep] = useState(0);
-  let finalLink = useMemo(
-    () =>
-      "https://api.whatsapp.com/send/?phone=91{phone}&text=" +
-      mssage
-        .replace(/\n/g, "%0A")
-        .replace(/ /g, "%20")
-        .replace(/,/g, "%2C")
-        .replace(/:/g, "%3A")
-        ?.replace(
-          "{link}",
-          `http://www.framee.in/login/{user_uuid}/{img_uuid}`
-        ),
-    [mssage]
-  );
+  let finalLink = useMemo(() => {
+    let lastmsg = mssage
+      ?.replace("{link}", `http://www.framee.in/login/{user_uuid}/{img_uuid}`)
+      .replace(/\n/g, "%0A")
+      .replace(/ /g, "%20")
+      .replace(/,/g, "%2C")
+      .replace(/:/g, "%3A")
+      .replace(/ /g, "%20")
+      .replace(/\//g, "%2F");
+    console.log(lastmsg);
+    return "https://api.whatsapp.com/send/?phone=91{phone}&text=" + lastmsg;
+  }, [mssage]);
   const getUsersData = async () => {
     const response = await axios({ method: "get", url: "/users/getUsers" });
     console.log(response);
@@ -146,8 +144,7 @@ const WaBoot = () => {
           .replace(
             "{img_uuid}",
             selectedOrder[index % selectedOrder?.length].img_url.split("/")[3]
-          )
-          .replace(/ /g, "%20"),
+          ),
       });
     }
     // console.log(sheetData)

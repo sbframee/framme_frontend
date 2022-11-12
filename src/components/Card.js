@@ -51,7 +51,8 @@ const Card = ({
                   position: "absolute",
                   top: 0,
                   left: 0,
-                  wordWrap:"break-word"
+                  wordWrap:"break-word",
+                  fontSize:"12px"
                 }}
               >
                 {order?.user_title || order?.user_name}
