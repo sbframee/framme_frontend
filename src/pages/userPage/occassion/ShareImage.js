@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import NoImage from "../../../assets/noImage.jpg";
 import * as htmlToImage from "html-to-image";
@@ -11,7 +11,7 @@ import axios from "axios";
 import useWindowDimensions from "../../../components/useWidthDimenshion";
 import { MdFileDownload } from "react-icons/md";
 import { Home, Image } from "@mui/icons-material";
-import { Box, Slider } from "@mui/material";
+import { Box, CircularProgress, Slider } from "@mui/material";
 import { styled } from "@mui/system";
 import Navbar from "../../../components/Sidebar/navbar";
 const PrettoSlider = styled(Slider)({
@@ -57,6 +57,7 @@ const PrettoSlider = styled(Slider)({
 });
 const ShareImage = () => {
   const [tags, setTags] = useState([]);
+  const [customHolders, setCustomHolders] = useState([]);
   const [selectedImage, setSelectedImage] = useState(false);
   const [mirrorRevert, setMirrorevert] = useState([]);
   const [baseImage, setBaseImage] = useState();
@@ -64,6 +65,7 @@ const ShareImage = () => {
   const [deleteHolders, setDeleteHolders] = useState([]);
   const [mobilePopup, setMobilePopup] = useState(false);
   const [mobile, setMobile] = useState("");
+  const [otp, setOtp] = useState("");
   const [login, setLogin] = useState("");
   const params = useParams();
   const navigate = useNavigate();
@@ -71,10 +73,12 @@ const ShareImage = () => {
   const ref = useRef();
   const [selectedHolder, setSeletedHolder] = useState("");
   const [holdersImges, setHoldersImges] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const { width } = useWindowDimensions();
   useEffect(() => {
     if (selectedImage?.img_url) {
+      setLoading(true);
       axios({
         method: "get",
         url: selectedImage?.img_url,
@@ -86,18 +90,24 @@ const ShareImage = () => {
           var base64data = reader.result;
           console.log(base64data);
           setBaseImage(base64data);
+          setLoading(false);
         };
       });
     }
   }, [selectedImage]);
+  useEffect(() => {
+    setCustomHolders(selectedImage?.holder);
+  }, [selectedImage?.holder]);
   const getBaseImageData = async (img_url) => {
     if (img_url) {
+      setLoading(true);
       const response = await axios({
         method: "get",
         url: "/images/getBaseImages/" + img_url,
       });
       if (response.data.success) {
         setSelectedImage(response.data.result);
+        setLoading(false);
       }
     }
   };
@@ -112,11 +122,25 @@ const ShareImage = () => {
     // console.log(response);
     if (response.data.success) setTags(response.data.result);
   };
+  const getUser = async () => {
+    let data = localStorage.getItem("user_uuid");
+    const response = await axios({
+      method: "post",
+      data: { user_uuid: data },
+      url: "/users/getUser",
+    });
+    // console.log(response);
+    if (response.data.success)
+      navigate(
+        "/login/" + response.data.result?.user_uuid + "/" + params.img_url
+      );
+  };
 
   useEffect(() => {
     getBaseImageData(params?.img_url);
   }, [params?.img_url]);
   useEffect(() => {
+    getUser();
     getTags();
   }, []);
   useEffect(() => {
@@ -125,7 +149,7 @@ const ShareImage = () => {
   }, [selectedImage]);
   const loginHandler = async () => {
     if (mobile?.length < 10) return;
-    let data = { user_name: mobile };
+    let data = { user_name: mobile, otp };
     // console.log(data.user_name)
     const response = await axios({
       method: "post",
@@ -141,38 +165,60 @@ const ShareImage = () => {
         "user_category_uuid",
         JSON.stringify(response.data.result.user_category_uuid || [])
       );
+      if (response.data?.new_user) {
+        for (let data of holdersImges) {
+          // console.log("------------------", data);
+          const mainThumbnailURL = await axios({
+            url: "/s3Url",
+            method: "get",
+          });
+          let UploadThumbnailURL = mainThumbnailURL.data.url;
 
-      for (let data of holdersImges) {
-        // console.log("------------------", data);
-        const mainThumbnailURL = await axios({
-          url: "/s3Url",
-          method: "get",
-        });
-        let UploadThumbnailURL = mainThumbnailURL.data.url;
-
-        axios({
-          url: UploadThumbnailURL,
-          method: "put",
-          headers: { "Content-Type": "multipart/form-data" },
-          data: data.image,
-        })
-          .then((res) => {
-            console.log(res);
+          axios({
+            url: UploadThumbnailURL,
+            method: "put",
+            headers: { "Content-Type": "multipart/form-data" },
+            data: data.image,
           })
-          .catch((err) => console.log(err));
-        let img_url = UploadThumbnailURL.split("?")[0];
-        // bodyFormData.append("image", fileData);
-        // bodyFormData.append("thumbnail", thumbnailData);
-        data = { ...data, img_url, user: [response.data.result.user_uuid] };
-        let result = await axios({
-          method: "post",
-          url: "/tags/tagImages",
-          data: data,
-        });
-        console.log(result);
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((err) => console.log(err));
+          let img_url = UploadThumbnailURL.split("?")[0];
+          // bodyFormData.append("image", fileData);
+          // bodyFormData.append("thumbnail", thumbnailData);
+          data = { ...data, img_url, user: [response.data.result.user_uuid] };
+          let result = await axios({
+            method: "post",
+            url: "/tags/tagImages",
+            data: data,
+          });
+          console.log(result);
+        }
       }
-
-      handlePng();
+      handlePng(response);
+      setMobilePopup(false);
+      setTimeout(() => {
+        navigate(
+          "/login/" + response.data.result?.user_uuid + "/" + params.img_url
+        );
+      }, 3000);
+    }
+  };
+  const loginsendOtpHandler = async () => {
+    if (mobile?.length < 10) return;
+    let data = { user_name: mobile };
+    // console.log(data.user_name)
+    const response = await axios({
+      method: "post",
+      url: `/users/varifyOtp`,
+      data,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.data.success) {
+      setMobilePopup("otp");
     }
   };
   const handlePng = () => {
@@ -181,230 +227,220 @@ const ShareImage = () => {
 
     htmlToImage.toPng(ref.current).then(function (dataUrl) {
       download(dataUrl, "text-img.png");
-      setLogin(true);
     });
   };
 
   return (
     <div className="container">
-      {login ? (
-        <Navbar
-          Tag={() => (
-            <Home
-              className="backArrow"
-              onClick={() => {
-                if (params.img_url) navigate("/users");
-              }}
-              style={{ color: "#fff", marginLeft: "20px" }}
-            />
-          )}
-        />
+      {loading ? (
+        <div className="flex" style={{ marginTop: "100px" }}>
+          <CircularProgress />
+        </div>
       ) : (
-        ""
-      )}
-      <div className="display_image_container">
-        {selectedImage.img_url ? (
-          <div
-            ref={ref}
-            id="my-img"
-            className="DisplayImg"
-            style={{
-              width:
-                (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                  selectedImage?.coordinates[0]?.a?.split(",")[0] <
-                width
-                  ? selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                    selectedImage?.coordinates[0]?.a?.split(",")[0]
-                  : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                      selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                      1.5 <
-                    width
-                  ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                      selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                    1.5
-                  : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                      selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                      2 <
-                    width
-                  ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                      selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                    2
-                  : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                      selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                    2.5) + "px",
-              height:
-                (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                  selectedImage?.coordinates[0]?.a?.split(",")[0] <
-                width
-                  ? selectedImage?.coordinates[0]?.d?.split(",")[1] -
-                    selectedImage?.coordinates[0]?.a?.split(",")[1]
-                  : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                      selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                      1.5 <
-                    width
-                  ? (selectedImage?.coordinates[0]?.d?.split(",")[1] -
-                      selectedImage?.coordinates[0]?.a?.split(",")[1]) /
-                    1.5
-                  : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                      selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                      2 <
-                    width
-                  ? (selectedImage?.coordinates[0]?.d?.split(",")[1] -
-                      selectedImage?.coordinates[0]?.a?.split(",")[1]) /
-                    2
-                  : (selectedImage?.coordinates[0]?.d?.split(",")[1] -
-                      selectedImage?.coordinates[0]?.a?.split(",")[1]) /
-                    2.5) + "px",
-              maxHeight: "100%",
-              backgroundColor: "#000",
-            }}
-          >
-            <img
-              src={baseImage}
-              alt={NoImage}
+        <div className="display_image_container" style={{ marginTop: "10px" }}>
+          {selectedImage.img_url ? (
+            <div
+              ref={ref}
+              id="my-img"
+              className="DisplayImg"
               style={{
-                width: "100%",
-                // height: "100%",
-                position: "absolute",
-                pointerEvents: "none",
-                borderRadius: "20px",
-                // transform: mirrorRevert ? "scaleX(-1)" : "scaleX(1)",
+                width:
+                  (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                    selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                  width
+                    ? selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                      selectedImage?.coordinates[0]?.a?.split(",")[0]
+                    : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                        selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                        1.5 <
+                      width
+                    ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                        selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                      1.5
+                    : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                        selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                        2 <
+                      width
+                    ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                        selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                      2
+                    : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                        selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                      2.5) + "px",
+                height:
+                  (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                    selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                  width
+                    ? selectedImage?.coordinates[0]?.d?.split(",")[1] -
+                      selectedImage?.coordinates[0]?.a?.split(",")[1]
+                    : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                        selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                        1.5 <
+                      width
+                    ? (selectedImage?.coordinates[0]?.d?.split(",")[1] -
+                        selectedImage?.coordinates[0]?.a?.split(",")[1]) /
+                      1.5
+                    : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                        selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                        2 <
+                      width
+                    ? (selectedImage?.coordinates[0]?.d?.split(",")[1] -
+                        selectedImage?.coordinates[0]?.a?.split(",")[1]) /
+                      2
+                    : (selectedImage?.coordinates[0]?.d?.split(",")[1] -
+                        selectedImage?.coordinates[0]?.a?.split(",")[1]) /
+                      2.5) + "px",
+                maxHeight: "100%",
+                backgroundColor: "#000",
               }}
-              ref={imageArea}
-            />
+            >
+              <img
+                src={baseImage}
+                alt={NoImage}
+                style={{
+                  width: "100%",
+                  // height: "100%",
+                  position: "absolute",
+                  pointerEvents: "none",
+                  borderRadius: "20px",
+                  // transform: mirrorRevert ? "scaleX(-1)" : "scaleX(1)",
+                }}
+                ref={imageArea}
+              />
 
-            {selectedImage.holder
-              ?.filter((a) => {
-                let value = deleteHolders?.filter((b) => a?._id === b?._id)
-                  ?.length
-                  ? false
-                  : true;
+              {customHolders
+                ?.filter((a) => {
+                  let value = deleteHolders?.filter((b) => a?._id === b?._id)
+                    ?.length
+                    ? false
+                    : true;
 
-                return value;
-              })
-              ?.map((item) => {
-                let url = tags.find((a) => a.tag_uuid === item.label_uuid);
+                  return value;
+                })
+                ?.map((item) => {
+                  let url = tags.find((a) => a.tag_uuid === item.label_uuid);
 
-                let coordinates = item.a.split(",");
-                coordinates[0] =
-                  selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                    selectedImage?.coordinates[0]?.a?.split(",")[0] <
-                  width
-                    ? coordinates[0]
-                    : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                        1.5 <
-                      width
-                    ? coordinates[0] / 1.5
-                    : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                        2 <
-                      width
-                    ? coordinates[0] / 2
-                    : coordinates[0] / 2.5;
+                  let coordinates = item.a.split(",");
+                  coordinates[0] =
+                    selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                      selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                    width
+                      ? coordinates[0]
+                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                          1.5 <
+                        width
+                      ? coordinates[0] / 1.5
+                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                          2 <
+                        width
+                      ? coordinates[0] / 2
+                      : coordinates[0] / 2.5;
 
-                coordinates[1] =
-                  selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                    selectedImage?.coordinates[0]?.a?.split(",")[0] <
-                  width
-                    ? coordinates[1]
-                    : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                        1.5 <
-                      width
-                    ? coordinates[1] / 1.5
-                    : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                        2 <
-                      width
-                    ? coordinates[1] / 2
-                    : coordinates[1] / 2.5;
+                  coordinates[1] =
+                    selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                      selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                    width
+                      ? coordinates[1]
+                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                          1.5 <
+                        width
+                      ? coordinates[1] / 1.5
+                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                          2 <
+                        width
+                      ? coordinates[1] / 2
+                      : coordinates[1] / 2.5;
 
-                let width1 =
-                  selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                    selectedImage?.coordinates[0]?.a?.split(",")[0] <
-                  width
-                    ? item.b.split(",")[0] - coordinates[0]
-                    : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                        1.5 <
-                      width
-                    ? item.b.split(",")[0] / 1.5 - coordinates[0]
-                    : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                        2 <
-                      width
-                    ? item.b.split(",")[0] / 2 - coordinates[0]
-                    : item.b.split(",")[0] / 2.5 - coordinates[0];
+                  let width1 =
+                    selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                      selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                    width
+                      ? item.b.split(",")[0] - coordinates[0]
+                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                          1.5 <
+                        width
+                      ? item.b.split(",")[0] / 1.5 - coordinates[0]
+                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                          2 <
+                        width
+                      ? item.b.split(",")[0] / 2 - coordinates[0]
+                      : item.b.split(",")[0] / 2.5 - coordinates[0];
 
-                let height =
-                  selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                    selectedImage?.coordinates[0]?.a?.split(",")[0] <
-                  width
-                    ? item.d.split(",")[1] - coordinates[1]
-                    : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                        1.5 <
-                      width
-                    ? item.d.split(",")[1] / 1.5 - coordinates[1]
-                    : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                        selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                        2 <
-                      width
-                    ? item.d.split(",")[1] / 2 - coordinates[1]
-                    : item.d.split(",")[1] / 2.5 - coordinates[1];
+                  let height =
+                    selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                      selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                    width
+                      ? item.d.split(",")[1] - coordinates[1]
+                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                          1.5 <
+                        width
+                      ? item.d.split(",")[1] / 1.5 - coordinates[1]
+                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                          2 <
+                        width
+                      ? item.d.split(",")[1] / 2 - coordinates[1]
+                      : item.d.split(",")[1] / 2.5 - coordinates[1];
 
-                if (url?.tag_type === "I") {
-                  return (
-                    <Tag
-                      holdersImges={holdersImges}
-                      switchBtn={switchBtn}
-                      setHoldersImges={setHoldersImges}
-                      setSwitchBtn={setSwitchBtn}
-                      setSeletedHolder={setSeletedHolder}
-                      selectedHolder={selectedHolder}
-                      item={item}
-                      url={url}
-                      type="I"
-                      coordinates={coordinates}
-                      width={width1}
-                      height={height}
-                      mirrorRevert={mirrorRevert}
-                      deleteHandler={() =>
-                        setDeleteHolders((prev) => [...prev, item])
-                      }
-                      scale={item?.scale}
-                    />
-                  );
-                } else if (url?.tag_type === "T") {
-                  return (
-                    <Tag
-                      switchBtn={switchBtn}
-                      holdersImges={holdersImges}
-                      setSwitchBtn={setSwitchBtn}
-                      setHoldersImges={setHoldersImges}
-                      setSeletedHolder={setSeletedHolder}
-                      selectedHolder={selectedHolder}
-                      item={item}
-                      mirrorRevert={mirrorRevert}
-                      type="T"
-                      coordinates={coordinates}
-                      width={width1}
-                      height={height}
-                      url={url}
-                      scale={item?.scale}
-                      deleteHandler={() =>
-                        setDeleteHolders((prev) => [...prev, item])
-                      }
-                    />
-                  );
-                } else return "";
-              })}
-          </div>
-        ) : (
-          ""
-        )}
-      </div>
+                  if (url?.tag_type === "I") {
+                    return (
+                      <Tag
+                        holdersImges={holdersImges}
+                        switchBtn={switchBtn}
+                        setHoldersImges={setHoldersImges}
+                        setSwitchBtn={setSwitchBtn}
+                        setSeletedHolder={setSeletedHolder}
+                        selectedHolder={selectedHolder}
+                        item={item}
+                        url={url}
+                        type="I"
+                        coordinates={coordinates}
+                        width={width1}
+                        height={height}
+                        mirrorRevert={mirrorRevert}
+                        deleteHandler={() =>
+                          setDeleteHolders((prev) => [...prev, item])
+                        }
+                        scale={item?.scale}
+                      />
+                    );
+                  } else if (url?.tag_type === "T") {
+                    return (
+                      <Tag
+                        switchBtn={switchBtn}
+                        holdersImges={holdersImges}
+                        setSwitchBtn={setSwitchBtn}
+                        setHoldersImges={setHoldersImges}
+                        setSeletedHolder={setSeletedHolder}
+                        selectedHolder={selectedHolder}
+                        item={item}
+                        mirrorRevert={mirrorRevert}
+                        type="T"
+                        coordinates={coordinates}
+                        width={width1}
+                        height={height}
+                        url={url}
+                        scale={item?.scale}
+                        deleteHandler={() =>
+                          setDeleteHolders((prev) => [...prev, item])
+                        }
+                      />
+                    );
+                  } else return "";
+                })}
+            </div>
+          ) : (
+            ""
+          )}
+        </div>
+      )}
       <div className="container_buttons">
         <div className="container_buttons_container">
           <Box width={250}>
@@ -412,18 +448,20 @@ const ShareImage = () => {
               aria-label="pretto slider"
               valueLabelDisplay="auto"
               value={
-                selectedImage?.holder?.find((b) => b._id === selectedHolder._id)
+                customHolders?.find((b) => b._id === selectedHolder._id)
                   ?.scale * 25 || 0
               }
               onChange={(e) =>
-                setSelectedImage((prev) => ({
-                  ...prev,
-                  holder: selectedImage?.holder?.map((b) =>
+                setCustomHolders((prev) =>
+                  prev?.map((b) =>
                     b._id === selectedHolder._id
-                      ? { ...b, scale: Math.abs(e.target.value / 25) }
+                      ? {
+                          ...b,
+                          scale: Math.abs(e.target.value / 25),
+                        }
                       : b
-                  ),
-                }))
+                  )
+                )
               }
             />
           </Box>
@@ -482,7 +520,7 @@ const ShareImage = () => {
           />
           <MdFileDownload
             className="backArrow"
-            onClick={() => setMobilePopup(true)}
+            onClick={() => setMobilePopup("mobile")}
             style={{
               fontSize: "40px",
               border: "2px solid #fff",
@@ -515,8 +553,11 @@ const ShareImage = () => {
                   className="form"
                   onSubmit={(e) => {
                     e.preventDefault();
-                    loginHandler();
-                    setMobilePopup(false);
+                    if (mobilePopup === "mobile") {
+                      loginsendOtpHandler();
+                    } else {
+                      loginHandler();
+                    }
                   }}
                 >
                   <div className="formGroup">
@@ -524,25 +565,41 @@ const ShareImage = () => {
                       className="row"
                       style={{ flexDirection: "column", alignItems: "start" }}
                     >
-                      <label className="selectLabel flex">
-                        Enter Mobile Number
-                        <input
-                          type="number"
-                          name="route_title"
-                          className="numberInput"
-                          value={mobile}
-                          //   style={{ height: "200px" }}
-                          onChange={(e) =>
-                            setMobile((prev) =>
-                              e.target.value.length <= 10
-                                ? e.target.value
-                                : prev
-                            )
-                          }
-                          onWheel={(e) => e.preventDefault()}
-                        />
-                        {/* {popupInfo.conversion || 0} */}
-                      </label>
+                      {mobilePopup === "mobile" ? (
+                        <label className="selectLabel flex">
+                          Enter Mobile Number
+                          <input
+                            type="number"
+                            name="route_title"
+                            className="numberInput"
+                            value={mobile}
+                            //   style={{ height: "200px" }}
+                            onChange={(e) =>
+                              setMobile((prev) =>
+                                e.target.value.length <= 10
+                                  ? e.target.value
+                                  : prev
+                              )
+                            }
+                            onWheel={(e) => e.preventDefault()}
+                          />
+                          {/* {popupInfo.conversion || 0} */}
+                        </label>
+                      ) : (
+                        <label className="selectLabel flex">
+                          Enter Otp
+                          <input
+                            type="number"
+                            name="route_title"
+                            className="numberInput"
+                            value={otp}
+                            //   style={{ height: "200px" }}
+                            onChange={(e) => setOtp(e.target.value)}
+                            onWheel={(e) => e.preventDefault()}
+                          />
+                          {/* {popupInfo.conversion || 0} */}
+                        </label>
+                      )}
                     </div>
 
                     <div className="row">
@@ -589,8 +646,16 @@ const Tag = ({
         ...(prev || []),
         { img_type: "UI", sort_order: 1, image, tag_uuid: url?.tag_uuid },
       ]);
-  }, [image, url]);
-
+  }, [image]);
+  const imgdata = useMemo(() => {
+    if (image) {
+      return URL.createObjectURL(
+        holdersImges?.find((a) => a?.tag_uuid === url?.tag_uuid)?.image
+      );
+    } else {
+      return "";
+    }
+  }, [holdersImges]);
   return (
     <motion.div
       dragConstraints={{
@@ -638,9 +703,7 @@ const Tag = ({
           holdersImges.find((a) => a.tag_uuid === url?.tag_uuid)?.image ? (
             // eslint-disable-next-line jsx-a11y/alt-text
             <img
-              src={URL.createObjectURL(
-                holdersImges.find((a) => a.tag_uuid === url?.tag_uuid)?.image
-              )}
+              src={imgdata}
               className="holders"
               style={{ width: "100%", height: "100%", pointerEvents: "none" }}
               alt={NoImage}

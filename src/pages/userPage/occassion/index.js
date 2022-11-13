@@ -68,6 +68,7 @@ const OccasionPage = () => {
   const [state, setState] = useState(false);
   const [baseImages, setBaseImages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [customHolders, setCustomHolders] = useState([]);
 
   const [tags, setTags] = useState([]);
   const [occasion, setOccasion] = useState({});
@@ -84,10 +85,14 @@ const OccasionPage = () => {
 
   const imageArea = useRef();
   const ref = useRef();
+  console.log(customHolders)
   const [selectedHolder, setSeletedHolder] = useState("");
   const navigate = useNavigate();
   const { width } = useWindowDimensions();
   const location = useLocation();
+  useEffect(() => {
+    setCustomHolders(selectedImage?.holder);
+  }, [selectedImage?.holder]);
   useEffect(() => {
     if (selectedImage?.img_url) {
       setLoading(true);
@@ -100,7 +105,7 @@ const OccasionPage = () => {
         reader.readAsDataURL(response.data);
         reader.onloadend = function () {
           var base64data = reader.result;
-          console.log(base64data);
+        //  console.log(base64data);
           setBaseImage(base64data);
           setLoading(false);
         };
@@ -132,10 +137,10 @@ const OccasionPage = () => {
   };
   const getUsersData = async () => {
     const response = await axios({ method: "get", url: "/users/getUsers" });
-    console.log(response);
+   // console.log(response);
     if (response.data.success) setUsersData(response.data.result);
   };
-  console.log(params);
+ // console.log(params);
   const updateImage = async (data) => {
     const response = await axios({
       method: "put",
@@ -148,7 +153,7 @@ const OccasionPage = () => {
       setUpdateImageData({});
     }
   };
-  console.log("images", images);
+  //console.log("images", images);
   const loginHandler = async () => {
     let data = { user_uuid: params.user_uuid };
     // console.log(data.user_name)
@@ -188,7 +193,7 @@ const OccasionPage = () => {
       url: "/images/getBaseImages",
       data: { user_category_uuid },
     });
-    console.log("baseImage", response);
+    //console.log("baseImage", response);
     if (response.data.success) {
       setBaseImages(
         response.data.result
@@ -223,7 +228,7 @@ const OccasionPage = () => {
       data: { user_uuid: data },
       url: "/tags/getUserTags",
     });
-    console.log(response);
+    //console.log(response);
     if (response.data.success) setTags(response.data.result);
   };
   const getOccasionData = async (occ_uuid) => {
@@ -273,7 +278,7 @@ const OccasionPage = () => {
     setSwitchBtn("");
 
     htmlToImage.toPng(ref.current).then(function (dataUrl) {
-      console.log(dataUrl);
+   //   console.log(dataUrl);
       download(dataUrl, "text-img.png");
     });
   };
@@ -307,7 +312,7 @@ const OccasionPage = () => {
       data: deleteImage,
       url: "/images/deleteImages",
     });
-    console.log(response);
+   // console.log(response);
     if (response.data.success) getImageData();
   };
 
@@ -411,7 +416,7 @@ const OccasionPage = () => {
                     ref={imageArea}
                   />
 
-                  {selectedImage.holder
+                  {customHolders
                     ?.filter((a) => {
                       let value = deleteHolders?.filter(
                         (b) => a?._id === b?._id
@@ -494,7 +499,7 @@ const OccasionPage = () => {
                             width
                           ? item.d.split(",")[1] / 2 - coordinates[1]
                           : item.d.split(",")[1] / 2.5 - coordinates[1];
-                      console.log(coordinates, width1, height);
+               //       console.log(coordinates, width1, height);
                       if (url?.tag_type === "I") {
                         return (
                           <Tag
@@ -554,19 +559,20 @@ const OccasionPage = () => {
                       aria-label="pretto slider"
                       valueLabelDisplay="auto"
                       value={
-                        selectedImage?.holder?.find(
-                          (b) => b._id === selectedHolder._id
-                        )?.scale * 25 || 0
+                        customHolders?.find((b) => b._id === selectedHolder._id)
+                          ?.scale * 25 || 0
                       }
                       onChange={(e) =>
-                        setSelectedImage((prev) => ({
-                          ...prev,
-                          holder: selectedImage?.holder?.map((b) =>
+                        setCustomHolders((prev) =>
+                          prev?.map((b) =>
                             b._id === selectedHolder._id
-                              ? { ...b, scale: Math.abs(e.target.value / 25) }
+                              ? {
+                                  ...b,
+                                  scale: Math.abs(e.target.value / 25),
+                                }
                               : b
-                          ),
-                        }))
+                          )
+                        )
                       }
                     />
                   </Box>
@@ -856,7 +862,14 @@ const OccasionPage = () => {
 };
 
 export default OccasionPage;
-const Popup = ({ close, deleteHandler, type, usersData, item,getBaseImageData }) => {
+const Popup = ({
+  close,
+  deleteHandler,
+  type,
+  usersData,
+  item,
+  getBaseImageData,
+}) => {
   const [btnName, setBtnName] = useState("Copy");
   const [user, setUser] = useState("");
   const submitHandler = async () => {
@@ -1025,7 +1038,7 @@ const Tag = ({
   selectedImage,
 }) => {
   const [baseImage, setBaseImage] = useState();
-  console.log(url);
+ // console.log(url);
   useEffect(() => {
     let img_url = url?.img_url?.sort((a, b) => +a.sort_order - +b.sort_order)[
       (item?.index || 0) % url?.img_url?.length
@@ -1041,7 +1054,7 @@ const Tag = ({
         reader.readAsDataURL(response.data);
         reader.onloadend = function () {
           var base64data = reader.result;
-          console.log(base64data);
+          //console.log(base64data);
           setBaseImage(base64data);
         };
       });
@@ -1113,7 +1126,7 @@ const Tag = ({
             {text.text}
           </div>
         </div>
-      ) : image || baseImage ? (
+      ) :   (
         // eslint-disable-next-line jsx-a11y/alt-text
         <div
           className="holders img"
@@ -1136,18 +1149,16 @@ const Tag = ({
           }}
         >
           <img
-            src={image ? URL.createObjectURL(image) : baseImage}
+            src={image ? URL.createObjectURL(image) : baseImage||NoImage}
             className="holders"
             style={{
               width: "100%",
               height: "100%",
               pointerEvents: "none",
             }}
-            alt={NoImage}
+            alt={""}
           />
         </div>
-      ) : (
-        <></>
       )}
     </motion.div>
   );
