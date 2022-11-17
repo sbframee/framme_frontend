@@ -234,8 +234,8 @@ const WaBoot = () => {
                     id="seats_container"
                   >
                     {orders
-                      .filter((a) => !a?.occ_uuid?.length)
-                      ?.length.map((item) => {
+                      ?.filter((a) => !a?.occ_uuid?.length)
+                      ?.map((item) => {
                         return (
                           <div
                             className={`seatSearchTarget`}

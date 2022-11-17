@@ -4,18 +4,14 @@ import getStroke from "perfect-freehand";
 import axios from "axios";
 import { v4 as uuid } from "uuid";
 const generator = rough.generator();
-const createElement = (id, x1, y1, x2, y2, type) => {
-  switch (type) {
-    case "rectangle":
-      const roughElement =
-        type === "line"
-          ? generator.line(x1, y1, x2, y2)
-          : generator.rectangle(x1, y1, x2 - x1, y2 - y1);
-      return { id, x1, y1, x2, y2, type, roughElement };
-
-    default:
-      throw new Error(`Type not recognised: ${type}`);
-  }
+const createElement = (id, x1, y1, x2, y2, type, ratioX, ratioY) => {
+  const roughElement = generator.rectangle(
+    x1,
+    y1,
+    ratioX ? ratioX * (y2 - y1) : x2 - x1,
+    y2 - y1
+  );
+  return { id, x1, y1, x2, y2, type, roughElement };
 };
 
 const nearPoint = (x, y, x1, y1, name) => {
@@ -33,11 +29,6 @@ const onLine = (x1, y1, x2, y2, x, y, maxDistance = 1) => {
 const positionWithinElement = (x, y, element) => {
   const { type, x1, x2, y1, y2 } = element;
   switch (type) {
-    case "line":
-      const on = onLine(x1, y1, x2, y2, x, y);
-      const start = nearPoint(x, y, x1, y1, "start");
-      const end = nearPoint(x, y, x2, y2, "end");
-      return start || end || on;
     case "rectangle":
       const topLeft = nearPoint(x, y, x1, y1, "tl");
       const topRight = nearPoint(x, y, x2, y1, "tr");
@@ -45,17 +36,7 @@ const positionWithinElement = (x, y, element) => {
       const bottomRight = nearPoint(x, y, x2, y2, "br");
       const inside = x >= x1 && x <= x2 && y >= y1 && y <= y2 ? "inside" : null;
       return topLeft || topRight || bottomLeft || bottomRight || inside;
-    case "pencil":
-      const betweenAnyPoint = element.points.some((point, index) => {
-        const nextPoint = element.points[index + 1];
-        if (!nextPoint) return false;
-        return (
-          onLine(point.x, point.y, nextPoint.x, nextPoint.y, x, y, 5) != null
-        );
-      });
-      return betweenAnyPoint ? "inside" : null;
-    case "text":
-      return x >= x1 && x <= x2 && y >= y1 && y <= y2 ? "inside" : null;
+
     default:
       throw new Error(`Type not recognised: ${type}`);
   }
@@ -105,8 +86,16 @@ const cursorForPosition = (position) => {
   }
 };
 
-const resizedCoordinates = (clientX, clientY, position, coordinates) => {
+const resizedCoordinates = (
+  clientX,
+  clientY,
+  position,
+  coordinates,
+  ratioX,
+  ratioY
+) => {
   const { x1, y1, x2, y2 } = coordinates;
+  console.log(clientX, clientY, position, coordinates);
   switch (position) {
     case "tl":
     case "start":
@@ -201,6 +190,7 @@ const Canvas = ({
   const [tool, setTool] = useState("none");
   const [selectedElement, setSelectedElement] = useState(null);
   const textAreaRef = useRef();
+  const [tag, setTag] = useState("");
   const [tagsData, setTagsData] = useState([]);
   const [templateHolders, setTemplateHolders] = useState("");
   const getTagsData = async () => {
@@ -300,22 +290,31 @@ const Canvas = ({
     }
   }, [action, selectedElement]);
 
-  const updateElement = (id, x1, y1, x2, y2, type, options) => {
+  const updateElement = (
+    id,
+    x1,
+    y1,
+    x2,
+    y2,
+    type,
+
+    values = {}
+  ) => {
     const elementsCopy = [...elements];
-
-    switch (type) {
-      case "rectangle":
-        elementsCopy[id] = createElement(id, x1, y1, x2, y2, type);
-        if (!elementsCopy[id].uuid)
-          // elementsCopy[id].uuid = uuid();
-
-          break;
-
-      default:
-        throw new Error(`Type not recognised: ${type}`);
-    }
-
-    setElements(elementsCopy, true);
+    let ratioX = +values?.width / +values?.height;
+    let ratioY = +values?.height / +values?.width;
+    elementsCopy[id] = {
+      ...values,
+      ...createElement(
+        id,
+        x1,
+        y1,
+        values?.fixed ? x1 + ratioX * (y2 - y1) : x2,
+        y2,
+        type
+      ),
+    };
+    if (!elementsCopy[id].uuid) setElements(elementsCopy, true);
   };
   const DoubleClickHandel = (event) => {
     const { clientX, clientY } = {
@@ -323,9 +322,16 @@ const Canvas = ({
       clientX: event.clientX - 100,
       clientY: event.clientX - 50,
     };
-
     const element = getElementAtPosition(clientX, clientY, elements);
-    setElementId({ uuid: element?.uuid, id: element?.id });
+    if (
+      element &&
+      !elements.find(
+        (a) => a.label_uuid === element?.label_uuid || a.id === element.id
+      )?.fixed
+    ) {
+      console.log(element);
+      setElementId({ uuid: element?.uuid, id: element?.id });
+    }
   };
   const handleMouseDown = (event) => {
     const { clientX, clientY } = {
@@ -343,6 +349,7 @@ const Canvas = ({
         } else {
           const offsetX = clientX - element.x1;
           const offsetY = clientY - element.y1;
+          console.log("element", element);
           setSelectedElement({ ...element, offsetX, offsetY });
         }
         console.log("before", elements);
@@ -444,7 +451,6 @@ const Canvas = ({
         const height = y2 - y1;
         const newX1 = clientX - offsetX;
         const newY1 = clientY - offsetY;
-        const options = type === "text" ? { text: selectedElement.text } : {};
         updateElement(
           id,
           newX1,
@@ -452,18 +458,20 @@ const Canvas = ({
           newX1 + width,
           newY1 + height,
           type,
-          options
+          selectedElement
         );
       }
     } else if (action === "resizing") {
       const { id, type, position, ...coordinates } = selectedElement;
+      console.log("selectedElement", selectedElement);
+
       const { x1, y1, x2, y2 } = resizedCoordinates(
         clientX,
         clientY,
         position,
         coordinates
       );
-      updateElement(id, x1, y1, x2, y2, type);
+      updateElement(id, x1, y1, x2, y2, type, selectedElement);
     }
   };
 
@@ -492,14 +500,13 @@ const Canvas = ({
         adjustmentRequired(type)
       ) {
         const { x1, y1, x2, y2 } = adjustElementCoordinates(elements[index]);
-        updateElement(id, x1, y1, x2, y2, type);
-        // if (!elements[index].label_uuid) {
-        //     // setElementId[index];
-        // }
+        updateElement(id, x1, y1, x2, y2, type, elements[index]);
       }
       console.log("data", selectedElement);
-      if (type === "rectangle")
+      if (type === "rectangle" && !selectedElement.fixed) {
+        console.log(selectedElement);
         setElementId({ uuid: selectedElement?.uuid, id: selectedElement?.id });
+      }
     }
 
     if (action === "writing") return;
@@ -520,17 +527,42 @@ const Canvas = ({
         "rectangle"
       );
 
-      // setElements([...elements,element])
       setElements((prevState) => [...prevState, element]);
       setElementId(id);
     }
   };
-  const handleBlur = (event) => {
-    const { id, x1, y1, type } = selectedElement;
-    setAction("none");
-    setSelectedElement(null);
-    updateElement(id, x1, y1, null, null, type, { text: event.target.value });
+  const addOldRectangle = () => {
+    if (tag.width && tag.height) {
+      let id = elements.length;
+      let x1 = imageArea?.current?.offsetWidth / 2;
+      let y1 = imageArea?.current?.offsetHeight / 2;
+      let element = createElement(
+        id,
+        x1,
+        y1,
+        +tag.width + x1,
+        +tag.height + y1,
+        "rectangle"
+      );
+
+      // setElements([...elements,element])
+      setElements((prevState) => [
+        ...prevState,
+        { ...element, ...tag, label_uuid: tag?.tag_uuid, fixed: true },
+      ]);
+      setTag("");
+    }
   };
+
+  const onChangeHandler = (e) => {
+    if (e.target.value === "none") {
+      setTag("");
+      return;
+    }
+
+    setTag(tagsData.find((a) => a.tag_uuid === e.target?.value));
+  };
+  console.log(elements);
   return (
     <>
       <div
@@ -608,7 +640,7 @@ const Canvas = ({
           <select
             value={templateHolders.ht_uuid}
             onChange={(e) => setTemplateHolders(e.target.value)}
-            style={{width:"90px"}}
+            style={{ width: "90px" }}
           >
             <option value={""}>None</option>
             {templateHoldersData.map((data) => (
@@ -669,6 +701,46 @@ const Canvas = ({
             Add
           </button>
         </div>
+        <div
+          className="flex"
+          style={{
+            position: "fixed",
+            bottom: "300px",
+            flexDirection: "column",
+            left: "10px",
+            zIndex: "9999999999999",
+            alignItems: "flex-start",
+            width: "100px",
+          }}
+        >
+          <div>Add Tags</div>
+          <select
+            // className="label_popup_input"
+            // style={{ width: "200px" }}
+            value={tag?.tag_uuid}
+            onChange={onChangeHandler}
+          >
+            {/* <option selected={occasionsTemp.length===occasionsData.length} value="all">All</option> */}
+            <option value="none">None</option>
+            {tagsData.map((cat) => (
+              <option value={cat.tag_uuid}>{cat.tag_title}</option>
+            ))}
+          </select>
+
+          <button
+            className="flex"
+            style={{
+              padding: "2px 5px",
+              backgroundColor: "var(--main-color)",
+              border: "none",
+              color: "#fff",
+            }}
+            type="button"
+            onClick={addOldRectangle}
+          >
+            Add
+          </button>
+        </div>
 
         <canvas
           id="canvas"
@@ -701,7 +773,9 @@ export default Canvas;
 const NamePopup = ({ setElements, tagsData, elements, uuid, close }) => {
   const [tag, setTag] = useState({});
   useEffect(() => {
-    let item = elements.filter((a) => a.id === uuid.id)[0];
+    let item = elements.find(
+      (a) => a.label_uuid === uuid?.label_uuid || a.id === uuid.id
+    );
     console.log("item", item);
     setTag({
       tag_uuid: item?.label_uuid || tagsData[0]?.tag_uuid || "",

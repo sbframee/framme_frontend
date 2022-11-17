@@ -438,10 +438,11 @@ const CustomImage = () => {
                     let coordinates;
                     let height;
                     let width1;
-                    if (type === "new") {
+                    console.log("urls", item?.type, url);
+                    if (item?.type === "new") {
                       coordinates = [100, 100];
-                      height = 100;
-                      width1 = 100;
+                      height = url?.height || 100;
+                      width1 = url?.width || 100;
                     } else {
                       coordinates = item.a.split(",");
                       coordinates[0] =
@@ -590,6 +591,7 @@ const CustomImage = () => {
                               ...tagsInitials,
                               _id: Math.random(),
                               ...(tags.find((b) => b.tag_uuid === a) || {}),
+                              type: "new",
                             };
                             setSeletedHolder(data);
                             return data;
@@ -646,16 +648,11 @@ const CustomImage = () => {
                             //     (b) => b._id === selectedHolder._id
                             //   )?.image
                             // }
-                            onChange={(e) =>
-                              setSelectedImage((prev) => ({
-                                ...prev,
-                                holder: selectedImage?.holder?.map((b) =>
-                                  b._id === selectedHolder._id
-                                    ? { ...b, image: e.target.files[0] }
-                                    : b
-                                ),
-                              }))
-                            }
+
+                            onChange={(e) => {
+                              setPopupCrop(true);
+                              setSelectiveCropFile(e.target.files[0]);
+                            }}
                           />
                         </label>
                       </div>
@@ -709,14 +706,13 @@ const CustomImage = () => {
                   <button
                     className="image_btn"
                     onClick={() =>
-                      setSelectedImage({
-                        ...selectedImage,
-                        holder: selectedImage.holder.map((b) =>
+                      setCustomHolders((prev) =>
+                        prev.map((b) =>
                           b._id === selectedHolder._id
                             ? { ...b, index: (b.index || 0) + 1 }
                             : b
-                        ),
-                      })
+                        )
+                      )
                     }
                   >
                     <Cached />
@@ -726,9 +722,7 @@ const CustomImage = () => {
                     onClick={() =>
                       setDeleteHolders((prev) => [
                         ...prev,
-                        selectedImage.holder.find(
-                          (a) => a._id === selectedHolder._id
-                        ),
+                        customHolders.find((a) => a._id === selectedHolder._id),
                       ])
                     }
                   >
@@ -861,9 +855,19 @@ const CustomImage = () => {
       )}
       {selectedCropFile && popupCrop ? (
         <ImageUploadPopup
+        selectedimage={selectedHolder}
           file={selectedCropFile}
           onClose={() => setPopupCrop(null)}
-          setSelectedFile={setSelectedFile}
+          setSelectedFile={
+            selectedHolder
+              ? (e) =>
+                  setCustomHolders((prev) =>
+                    prev?.map((b) =>
+                      b._id === selectedHolder._id ? { ...b, image: e } : b
+                    )
+                  )
+              : setSelectedFile
+          }
         />
       ) : (
         ""
@@ -999,6 +1003,8 @@ const Tag = ({
             width: "100%",
             height: "100%",
             transform: `scale(${scale})`,
+            borderRadius: url?.circle ? "50%" : 0,
+            overflow: "hidden",
           }}
         >
           <img

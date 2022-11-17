@@ -72,27 +72,32 @@ function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
   );
 }
 
-export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
+export default function ImageUploadPopup({
+  file,
+  onClose,
+  setSelectedFile,
+  selectedimage,
+}) {
   const [imgSrc, setImgSrc] = useState("");
 
   const previewCanvasRef = useRef(null);
   const imgRef = useRef(null);
   const [crop, setCrop] = useState();
   const [completedCrop, setCompletedCrop] = useState({
-    height: 100,
+    height: selectedimage?.circle ? selectedimage?.height : 250,
     unit: "px",
-    width: 100,
+    width: selectedimage?.circle ? selectedimage?.width : 250,
     x: 0,
     y: 0,
   });
   const [rotate, setRotate] = useState(0);
-  const [aspect, setAspect] = useState(16 / 9);
-  const [scale, setScale] = useState(1);
+  const [aspect, setAspect] = useState(1);
+  const [scale, setScale] = useState(0.9);
 
   function onSelectFile(file) {
     if (file) {
       setCrop(
-        centerAspectCrop(completedCrop?.width, completedCrop?.height, aspect)
+        centerAspectCrop(completedCrop.width, completedCrop?.height, aspect)
       ); // Makes crop preview update between images.
       const reader = new FileReader();
       reader.addEventListener("load", () =>
@@ -103,7 +108,36 @@ export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
   }
   useEffect(() => {
     onSelectFile(file);
-  }, [file]);
+    console.log(aspect, completedCrop);
+  }, [file, aspect, completedCrop]);
+
+  useEffect(() => {
+    setTimeout(()=>{
+    if ((imgRef?.current?.offsetWidth, imgRef?.current?.clientHeight)) {
+      setCompletedCrop({
+        height:
+          (selectedimage?.circle
+            ? selectedimage?.height
+            : imgRef?.current?.clientHeight) || 250,
+        unit: "px",
+        width:
+          (selectedimage?.circle
+            ? selectedimage?.width
+            : imgRef?.current?.offsetWidth) || 250,
+        x: 0,
+        y: 0,
+      });
+      setAspect(
+        ((selectedimage?.circle
+          ? selectedimage?.width
+          : imgRef?.current?.offsetWidth) || 250) /
+          ((selectedimage?.circle
+            ? selectedimage?.height
+            : imgRef?.current?.clientHeight) || 250)
+      );
+    }
+  },1000)}, []);
+
   function onImageLoad(e) {
     if (aspect) {
       const { width, height } = e.currentTarget;
@@ -139,8 +173,12 @@ export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
       setAspect(undefined);
     } else if (imgRef.current) {
       const { width, height } = imgRef.current;
-      setAspect(16 / 9);
-      setCrop(centerAspectCrop(width, height, 16 / 9));
+      setAspect(
+        selectedimage?.circle
+          ? selectedimage?.width / selectedimage?.height
+          : 16 / 9
+      );
+      setCrop(centerAspectCrop(width, height, aspect));
     }
   }
   useEffect(() => {
@@ -188,6 +226,7 @@ export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
                 onComplete={(c) => setCompletedCrop(c)}
                 aspect={aspect}
                 style={{ marginTop: "20px" }}
+                circularCrop={selectedimage?.circle}
               >
                 <img
                   ref={imgRef}
@@ -195,7 +234,7 @@ export default function ImageUploadPopup({ file, onClose, setSelectedFile }) {
                   src={imgSrc}
                   style={{
                     transform: `scale(${scale}) rotate(${rotate}deg)`,
-                    height: "200px",
+                    height: "250px",
                     maxHeight: "50vh",
                   }}
                   onLoad={onImageLoad}

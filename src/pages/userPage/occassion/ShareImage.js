@@ -237,7 +237,10 @@ const ShareImage = () => {
           <CircularProgress />
         </div>
       ) : (
-        <div className="display_image_container" style={{ marginTop: "10px" }}>
+        <div
+          className="display_image_container"
+          style={{ marginTop: "10px", overflow: "hidden" }}
+        >
           {selectedImage.img_url ? (
             <div
               ref={ref}
@@ -302,7 +305,7 @@ const ShareImage = () => {
                   // height: "100%",
                   position: "absolute",
                   pointerEvents: "none",
-                  borderRadius: "20px",
+                  // borderRadius: "20px",
                   // transform: mirrorRevert ? "scaleX(-1)" : "scaleX(1)",
                 }}
                 ref={imageArea}
@@ -697,6 +700,8 @@ const Tag = ({
           width: "100%",
           height: "100%",
           transform: `scale(${scale})`,
+          borderRadius: url?.circle ? "50%" : 0,
+          overflow: "hidden",
         }}
       >
         {type === "I" ? (

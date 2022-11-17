@@ -32,7 +32,7 @@ const UserCategory = () => {
         .filter(
           (a) =>
             !filterTitle ||
-            a.title
+            a.user_category_title
               .toLocaleLowerCase()
               .includes(filterTitle.toLocaleLowerCase())
         ),

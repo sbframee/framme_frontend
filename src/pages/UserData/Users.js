@@ -13,6 +13,7 @@ const Users = () => {
   const [categoriesData, setCategoriesData] = useState([]);
   const [subCategoriesData, setSubCategoriesData] = useState([]);
   const [filterTitle, setFilterTitle] = useState("");
+  const [filterName, setFilterName] = useState("");
 
   const navigate = useNavigate();
   const getUsersData = async () => {
@@ -52,11 +53,18 @@ const Users = () => {
         .filter(
           (a) =>
             !filterTitle ||
-            a.title
+            a.user_title
               .toLocaleLowerCase()
               .includes(filterTitle.toLocaleLowerCase())
+        )
+        .filter(
+          (a) =>
+            !filterName ||
+            a.user_name
+              .toLocaleLowerCase()
+              .includes(filterName.toLocaleLowerCase())
         ),
-    [filterTitle, usersData]
+    [filterName, filterTitle, usersData]
   );
   return (
     <>
@@ -64,7 +72,7 @@ const Users = () => {
       <Header />
       <div className="item-sales-container orders-report-container">
         <div id="heading">
-          <h2>Tags</h2>
+          <h2>Users</h2>
         </div>
         <div id="item-sales-top">
           <div
@@ -82,6 +90,13 @@ const Users = () => {
               onChange={(e) => setFilterTitle(e.target.value)}
               value={filterTitle}
               placeholder="Search User Title..."
+              className="searchInput"
+            />
+            <input
+              type="text"
+              onChange={(e) => setFilterName(e.target.value)}
+              value={filterName}
+              placeholder="Search User Name..."
               className="searchInput"
             />
 

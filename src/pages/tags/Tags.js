@@ -32,11 +32,11 @@ const Tags = () => {
   const filterItemsData = useMemo(
     () =>
       tagsData
-        .filter((a) => a.tag_title)
-        .filter(
+        ?.filter((a) => a.tag_title)
+        ?.filter(
           (a) =>
             !filterTitle ||
-            a.title
+            a.tag_title
               .toLocaleLowerCase()
               .includes(filterTitle.toLocaleLowerCase())
         ),
@@ -398,6 +398,42 @@ const Popup = ({ popupInfo, setTagsData, close }) => {
               <option value="T">Text</option>
               <option value="I">Image</option>
             </select>
+          </div>
+          <div>
+            Height
+            <input
+              placeholder="height"
+              value={data.height}
+              onChange={(e) =>
+                setData({ ...data, height: e.target.value.replace(/\D/, "") })
+              }
+            />
+          </div>
+          <div>
+            Width
+            <input
+              placeholder="widht"
+              value={data.width}
+              onChange={(e) =>
+                setData({ ...data, width: e.target.value.replace(/\D/, "") })
+              }
+            />
+          </div>
+          <div>
+            Circle
+            <input
+              type="checkbox"
+              placeholder="widht"
+              checked={data?.circle}
+              onChange={(e) => setData({ ...data, circle: true })}
+            />
+            Square
+            <input
+              type="checkbox"
+              placeholder="widht"
+              checked={!data?.circle}
+              onChange={(e) => setData({ ...data, circle: false })}
+            />
           </div>
           <button
             onClick={submitHandler}

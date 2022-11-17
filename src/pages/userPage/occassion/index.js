@@ -22,6 +22,7 @@ import { ArrowBack, Cached } from "@mui/icons-material";
 import { Box, CircularProgress, Slider } from "@mui/material";
 import { styled } from "@mui/system";
 import Navbar from "../../../components/Sidebar/navbar";
+import ImageUploadPopup from "../../../components/ImageUploadPopup";
 const PrettoSlider = styled(Slider)({
   color: "#fff",
   height: 4,
@@ -65,6 +66,7 @@ const PrettoSlider = styled(Slider)({
 });
 const OccasionPage = () => {
   const [images, setImages] = useState([]);
+  const [popupCrop, setPopupCrop] = useState();
   const [state, setState] = useState(false);
   const [baseImages, setBaseImages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -82,10 +84,10 @@ const OccasionPage = () => {
   const [usersData, setUsersData] = useState([]);
   const params = useParams();
   const [baseImage, setBaseImage] = useState();
-
+  const [selectedCropFile, setSelectiveCropFile] = useState();
   const imageArea = useRef();
   const ref = useRef();
-  console.log(customHolders)
+  console.log(customHolders);
   const [selectedHolder, setSeletedHolder] = useState("");
   const navigate = useNavigate();
   const { width } = useWindowDimensions();
@@ -105,7 +107,7 @@ const OccasionPage = () => {
         reader.readAsDataURL(response.data);
         reader.onloadend = function () {
           var base64data = reader.result;
-        //  console.log(base64data);
+          //  console.log(base64data);
           setBaseImage(base64data);
           setLoading(false);
         };
@@ -137,10 +139,10 @@ const OccasionPage = () => {
   };
   const getUsersData = async () => {
     const response = await axios({ method: "get", url: "/users/getUsers" });
-   // console.log(response);
+    // console.log(response);
     if (response.data.success) setUsersData(response.data.result);
   };
- // console.log(params);
+  // console.log(params);
   const updateImage = async (data) => {
     const response = await axios({
       method: "put",
@@ -278,7 +280,7 @@ const OccasionPage = () => {
     setSwitchBtn("");
 
     htmlToImage.toPng(ref.current).then(function (dataUrl) {
-   //   console.log(dataUrl);
+      //   console.log(dataUrl);
       download(dataUrl, "text-img.png");
     });
   };
@@ -312,7 +314,7 @@ const OccasionPage = () => {
       data: deleteImage,
       url: "/images/deleteImages",
     });
-   // console.log(response);
+    // console.log(response);
     if (response.data.success) getImageData();
   };
 
@@ -499,7 +501,7 @@ const OccasionPage = () => {
                             width
                           ? item.d.split(",")[1] / 2 - coordinates[1]
                           : item.d.split(",")[1] / 2.5 - coordinates[1];
-               //       console.log(coordinates, width1, height);
+                      //       console.log(coordinates, width1, height);
                       if (url?.tag_type === "I") {
                         return (
                           <Tag
@@ -591,16 +593,13 @@ const OccasionPage = () => {
                         //     (b) => b._id === selectedHolder._id
                         //   )?.image
                         // }
-                        onChange={(e) =>
-                          setSelectedImage((prev) => ({
-                            ...prev,
-                            holder: selectedImage?.holder?.map((b) =>
-                              b._id === selectedHolder._id
-                                ? { ...b, image: e.target.files[0] }
-                                : b
-                            ),
-                          }))
-                        }
+                        onChange={(e) => {
+                          setPopupCrop(true);
+                          setSelectiveCropFile({
+                            file: e.target.files[0],
+                            selectedHolder,
+                          });
+                        }}
                       />
                     </label>
                   </div>
@@ -727,6 +726,23 @@ const OccasionPage = () => {
             </div>
           </div>
         </div>
+        {selectedCropFile && popupCrop ? (
+          <ImageUploadPopup
+            file={selectedCropFile.file}
+            selectedimage={selectedHolder}
+            onClose={() => setPopupCrop(null)}
+            setSelectedFile={(e) =>
+              setSelectedImage((prev) => ({
+                ...prev,
+                holder: selectedImage?.holder?.map((b) =>
+                  b._id === selectedHolder._id ? { ...b, image: e } : b
+                ),
+              }))
+            }
+          />
+        ) : (
+          ""
+        )}
       </>
     ) : (
       <>
@@ -1038,7 +1054,7 @@ const Tag = ({
   selectedImage,
 }) => {
   const [baseImage, setBaseImage] = useState();
- // console.log(url);
+  console.log(url);
   useEffect(() => {
     let img_url = url?.img_url?.sort((a, b) => +a.sort_order - +b.sort_order)[
       (item?.index || 0) % url?.img_url?.length
@@ -1126,7 +1142,7 @@ const Tag = ({
             {text.text}
           </div>
         </div>
-      ) :   (
+      ) : (
         // eslint-disable-next-line jsx-a11y/alt-text
         <div
           className="holders img"
@@ -1146,10 +1162,12 @@ const Tag = ({
             width: "100%",
             height: "100%",
             transform: `scale(${scale})`,
+            borderRadius: url?.circle ? "50%" : 0,
+            overflow: "hidden",
           }}
         >
           <img
-            src={image ? URL.createObjectURL(image) : baseImage||NoImage}
+            src={image ? URL.createObjectURL(image) : baseImage || NoImage}
             className="holders"
             style={{
               width: "100%",

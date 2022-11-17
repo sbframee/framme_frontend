@@ -20,7 +20,7 @@ const SideBar = () => {
       >
         <div
           className="nav"
-          style={{ height: "calc(100vh - 100px)", marginTop: "100px" }}
+          style={{ height: "calc(100vh - 10px)", marginTop: "10px" }}
         >
           <NavLink
             title={"Master"}
