@@ -643,6 +643,7 @@ const CustomImage = () => {
                             id="inputImage"
                             style={{ display: "none" }}
                             type="file"
+                            accept="image/png, image/jpeg"
                             // value={
                             //   selectedImage?.holder?.find(
                             //     (b) => b._id === selectedHolder._id
@@ -858,6 +859,8 @@ const CustomImage = () => {
         selectedimage={selectedHolder}
           file={selectedCropFile}
           onClose={() => setPopupCrop(null)}
+          fixed={true}
+
           setSelectedFile={
             selectedHolder
               ? (e) =>

@@ -449,6 +449,7 @@ const InputPage = () => {
               )
             );
           }}
+          fixed={true}
         />
       ) : (
         ""

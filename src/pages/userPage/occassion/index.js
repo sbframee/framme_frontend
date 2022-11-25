@@ -593,6 +593,7 @@ const OccasionPage = () => {
                         //     (b) => b._id === selectedHolder._id
                         //   )?.image
                         // }
+                        accept="image/png, image/jpeg"
                         onChange={(e) => {
                           setPopupCrop(true);
                           setSelectiveCropFile({
@@ -729,6 +730,8 @@ const OccasionPage = () => {
         {selectedCropFile && popupCrop ? (
           <ImageUploadPopup
             file={selectedCropFile.file}
+          fixed={true}
+
             selectedimage={selectedHolder}
             onClose={() => setPopupCrop(null)}
             setSelectedFile={(e) =>

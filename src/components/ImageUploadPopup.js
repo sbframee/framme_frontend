@@ -61,7 +61,7 @@ function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
     makeAspectCrop(
       {
         unit: "%",
-        width: 90,
+        width: 100,
       },
       aspect,
       mediaWidth,
@@ -77,6 +77,7 @@ export default function ImageUploadPopup({
   onClose,
   setSelectedFile,
   selectedimage,
+  fixed,
 }) {
   const [imgSrc, setImgSrc] = useState("");
 
@@ -84,15 +85,15 @@ export default function ImageUploadPopup({
   const imgRef = useRef(null);
   const [crop, setCrop] = useState();
   const [completedCrop, setCompletedCrop] = useState({
-    height: selectedimage?.circle ? selectedimage?.height : 250,
+    height: 250,
     unit: "px",
-    width: selectedimage?.circle ? selectedimage?.width : 250,
+    width: 250,
     x: 0,
     y: 0,
   });
   const [rotate, setRotate] = useState(0);
   const [aspect, setAspect] = useState(1);
-  const [scale, setScale] = useState(0.9);
+  const [scale, setScale] = useState(1);
 
   function onSelectFile(file) {
     if (file) {
@@ -108,35 +109,50 @@ export default function ImageUploadPopup({
   }
   useEffect(() => {
     onSelectFile(file);
-    console.log(aspect, completedCrop);
-  }, [file, aspect, completedCrop]);
+    // console.log(aspect, completedCrop);
+  }, [file]);
 
   useEffect(() => {
-    setTimeout(()=>{
-    if ((imgRef?.current?.offsetWidth, imgRef?.current?.clientHeight)) {
-      setCompletedCrop({
-        height:
-          (selectedimage?.circle
-            ? selectedimage?.height
-            : imgRef?.current?.clientHeight) || 250,
-        unit: "px",
-        width:
-          (selectedimage?.circle
-            ? selectedimage?.width
-            : imgRef?.current?.offsetWidth) || 250,
-        x: 0,
-        y: 0,
-      });
-      setAspect(
-        ((selectedimage?.circle
-          ? selectedimage?.width
-          : imgRef?.current?.offsetWidth) || 250) /
+    setTimeout(() => {
+      if (fixed) {
+        let coordinates = selectedimage?.a.split(",");
+        let width = selectedimage?.b.split(",")[0] - coordinates[0];
+        let height = selectedimage?.d.split(",")[1] - coordinates[1];
+
+        setAspect((width || 250) / (height || 250));
+        // setCrop(
+        //   centerAspectCrop(width, height, (width || 250) / (height || 250))
+        // );
+      } else if (
+        (imgRef?.current?.offsetWidth, imgRef?.current?.clientHeight)
+      ) {
+        setAspect(
           ((selectedimage?.circle
-            ? selectedimage?.height
-            : imgRef?.current?.clientHeight) || 250)
-      );
-    }
-  },1000)}, []);
+            ? selectedimage?.width
+            : imgRef?.current?.offsetWidth) || 250) /
+            ((selectedimage?.circle
+              ? selectedimage?.height
+              : imgRef?.current?.clientHeight) || 250)
+        );
+        setCrop(
+          centerAspectCrop(
+            (selectedimage?.circle
+              ? selectedimage?.width
+              : imgRef?.current?.offsetWidth) || 250,
+            (selectedimage?.circle
+              ? selectedimage?.height
+              : imgRef?.current?.clientHeight) || 250,
+            ((selectedimage?.circle
+              ? selectedimage?.width
+              : imgRef?.current?.offsetWidth) || 250) /
+              ((selectedimage?.circle
+                ? selectedimage?.height
+                : imgRef?.current?.clientHeight) || 250)
+          )
+        );
+      }
+    }, 2000);
+  }, [fixed, selectedimage?.a, selectedimage?.b, selectedimage?.circle, selectedimage?.d, selectedimage?.height, selectedimage?.width]);
 
   function onImageLoad(e) {
     if (aspect) {
@@ -168,22 +184,7 @@ export default function ImageUploadPopup({
     [completedCrop, scale, rotate]
   );
 
-  function handleToggleAspectClick() {
-    if (aspect) {
-      setAspect(undefined);
-    } else if (imgRef.current) {
-      const { width, height } = imgRef.current;
-      setAspect(
-        selectedimage?.circle
-          ? selectedimage?.width / selectedimage?.height
-          : 16 / 9
-      );
-      setCrop(centerAspectCrop(width, height, aspect));
-    }
-  }
-  useEffect(() => {
-    handleToggleAspectClick();
-  }, []);
+  console.log(crop, completedCrop, fixed);
   return (
     <div className="popup_bg overlay">
       <div className="popup_img">
@@ -222,8 +223,18 @@ export default function ImageUploadPopup({
             {Boolean(imgSrc) && (
               <ReactCrop
                 crop={crop}
-                onChange={(_, percentCrop) => setCrop(percentCrop)}
-                onComplete={(c) => setCompletedCrop(c)}
+                onChange={(_, percentCrop) =>
+                  setCrop((prev) =>
+                    fixed
+                      ? { ...prev, x: percentCrop?.x, y: percentCrop?.y }
+                      : percentCrop
+                  )
+                }
+                onComplete={(c) =>
+                  setCompletedCrop((prev) =>
+                    fixed ? { ...prev, x: c.x, y: c.y } : c
+                  )
+                }
                 aspect={aspect}
                 style={{ marginTop: "20px" }}
                 circularCrop={selectedimage?.circle}

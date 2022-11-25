@@ -747,6 +747,7 @@ const Tag = ({
               <input
                 id={url?.tag_uuid}
                 type="file"
+                accept="image/png, image/jpeg"
                 style={{ display: "none" }}
                 onChange={(e) => {
                   setImage(e.target.files[0]);

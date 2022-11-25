@@ -46,7 +46,7 @@ export async function canvasPreview(
   // 3) Rotate around the origin
   ctx.rotate(rotateRads)
   // 2) Scale the image
-  ctx.scale(scale, 1)
+  ctx.scale(scale, scale)
   // 1) Move the center of the image to the origin (0,0)
   ctx.translate(-centerX, -centerY)
   ctx.drawImage(

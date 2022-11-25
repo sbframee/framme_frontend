@@ -169,7 +169,7 @@ const drawElement = (roughCanvas, context, element) => {
       context.fillText(element.text, element.x1, element.y1);
       break;
     default:
-      throw new Error(`Type not recognised: ${element.type}`);
+      return ""
   }
 };
 
@@ -253,17 +253,19 @@ const Canvas = ({
   // },[elements])
   console.log(templateHoldersData, templateHolders, elements);
   useLayoutEffect(() => {
-    const canvas = document.getElementById("canvas");
-    const context = canvas.getContext("2d");
-    context.clearRect(0, 0, canvas.width, canvas.height);
 
-    const roughCanvas = rough.canvas(canvas);
+      const canvas = document.getElementById("canvas");
+      const context = canvas.getContext("2d");
+      context.clearRect(0, 0, canvas.width, canvas.height);
 
-    elements.forEach((element) => {
-      if (action === "writing" && selectedElement.id === element.id) return;
-      drawElement(roughCanvas, context, element);
-    });
-  }, [elements, action, selectedElement]);
+      const roughCanvas = rough.canvas(canvas);
+
+      elements.forEach((element) => {
+        if (action === "writing" && selectedElement.id === element.id) return;
+        drawElement(roughCanvas, context, element);
+      });
+    
+  }, [elements, action, selectedElement, tool]);
 
   useEffect(() => {
     const undoRedoFunction = (event) => {

@@ -136,27 +136,27 @@ const Occasion = () => {
         ""
       )}
       {deleteItem ? (
-            <ConfirmPopup
-              close={() => setDeleteItem(null)}
-              deleteHandler={deleteOccasionData}
-            />
-          ) : (
-            ""
-          )}
+        <ConfirmPopup
+          close={() => setDeleteItem(null)}
+          deleteHandler={deleteOccasionData}
+        />
+      ) : (
+        ""
+      )}
 
-          {popup ? (
-            <Popup
-              popupInfo={popupInfo}
-              close={() => {
-                setPopup(false);
-                setPopupInfo({});
-              }}
-              setOccasionsData={setOccasionsData}
-              categoriesData={categoriesData}
-            />
-          ) : (
-            ""
-          )}
+      {popup ? (
+        <Popup
+          popupInfo={popupInfo}
+          close={() => {
+            setPopup(false);
+            setPopupInfo({});
+          }}
+          setOccasionsData={setOccasionsData}
+          categoriesData={categoriesData}
+        />
+      ) : (
+        ""
+      )}
     </>
   );
 };
@@ -295,8 +295,10 @@ function Table({
               </div>
             </div>
           </th>
-         
-          <th colSpan={4} style={{width:"30vw"}}>Actions</th>
+
+          <th colSpan={4} style={{ width: "30vw" }}>
+            Actions
+          </th>
         </tr>
       </thead>
       <tbody className="tbody">
@@ -569,7 +571,7 @@ const Popup = ({ popupInfo, setOccasionsData, close, categoriesData }) => {
     setData({ ...data, cat_uuid: catData });
   };
   return (
-    <div className="popup_bg overlay" style={{zIndex:"999999999999999"}}>
+    <div className="popup_bg overlay" style={{ zIndex: "999999999999999" }}>
       <div className="popup_img">
         <div className="popup_header">
           <h3>
@@ -915,6 +917,7 @@ function PicturesPopup({ onSave, popupInfo, getItem }) {
                       type="file"
                       id="upload_image"
                       name="route_title"
+                      accept="image/png, image/jpeg"
                       className="numberInput"
                       style={{ display: "none" }}
                       onChange={
@@ -925,7 +928,6 @@ function PicturesPopup({ onSave, popupInfo, getItem }) {
                         //     : [...e.target.files]
                         // )
                       }
-                      accept="image/*"
                       maxLength={60}
                     />
                   </label>

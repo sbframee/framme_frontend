@@ -54,8 +54,8 @@ function PostersPopup({ onSave }) {
   };
   const deleteSubmitHandler = async (e) => {
     e.preventDefault();
-    let itemData = data.filter(
-      (a) => deleteImages.find((b) => b === a.posters)
+    let itemData = data.filter((a) =>
+      deleteImages.find((b) => b === a.posters)
     );
 
     const response = await axios({
@@ -107,6 +107,7 @@ function PostersPopup({ onSave }) {
 
                     <input
                       type="file"
+                      accept="image/png, image/jpeg"
                       id="upload_image"
                       name="route_title"
                       className="numberInput"
@@ -119,7 +120,6 @@ function PostersPopup({ onSave }) {
                         //     : [...e.target.files]
                         // )
                       }
-                      accept="image/*"
                       maxLength={60}
                     />
                   </label>
@@ -232,63 +232,65 @@ function PostersPopup({ onSave }) {
                   }}
                 >
                   {data?.length ? (
-                    data?.sort((a,b)=>a.sort_order-b.sort_order).map((img) => (
-                      <div
-                        className="imageContainer"
-                        style={
-                          deleteImages.find((b) => b === img?.posters)
-                            ? { border: "1px solid red", margin: "10px 0" }
-                            : { margin: "10px 0" }
-                        }
-                      >
-                        <img
-                          src={img?.posters}
-                          alt="NoImage"
-                          className="previwImages"
-                          //   style={{width:"200px",objectFit:"contain"}}
-                        />
-                        {deleteImages.find((b) => b === img?.posters) ? (
-                          <button
-                            onClick={() =>
-                              setDeletedImages((prev) =>
-                                prev.filter((b) => b !== img?.posters)
-                              )
-                            }
-                            className="closeButton"
-                            style={{
-                              fontSize: "20px",
-                              right: "5px",
-                              padding: "0 10px",
-                              width: "20px",
-                              height: "20px",
-                            }}
-                            type="button"
-                          >
-                            <Cancel fontSize="5px" />
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() =>
-                              setDeletedImages((prev) => [
-                                ...prev,
-                                img?.posters,
-                              ])
-                            }
-                            className="closeButton"
-                            style={{
-                              fontSize: "20px",
-                              right: "5px",
-                              padding: "0 10px",
-                              width: "20px",
-                              height: "20px",
-                            }}
-                            type="button"
-                          >
-                            <DeleteOutline fontSize="5px" />
-                          </button>
-                        )}
-                      </div>
-                    ))
+                    data
+                      ?.sort((a, b) => a.sort_order - b.sort_order)
+                      .map((img) => (
+                        <div
+                          className="imageContainer"
+                          style={
+                            deleteImages.find((b) => b === img?.posters)
+                              ? { border: "1px solid red", margin: "10px 0" }
+                              : { margin: "10px 0" }
+                          }
+                        >
+                          <img
+                            src={img?.posters}
+                            alt="NoImage"
+                            className="previwImages"
+                            //   style={{width:"200px",objectFit:"contain"}}
+                          />
+                          {deleteImages.find((b) => b === img?.posters) ? (
+                            <button
+                              onClick={() =>
+                                setDeletedImages((prev) =>
+                                  prev.filter((b) => b !== img?.posters)
+                                )
+                              }
+                              className="closeButton"
+                              style={{
+                                fontSize: "20px",
+                                right: "5px",
+                                padding: "0 10px",
+                                width: "20px",
+                                height: "20px",
+                              }}
+                              type="button"
+                            >
+                              <Cancel fontSize="5px" />
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() =>
+                                setDeletedImages((prev) => [
+                                  ...prev,
+                                  img?.posters,
+                                ])
+                              }
+                              className="closeButton"
+                              style={{
+                                fontSize: "20px",
+                                right: "5px",
+                                padding: "0 10px",
+                                width: "20px",
+                                height: "20px",
+                              }}
+                              type="button"
+                            >
+                              <DeleteOutline fontSize="5px" />
+                            </button>
+                          )}
+                        </div>
+                      ))
                   ) : (
                     <h1>No Image Uploaded yet</h1>
                   )}
