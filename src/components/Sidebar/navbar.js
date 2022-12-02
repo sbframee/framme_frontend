@@ -1,10 +1,10 @@
 import React from "react";
 
 import Logo from "../../assets/frameelogo.png";
-const Navbar = ({ Tag }) => {
+const Navbar = ({ Tag,logo=true }) => {
   return (
     <div className="navbar" style={{ justifyContent: "space-between" }}>
-      <img src={Logo} style={{ width: "40px" }} alt="" />
+      {logo?<img src={Logo} style={{ width: "40px" }} alt="" />:""}
 
       {Tag ? <Tag /> : ""}
     </div>

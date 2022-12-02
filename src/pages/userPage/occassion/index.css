@@ -9,6 +9,7 @@
   overflow-y: scroll;
   overflow: hidden;
   padding-top: 40px;
+  background-color: var(--main-color);
   /* background: #000; */
 }
 .navbar .h1 {
@@ -127,6 +128,7 @@
   height: 100vh;
   overflow: hidden;
   /* background: #000; */
+  background-color: var(--main-color);
 }
 .container .navbar {
   width: 100%;
@@ -218,6 +220,7 @@
   position: fixed;
   bottom: 0;
   width: 100vw;
+  /* min-height: 15vh; */
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -230,8 +233,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color:#fff;
-  margin: 5px;
+  color: #fff;
+  
 }
 .container .container_buttons button {
   border: none;

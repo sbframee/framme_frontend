@@ -94,12 +94,11 @@ export default function ImageUploadPopup({
   const [rotate, setRotate] = useState(0);
   const [aspect, setAspect] = useState(1);
   const [scale, setScale] = useState(1);
+  const [update, setupdat] = useState(false);
 
   function onSelectFile(file) {
     if (file) {
-      setCrop(
-        centerAspectCrop(completedCrop.width, completedCrop?.height, aspect)
-      ); // Makes crop preview update between images.
+      setupdat(prev=>!prev)
       const reader = new FileReader();
       reader.addEventListener("load", () =>
         setImgSrc(reader.result.toString() || "")
@@ -108,7 +107,7 @@ export default function ImageUploadPopup({
     }
   }
   useEffect(() => {
-    onSelectFile(file);
+    setTimeout(() => onSelectFile(file), 2000);
     // console.log(aspect, completedCrop);
   }, [file]);
 
@@ -152,7 +151,15 @@ export default function ImageUploadPopup({
         );
       }
     }, 2000);
-  }, [fixed, selectedimage?.a, selectedimage?.b, selectedimage?.circle, selectedimage?.d, selectedimage?.height, selectedimage?.width]);
+  }, [
+    fixed,
+    selectedimage?.a,
+    selectedimage?.b,
+    selectedimage?.circle,
+    selectedimage?.d,
+    selectedimage?.height,
+    selectedimage?.width,
+  ]);
 
   function onImageLoad(e) {
     if (aspect) {
@@ -181,7 +188,7 @@ export default function ImageUploadPopup({
       }
     },
     100,
-    [completedCrop, scale, rotate]
+    [completedCrop, scale, rotate,update]
   );
 
   console.log(crop, completedCrop, fixed);
@@ -204,7 +211,7 @@ export default function ImageUploadPopup({
               justifyContent: "space-between",
               alignItems: "center",
               flexDirection: "column",
-              maxHeight: "400px",
+              maxHeight: "100vh",
             }}
           >
             {Boolean(completedCrop) && (
@@ -224,15 +231,18 @@ export default function ImageUploadPopup({
               <ReactCrop
                 crop={crop}
                 onChange={(_, percentCrop) =>
-                  setCrop((prev) =>
-                    fixed
-                      ? { ...prev, x: percentCrop?.x, y: percentCrop?.y }
-                      : percentCrop
+                  setCrop(
+                    (prev) =>
+                      // fixed
+                      //   ? { ...prev, x: percentCrop?.x, y: percentCrop?.y }
+                      //   :
+                      percentCrop
                   )
                 }
                 onComplete={(c) =>
-                  setCompletedCrop((prev) =>
-                    fixed ? { ...prev, x: c.x, y: c.y } : c
+                  setCompletedCrop(
+                    // fixed ? { ...prev, x: c.x, y: c.y } :
+                    c
                   )
                 }
                 aspect={aspect}

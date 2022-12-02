@@ -1816,6 +1816,7 @@ input#item-sales-searchbar {
     overflow: hidden;
     display: flex;
     flex: 1;
+    background-color: var(--main-color);
   }
   
   .content {

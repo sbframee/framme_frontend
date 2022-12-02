@@ -9,7 +9,8 @@
   overflow-y: scroll;
   overflow-x: hidden;
   padding-top: 50px;
-  /* background-color: black; */
+  background-color: var(--main-color);
+  color: var(--text-color);
 }
 
 .profile-Icon {

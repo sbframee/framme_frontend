@@ -20,7 +20,7 @@ import useWindowDimensions from "../../../components/useWidthDimenshion";
 import { MdFileDownload } from "react-icons/md";
 import { ArrowBack, Cached } from "@mui/icons-material";
 import { Box, CircularProgress, Slider } from "@mui/material";
-import { styled } from "@mui/system";
+import { height, styled } from "@mui/system";
 import Navbar from "../../../components/Sidebar/navbar";
 import ImageUploadPopup from "../../../components/ImageUploadPopup";
 const PrettoSlider = styled(Slider)({
@@ -87,7 +87,7 @@ const OccasionPage = () => {
   const [selectedCropFile, setSelectiveCropFile] = useState();
   const imageArea = useRef();
   const ref = useRef();
-  console.log(customHolders);
+
   const [selectedHolder, setSeletedHolder] = useState("");
   const navigate = useNavigate();
   const { width } = useWindowDimensions();
@@ -115,6 +115,7 @@ const OccasionPage = () => {
     }
   }, [selectedImage?.img_url]);
   const getSelectedBaseImageData = async (image) => {
+    setSeletedHolder("");
     if (image.img_url) {
       setLoading(true);
       const response = await axios({
@@ -323,6 +324,7 @@ const OccasionPage = () => {
       <>
         <div className="container">
           <Navbar
+       
             Tag={() => (
               <div
                 className="flex"
@@ -611,7 +613,64 @@ const OccasionPage = () => {
             ) : (
               ""
             )}
-            <div className="container_buttons_container">
+            {selectedHolder ? (
+              <div className="container_buttons_container">
+                <button
+                  className="image_btn"
+                  onClick={() =>
+                    setMirrorevert((prev) =>
+                      prev?.length
+                        ? prev?.find((a) => a === selectedHolder?.label_uuid)
+                          ? prev?.filter(
+                              (a) => a !== selectedHolder?.label_uuid
+                            )
+                          : [...prev, selectedHolder?.label_uuid]
+                        : [selectedHolder?.label_uuid]
+                    )
+                  }
+                >
+                  Mirror
+                </button>
+                <button
+                  className="image_btn"
+                  onClick={() =>
+                    setSelectedImage({
+                      ...selectedImage,
+                      holder: selectedImage.holder.map((b) =>
+                        b._id === selectedHolder._id
+                          ? { ...b, index: (b.index || 0) + 1 }
+                          : b
+                      ),
+                    })
+                  }
+                >
+                  <Cached />
+                </button>
+                <button
+                  className="image_btn"
+                  onClick={() =>
+                    setDeleteHolders((prev) => [
+                      ...prev,
+                      selectedImage.holder.find(
+                        (a) => a._id === selectedHolder._id
+                      ),
+                    ])
+                  }
+                >
+                  Delete
+                </button>
+              </div>
+            ) : (
+              ""
+            )}
+            <div
+              className="container_buttons_container"
+              style={{
+                width: "100vw",
+                position: "fixed",
+                bottom: "15vh",
+              }}
+            >
               <button
                 onClick={() =>
                   getSelectedBaseImageData(
@@ -624,58 +683,19 @@ const OccasionPage = () => {
                     }) || selectedImage
                   )
                 }
+                className="flex"
                 style={{
                   cursor: "pointer",
                   fontSize: "35px",
                   color: "#fff",
                   borderRadius: "30px",
-                  backgroundColor: "transparent",
+                
                   border: "none",
+                  backgroundColor: "var(--main-color)",
+
                 }}
               >
                 <HiOutlineArrowCircleLeft />
-              </button>
-              <button
-                className="image_btn"
-                onClick={() =>
-                  setMirrorevert((prev) =>
-                    prev?.length
-                      ? prev?.find((a) => a === selectedHolder?.label_uuid)
-                        ? prev?.filter((a) => a !== selectedHolder?.label_uuid)
-                        : [...prev, selectedHolder?.label_uuid]
-                      : [selectedHolder?.label_uuid]
-                  )
-                }
-              >
-                Mirror
-              </button>
-              <button
-                className="image_btn"
-                onClick={() =>
-                  setSelectedImage({
-                    ...selectedImage,
-                    holder: selectedImage.holder.map((b) =>
-                      b._id === selectedHolder._id
-                        ? { ...b, index: (b.index || 0) + 1 }
-                        : b
-                    ),
-                  })
-                }
-              >
-                <Cached />
-              </button>
-              <button
-                className="image_btn"
-                onClick={() =>
-                  setDeleteHolders((prev) => [
-                    ...prev,
-                    selectedImage.holder.find(
-                      (a) => a._id === selectedHolder._id
-                    ),
-                  ])
-                }
-              >
-                Delete
               </button>
 
               <button
@@ -691,29 +711,24 @@ const OccasionPage = () => {
                     }) || baseImage[0]
                   )
                 }
+                className="flex"
                 style={{
                   cursor: "pointer",
                   fontSize: "35px",
                   color: "#fff",
                   borderRadius: "30px",
-                  backgroundColor: "transparent",
+
                   border: "none",
+                  backgroundColor: "var(--main-color)",
                 }}
               >
                 <HiOutlineArrowCircleRight />
               </button>
             </div>
-            <div className="container_buttons_container">
-              <ShareIcon
-                style={{
-                  fontSize: "40px",
-                  marginRight: "40px",
-                  border: "2px solid #fff",
-                  borderRadius: "50%",
-                  padding: "5px",
-                }}
-                onClick={handleShare}
-              />
+            <div
+              className="container_buttons_container"
+              style={{ position: "fixed", bottom: "10px", right: "10px" }}
+            >
               <MdFileDownload
                 className="backArrow"
                 onClick={() => handlePng()}
@@ -721,7 +736,10 @@ const OccasionPage = () => {
                   fontSize: "40px",
                   border: "2px solid #fff",
                   borderRadius: "50%",
-                  padding: "5px",
+                  padding: "10px",
+                  backgroundColor: "var(--main-color)",
+                  width:"70px",
+                  height:"70px"
                 }}
               />
             </div>
@@ -730,8 +748,7 @@ const OccasionPage = () => {
         {selectedCropFile && popupCrop ? (
           <ImageUploadPopup
             file={selectedCropFile.file}
-          fixed={true}
-
+            fixed={true}
             selectedimage={selectedHolder}
             onClose={() => setPopupCrop(null)}
             setSelectedFile={(e) =>
@@ -751,6 +768,7 @@ const OccasionPage = () => {
       <>
         <div className="userOccasion">
           <Navbar
+             logo={false}
             Tag={() => (
               <div className="flex">
                 <ArrowBack
@@ -796,6 +814,7 @@ const OccasionPage = () => {
                         height: "61vw",
                         maxHeight: "250px",
                         objectFit: "cover",
+                        backgroundColor:"#000"
                       }}
                     />
                     {location.pathname.includes("AdminOccasion") ? (
@@ -1057,6 +1076,10 @@ const Tag = ({
   selectedImage,
 }) => {
   const [baseImage, setBaseImage] = useState();
+  const revert = useMemo(
+    () => mirrorRevert.find((a) => a === item?.label_uuid),
+    [item?.label_uuid, mirrorRevert]
+  );
   console.log(url);
   useEffect(() => {
     let img_url = url?.img_url?.sort((a, b) => +a.sort_order - +b.sort_order)[
@@ -1087,13 +1110,14 @@ const Tag = ({
       ];
     }
   }, [item.index, type, url?.text]);
+
   return (
     <motion.div
       dragConstraints={{
-        top: -200,
+        top: -350,
         left: -200,
         right: 200,
-        bottom: 200,
+        bottom: 350,
       }}
       drag
       className="resizeable"
@@ -1104,9 +1128,6 @@ const Tag = ({
         width: width + "px",
         height: height + "px",
         position: "absolute",
-        transform: mirrorRevert.find((a) => a === item?.label_uuid)
-          ? `scaleX(-1)`
-          : `scaleX(1)`,
       }}
       onTouchEnd={() => setSwitchBtn("resize")}
     >
@@ -1128,6 +1149,7 @@ const Tag = ({
               selectedHolder?._id === item?._id ? "2px solid black" : "none",
             width: "100%",
             height: "100%",
+            transform: revert ? `scaleX(-1)` : `scaleX(1)`,
           }}
         >
           <div
@@ -1176,6 +1198,7 @@ const Tag = ({
               width: "100%",
               height: "100%",
               pointerEvents: "none",
+              transform: revert ? `scaleX(-1)` : `scaleX(1)`,
             }}
             alt={""}
           />

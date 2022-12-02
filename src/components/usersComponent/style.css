@@ -7,7 +7,8 @@
 .icon-container {
   width: 20%;
   padding: 10px 0;
-  color: #fff;
+  color: var(--headings-color);
+
 }
 .customBtn {
   background: red;
