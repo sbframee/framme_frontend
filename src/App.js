@@ -14,11 +14,12 @@ import ImageUploadPopup from "./components/ImageUploadPopup";
 import axios from "axios";
 import WaBoot from "./pages/WaBoot";
 import ShareImage from "./pages/userPage/occassion/ShareImage";
+import AdminTagsInput from "./pages/input/AdminTagsInput";
 
 const id = "230522";
-export const baseURL = "http://localhost:9000";
+// export const baseURL = "http://localhost:9000";
 // export const baseURL=  "http://13.232.99.217:9000/"
-// export const baseURL = "https://api.framee.in/";
+export const baseURL = "https://api.framee.in/";
 function App() {
   axios.defaults.baseURL = baseURL;
   return (
@@ -44,6 +45,7 @@ function App() {
                 <Route exact path="/occasion" element={<Occasion />} />
                 <Route exact path="/waBoot" element={<WaBoot />} />
                 <Route exact path="/customInput" element={<CustomImage />} />
+                <Route exact path="/adminTagsInput" element={<AdminTagsInput />} />
 
                 <Route exact path="/category" element={<Category />} />
                 <Route exact path="/tags" element={<Tags />} />

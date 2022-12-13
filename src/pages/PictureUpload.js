@@ -129,6 +129,7 @@ const PictureUpload = () => {
       ],
     };
     if (!imageData.img_url) {
+      
       const mainimgURL = await axios({ url: "/s3Url", method: "get" });
       let UploadURL = mainimgURL.data.url;
 
@@ -145,7 +146,6 @@ const PictureUpload = () => {
       let img_url = UploadURL.split("?")[0];
       const mainThumbnailURL = await axios({ url: "/s3Url", method: "get" });
       let UploadThumbnailURL = mainThumbnailURL.data.url;
-
       axios({
         url: UploadThumbnailURL,
         method: "put",

@@ -64,6 +64,10 @@ const SideBar = () => {
                 name: "Poster",
                 link: "#",
               },
+              {
+                name: "Input Tag",
+                link: "/adminTagsInput",
+              },
             ]}
           />
           {/* <NavLink

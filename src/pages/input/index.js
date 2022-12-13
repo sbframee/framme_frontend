@@ -93,7 +93,7 @@ const InputPage = () => {
   const deleteHandler = async (item) => {
     const response = await axios({
       method: "delete",
-      data: item,
+      data: { item, user_uuid: localStorage.getItem("user_uuid") },
       url: "/images/deleteImages",
     });
     console.log(response);
@@ -316,7 +316,9 @@ const InputPage = () => {
         )?.img_url;
         // console.log(itemData)
         itemData = itemData?.length
-          ? itemData?.find((b) => +b.sort_order === i + 1)
+          ? itemData?.find((b, index) =>
+              +b.sort_order ? +b.sort_order === i + 1 : index === i
+            )
           : {};
 
         rows.push(
@@ -418,12 +420,12 @@ const InputPage = () => {
           Save
         </button>
       </div>
-      {console.log(seletiveCropFile,popupCrop)}
-       {seletiveCropFile && popupCrop ? (
+      {console.log(seletiveCropFile, popupCrop)}
+      {seletiveCropFile && popupCrop ? (
         <ImageUploadPopup
           file={seletiveCropFile}
-           fixed={true}
-           selectedimage={popupCrop.item}
+          fixed={true}
+          selectedimage={popupCrop.item}
           onClose={() => setTimeout(() => setPopupCrop(null), 2000)}
           setSelectedFile={(file) => {
             setInputData(
@@ -451,11 +453,10 @@ const InputPage = () => {
               )
             );
           }}
-    
         />
       ) : (
         ""
-      )} 
+      )}
     </>
   );
 };
