@@ -109,60 +109,61 @@ const Main = () => {
         <div className="slide-container">
           {posters.length ? <Sliders item={posters} /> : ""}
         </div>
+        <div style={{height:"80vh",overflowY:"scroll"}}>
+          {categories
 
-        {categories
-
-          .sort((a, b) => +a.sort_order - +b.sort_order)
-          .map((item, index) => (
-            <div
-              className="occasion_container"
-              style={
-                index === 0
-                  ? { marginTop: "40px" }
-                  : index + 1 === categories?.length
-                  ? { marginBottom: "100px" }
-                  : {}
-              }
-              key={Math.random()}
-            >
-              <div className="cat_title">{item.title}</div>
-              <div style={{ width: "100vw", overflowX: "scroll" }}>
-                <div className="images_container">
-                  {occasions
-                    ?.sort((a, b) => +a.sort_order - +b.sort_order)
-                    .filter(
-                      (a) =>
-                        a.cat_uuid?.filter((b) => b === item.cat_uuid)?.length
-                    )
-                    .map((imgItem) => (
-                      <div
-                        className="image_container"
-                        onClick={() =>
-                          navigate(`/occasion/${imgItem.occ_uuid}`)
-                        }
-                      >
-                        <img
-                          src={imgItem.thumbnail_url}
-                          alt=""
-                          style={
-                            item?.square
-                              ? {
-                                  borderRadius: "10px",
-                                  width: "120px",
-                                  height: "120px",
-                                  marginRight: "20px",
-                                }
-                              : {}
+            .sort((a, b) => +a.sort_order - +b.sort_order)
+            .map((item, index) => (
+              <div
+                className="occasion_container"
+                style={
+                  index === 0
+                    ? { marginTop: "40px" }
+                    : index + 1 === categories?.length
+                    ? { marginBottom: "100px" }
+                    : {}
+                }
+                key={Math.random()}
+              >
+                <div className="cat_title">{item.title}</div>
+                <div style={{ width: "100vw", overflowX: "scroll" }}>
+                  <div className="images_container">
+                    {occasions
+                      ?.sort((a, b) => +a.sort_order - +b.sort_order)
+                      .filter(
+                        (a) =>
+                          a.cat_uuid?.filter((b) => b === item.cat_uuid)?.length
+                      )
+                      .map((imgItem) => (
+                        <div
+                          className="image_container"
+                          onClick={() =>
+                            navigate(`/occasion/${imgItem.occ_uuid}`)
                           }
-                        />
+                        >
+                          <img
+                            src={imgItem.thumbnail_url}
+                            alt=""
+                            style={
+                              item?.square
+                                ? {
+                                    borderRadius: "10px",
+                                    width: "120px",
+                                    height: "120px",
+                                    marginRight: "20px",
+                                  }
+                                : {}
+                            }
+                          />
 
-                        <div className="occ_title">{imgItem.title}</div>
-                      </div>
-                    ))}
+                          <div className="occ_title">{imgItem.title}</div>
+                        </div>
+                      ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+        </div>
       </div>
 
       <div style={{ width: "100vw", position: "fixed", bottom: "0" }}>

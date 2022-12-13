@@ -130,7 +130,42 @@ const WaBoot = () => {
     }
     return data;
   }, [usersData, userCategory]);
+  const UserSubCategoryLength = useMemo(() => {
+    let data = [];
+    for (let item of userCategory) {
+      data = [
+        {
+          user_category_uuid: item.user_category_uuid,
+          user_sub_category_uuid: 0,
+          title: "Unknown",
+          orderLength: usersData.filter(
+            (a) =>
+              a?.user_sub_category_uuid?.length &&
+              a.user_category_uuid.find((b) => b === item.user_category_uuid)
+          )?.length,
+        },
+      ];
 
+      for (let trip of userSubCategory) {
+        console.log(trip)
+        data.push({
+          ...trip,
+          user_category_uuid: item.user_category_uuid,
+          orderLength: usersData.filter(
+            (b) =>
+              b.user_category_uuid?.find(
+                (c) => c === item.user_category_uuid
+              ) &&
+              b.user_sub_category_uuid?.find(
+                (c) => c === trip.user_sub_category_uuid
+              )
+          )?.length,
+        });
+      }
+    }
+    return data;
+  }, [userCategory, userSubCategory, usersData]);
+  console.log(UserSubCategoryLength);
   const downloadExel = () => {
     // console.log(selectedOrder);
     // console.log(selectedUser);
@@ -654,6 +689,13 @@ const WaBoot = () => {
                               }}
                               id="seats_container"
                             >
+                              {console.log(
+                                usersData.filter((b) =>
+                                  b.user_category_uuid?.find(
+                                    (c) => c === trip.user_category_uuid
+                                  )
+                                )
+                              )}
                               {usersData
                                 .filter((b) =>
                                   b.user_category_uuid?.find(

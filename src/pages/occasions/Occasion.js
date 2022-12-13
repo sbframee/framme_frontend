@@ -20,6 +20,8 @@ const Occasion = () => {
   const [occasionsData, setOccasionsData] = useState([]);
   const [categoriesData, setCategoriesData] = useState([]);
   const [filterTitle, setFilterTitle] = useState("");
+  const [filterCategory, setFilterCategory] = useState("");
+  const [status, setStatus] = useState("1");
 
   const navigate = useNavigate();
   const [pictureUploadPopup, setPictureUploadPopup] = useState(false);
@@ -31,7 +33,7 @@ const Occasion = () => {
   const getOccasionData = async () => {
     const response = await axios({
       method: "get",
-      url: "/occasions/getOccasions",
+      url: "/occasions/getOccasions/" + status,
     });
     console.log(response);
     if (response.data.success) setOccasionsData(response.data.result);
@@ -64,16 +66,32 @@ const Occasion = () => {
   const filterItemsData = useMemo(
     () =>
       occasionsData
-        .filter((a) => a.title)
+        .map((a) => ({
+          ...a,
+          cat_title: a.cat_uuid.map(
+            (c, i) => categoriesData.find((b) => b.cat_uuid === c)?.title
+          ),
+        }))
         .filter(
           (a) =>
-            !filterTitle ||
-            a.title
-              .toLocaleLowerCase()
-              .includes(filterTitle.toLocaleLowerCase())
+            a.title &&
+            (!filterTitle ||
+              a.title
+                .toLocaleLowerCase()
+                .includes(filterTitle.toLocaleLowerCase())) &&
+            (!filterCategory ||
+              a.cat_title.find((b) =>
+                b
+                  .toLocaleLowerCase()
+                  .includes(filterCategory.toLocaleLowerCase())
+              ))
         ),
-    [filterTitle, occasionsData]
+    [categoriesData, filterCategory, filterTitle, occasionsData]
   );
+  useEffect(() => {
+    console.log(status)
+    getOccasionData();
+  }, [status]);
   return (
     <>
       <SideBar />
@@ -100,9 +118,32 @@ const Occasion = () => {
               placeholder="Search Occasion Title..."
               className="searchInput"
             />
+            <input
+              type="text"
+              onChange={(e) => setFilterCategory(e.target.value)}
+              value={filterCategory}
+              placeholder="Search category Title..."
+              className="searchInput"
+            />
 
             <div>Total Items: {filterItemsData.length}</div>
-
+            <div
+              style={{
+                display: "flex",
+                width: "120px",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <input
+                type="checkbox"
+                onChange={(e) => setStatus(e.target.checked?"0":"1")}
+                value={status}
+                className="searchInput"
+                style={{ scale: "1.2" }}
+              />
+              <div style={{ width: "100px" }}>Disabled Items</div>
+            </div>
             <button
               className="item-sales-search"
               onClick={() => {
@@ -205,11 +246,11 @@ function Table({
           </th>
           <th colSpan={3}>
             <div className="t-head-element">
-              <span>Date</span>
+              <span>Category</span>
               <div className="sort-buttons-container">
                 <button
                   onClick={() => {
-                    setItems("occ_date");
+                    setItems("cat_title");
                     setOrder("asc");
                   }}
                 >
@@ -217,7 +258,7 @@ function Table({
                 </button>
                 <button
                   onClick={() => {
-                    setItems("occ_date");
+                    setItems("cat_title");
                     setOrder("desc");
                   }}
                 >
@@ -303,20 +344,28 @@ function Table({
       </thead>
       <tbody className="tbody">
         {itemsDetails
-          .sort((a, b) =>
-            order === "asc"
+          .sort((a, b) => {
+            return order === "asc"
               ? typeof a[items] === "string"
                 ? a[items]?.localeCompare(b[items])
+                : typeof a[items] === "object"
+                ? a[items][0]?.localeCompare(b[items][0]) || 0
                 : a[items] - b[items]
               : typeof a[items] === "string"
               ? b[items]?.localeCompare(a[items])
-              : b[items] - a[items]
-          )
+              : typeof a[items] === "object"
+              ? b[items][0]?.localeCompare(a[items][0]) || 0
+              : b[items] - a[items];
+          })
           ?.map((item, i) => (
             <tr key={Math.random()} style={{ height: "30px" }}>
               <td>{i + 1}</td>
               <td colSpan={3}>{item.title}</td>
-              <td colSpan={3}>{item.occ_date}</td>
+              <td colSpan={3}>
+                {item.cat_title?.length
+                  ? item.cat_title.map((a, i) => (i === 0 ? a : ", " + a))
+                  : ""}
+              </td>
               <td colSpan={3}>{item.expiry}</td>
               <td colSpan={2}>{item.sort_order}</td>
               <td colSpan={2}>{item.status || 0}</td>

@@ -28,6 +28,7 @@
     "react-image-crop": "^10.0.4",
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1",
+    "react-select": "^5.7.0",
     "react-slideshow-image": "^4.0.4",
     "react-swipeable": "^7.0.0",
     "roughjs": "^4.5.2",

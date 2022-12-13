@@ -410,9 +410,9 @@ const NamePopup = ({
   };
   return (
     <div className="label_popup_container">
-      <div className="label_popup" style={{ position: "relative" }}>
+      <div className="label_popup" style={{ position: "relative",padding:"0 10px" }}>
         <div className="label_popup_header">
-          Occasions{" "}
+          Occasions
           <ImCross
             onClick={close}
             style={{

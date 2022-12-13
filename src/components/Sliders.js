@@ -61,7 +61,7 @@ const TypesOfOutlets = ({ item = [] }) => {
       style={{
         position: "relative",
         width: "100%",
-        height: "fit-content",
+        height: "18vh",
         // borderRadius: "30px",
         // padding: "10px",
         // marginTop: "10px",
@@ -71,8 +71,8 @@ const TypesOfOutlets = ({ item = [] }) => {
         style={{
           position: "relative",
           objectFit: "contain",
-          width: "100vw",
-          height: "200px",
+          width: "140vw",
+          height: "100%",
         //   backgroundColor:"black"
         }}
       >
@@ -84,7 +84,7 @@ const TypesOfOutlets = ({ item = [] }) => {
             animate={{
               //   rotate: 0,
               //   top: "10",
-              left: `${(page?.index - (position?.index || 0)) * 88 + 8}vw`,
+              left: `${(page?.index - (position?.index || 0)) * 100 + 4}vw`,
             }}
             transition={{
               type: "tween",
@@ -93,8 +93,8 @@ const TypesOfOutlets = ({ item = [] }) => {
             }}
             style={{
               objectFit: "contain",
-              width: "85vw",
-              height: "25vh",
+              width: "92vw",
+              height: "100%",
               borderRadius: "20px",
             }}
           >

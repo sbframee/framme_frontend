@@ -107,6 +107,7 @@ body {
 }
 .label_popup_input {
   font-size: 25px;
+  margin: 10px 0;
 }
 .label_popup_header {
   margin-top: 10px;
@@ -266,7 +267,7 @@ body {
   /* width: 200px; */
   z-index: 99999999999;
   height: fit-content;
-  background-color: #f2f2f2;
+  background-color: rgba(0,0,0,0.8);
   font-size: 18px;
   border-radius: 20px;
   overflow: hidden;
@@ -290,6 +291,7 @@ body {
   justify-content: space-between;
   flex-direction: column;
   align-items: flex-end;
+  color: #fff;
   /* width: max-content; */
 }
 .popup_bg .popup_img .popup_body div {
@@ -399,7 +401,7 @@ body {
 #scroll-btns-container {
   position: absolute;
   width: 100vw;
-  top: 16vh;
+  top: 12vh;
   background: none;
   display: flex;
   flex-flow: row nowrap;

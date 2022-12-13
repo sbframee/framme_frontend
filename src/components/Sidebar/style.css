@@ -239,7 +239,7 @@ input[type="number"] {
   width: 100px;
   height: 100vh;
   background-color: white;
-  z-index: 10;
+  z-index: -5;
 }
 
 .left-panel img {
@@ -2473,7 +2473,7 @@ tr:nth-child(4) {
 }
 
 .customer_balance_payment_button:hover {
-  background: var(--main-color)c5;
+  background: var(--main-color);
 }
 
 .rbc-off-range {

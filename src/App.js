@@ -16,9 +16,9 @@ import WaBoot from "./pages/WaBoot";
 import ShareImage from "./pages/userPage/occassion/ShareImage";
 
 const id = "230522";
-// export const baseURL = "http://localhost:9000";
+export const baseURL = "http://localhost:9000";
 // export const baseURL=  "http://13.232.99.217:9000/"
-export const baseURL = "https://api.framee.in/";
+// export const baseURL = "https://api.framee.in/";
 function App() {
   axios.defaults.baseURL = baseURL;
   return (

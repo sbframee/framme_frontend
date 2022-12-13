@@ -5,7 +5,17 @@ import { v4 as uuid } from "uuid";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/Sidebar/Header";
 import { ArrowDropDown, ArrowDropUp, DeleteOutline } from "@mui/icons-material";
+import Selected from "@mui/material/Select";
+import { MenuItem } from "@mui/material";
 
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: 48 * 4.5 + 8,
+      width: 250,
+    },
+  },
+};
 const Users = () => {
   const [usersData, setUsersData] = useState([]);
   const [popup, setPopup] = useState(false);
@@ -14,8 +24,16 @@ const Users = () => {
   const [subCategoriesData, setSubCategoriesData] = useState([]);
   const [filterTitle, setFilterTitle] = useState("");
   const [filterName, setFilterName] = useState("");
+  const [tagsData, setTagsData] = useState([]);
+  const [filterCategory, setFilterCategory] = useState("");
+  const [filterSubCategory, setFilterSubCategory] = useState("");
 
   const navigate = useNavigate();
+  const getTagsData = async () => {
+    const response = await axios({ method: "get", url: "/tags/getTags" });
+    console.log(response);
+    if (response.data.success) setTagsData(response.data.result);
+  };
   const getUsersData = async () => {
     const response = await axios({ method: "get", url: "/users/getUsers" });
     console.log(response);
@@ -33,6 +51,7 @@ const Users = () => {
   useEffect(() => {
     getUsersData();
     getSubCategoriesData();
+    getTagsData();
   }, []);
   const getCategoriesData = async () => {
     const response = await axios({
@@ -49,22 +68,53 @@ const Users = () => {
   const filterItemsData = useMemo(
     () =>
       usersData
-        .filter((a) => a.user_title)
+        .map((a) => ({
+          ...a,
+          cat_title: a.user_category_uuid.map(
+            (c, i) =>
+              categoriesData.find((b) => b.user_category_uuid === c)
+                ?.user_category_title||""
+          ),
+          sub_cat_title: a.user_sub_category_uuid.map(
+            (c, i) =>
+              subCategoriesData.find((b) => b.user_sub_category_uuid === c)
+                ?.user_sub_category_title||""
+          ),
+        }))
         .filter(
           (a) =>
-            !filterTitle ||
-            a.user_title
-              .toLocaleLowerCase()
-              .includes(filterTitle.toLocaleLowerCase())
-        )
-        .filter(
-          (a) =>
-            !filterName ||
-            a.user_name
-              .toLocaleLowerCase()
-              .includes(filterName.toLocaleLowerCase())
+            a.user_title &&
+            (!filterTitle ||
+              a.user_title
+                .toLocaleLowerCase()
+                .includes(filterTitle.toLocaleLowerCase())) &&
+            (!filterName ||
+              a.user_name
+                .toLocaleLowerCase()
+                .includes(filterName.toLocaleLowerCase())) &&
+            (!filterCategory ||
+              a.cat_title.find((b) =>
+                b
+                  ?.toLocaleLowerCase()
+                  ?.includes(filterCategory.toLocaleLowerCase())
+              )) &&
+            (!filterSubCategory ||
+              a.sub_cat_title.find((b) =>
+                b
+                  ?.toLocaleLowerCase()
+                  ?.includes(filterSubCategory.toLocaleLowerCase())
+              ))
         ),
-    [filterName, filterTitle, usersData]
+
+    [
+      categoriesData,
+      filterCategory,
+      filterName,
+      filterSubCategory,
+      filterTitle,
+      subCategoriesData,
+      usersData,
+    ]
   );
   return (
     <>
@@ -99,7 +149,20 @@ const Users = () => {
               placeholder="Search User Name..."
               className="searchInput"
             />
-
+            <input
+              type="text"
+              onChange={(e) => setFilterCategory(e.target.value)}
+              value={filterCategory}
+              placeholder="Search category Title..."
+              className="searchInput"
+            />
+            <input
+              type="text"
+              onChange={(e) => setFilterSubCategory(e.target.value)}
+              value={filterSubCategory}
+              placeholder="Search sub category Title..."
+              className="searchInput"
+            />
             <div>Total Items: {filterItemsData.length}</div>
 
             <button
@@ -183,6 +246,7 @@ const Users = () => {
           }}
           setUsersData={setUsersData}
           subCategoriesData={subCategoriesData}
+          tagsData={tagsData}
         />
       ) : (
         ""
@@ -258,6 +322,16 @@ function Table({
               </div>
             </div>
           </th>
+          <th colSpan={3}>
+            <div className="t-head-element">
+              <span>Category Name</span>
+            </div>
+          </th>
+          <th colSpan={3}>
+            <div className="t-head-element">
+              <span>Sub Category Name</span>
+            </div>
+          </th>
 
           <th colSpan={2} style={{ width: "30vw" }}>
             Actions
@@ -280,7 +354,16 @@ function Table({
               <td>{i + 1}</td>
               <td colSpan={3}>{item.user_title}</td>
               <td colSpan={3}>{item?.user_name}</td>
-
+              <td colSpan={3}>
+                {item.cat_title?.length
+                  ? item.cat_title.map((a, i) => (i === 0 ? a : ", " + a))
+                  : ""}
+              </td>{" "}
+              <td colSpan={3}>
+                {item.sub_cat_title?.length
+                  ? item.sub_cat_title.map((a, i) => (i === 0 ? a : ", " + a))
+                  : ""}
+              </td>
               <td>
                 <button
                   className="edit_button"
@@ -321,6 +404,7 @@ const Popup = ({
   close,
   categoriesData,
   subCategoriesData = [],
+  tagsData = [],
 }) => {
   const [data, setData] = useState({});
   useEffect(
@@ -396,6 +480,32 @@ const Popup = ({
       user_sub_category_uuid: subCatData,
     });
   };
+  const onTagsChangeHandler = (e) => {
+    if (e.target.value === "none") {
+      setData({ ...data, tags: [] });
+      return;
+    }
+    let catData = data?.tags || [];
+
+    let options = Array.from(
+      e.target.selectedOptions,
+      (option) => option.value
+    );
+    for (let i of options) {
+      if (catData.filter((a) => a === i).length) {
+        catData = catData.filter((a) => a !== i);
+      } else
+        catData = [...catData, tagsData.find((a) => a.tag_uuid == i)?.tag_uuid];
+    }
+    // data = occasionsData.filter(a => options.filter(b => b === a.occ_uuid).length)
+    console.log(options, catData);
+
+    setData({
+      ...data,
+      tags: catData,
+    });
+  };
+  console.log(data);
   const onSubCategoryChangeHandler = (e) => {
     if (e.target.value === "none") {
       setData({ ...data, user_sub_category_uuid: [] });
@@ -420,6 +530,42 @@ const Popup = ({
     console.log(options, catData, e.target);
 
     setData({ ...data, user_sub_category_uuid: catData });
+  };
+  const handleWarhouseOptionsChange = (event) => {
+    const {
+      target: { value },
+    } = event;
+
+    console.log(value);
+
+    const filterdValue = value.filter(
+      (item) => data.tags.findIndex((o) => o.id === item.id) >= 0
+    );
+
+    let duplicatesRemoved = value.filter((item, itemIndex) =>
+      value.findIndex((o, oIndex) => o.id === item.id && oIndex !== itemIndex)
+    );
+
+    // console.log(duplicatesRemoved);
+
+    // let map = {};
+
+    // for (let list of value) {
+    //   map[Object.values(list).join('')] = list;
+    // }
+    // console.log('Using Map', Object.values(map));
+
+    let duplicateRemoved = [];
+
+    value.forEach((item) => {
+      if (duplicateRemoved.findIndex((o) => o.id === item.id) >= 0) {
+        duplicateRemoved = duplicateRemoved.filter((x) => x.id === item.id);
+      } else {
+        duplicateRemoved.push(item);
+      }
+    });
+
+    setData((prev) => ({ ...prev, tags: duplicateRemoved }));
   };
   return (
     <div className="popup_bg overlay">
@@ -450,6 +596,25 @@ const Popup = ({
               value={data.user_name}
               onChange={(e) => setData({ ...data, user_name: e.target.value })}
             />
+          </div>
+
+          <div>
+            User Tags
+            <select
+              className="label_popup_input"
+              style={{ width: "200px" }}
+              value={data.tags}
+              onChange={onTagsChangeHandler}
+              multiple
+            >
+              {/* <option selected={occasionsTemp.length===occasionsData.length} value="all">All</option> */}
+              <option value="none">None</option>
+              {tagsData.map((cat) => (
+                <option value={cat.tag_uuid} key={cat.tag_uuid}>
+                  {cat.tag_title}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             User Category

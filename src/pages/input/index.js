@@ -418,10 +418,12 @@ const InputPage = () => {
           Save
         </button>
       </div>
-      {console.log(inputData)}
-      {seletiveCropFile && popupCrop ? (
+      {console.log(seletiveCropFile,popupCrop)}
+       {seletiveCropFile && popupCrop ? (
         <ImageUploadPopup
           file={seletiveCropFile}
+           fixed={true}
+           selectedimage={popupCrop.item}
           onClose={() => setTimeout(() => setPopupCrop(null), 2000)}
           setSelectedFile={(file) => {
             setInputData(
@@ -449,11 +451,11 @@ const InputPage = () => {
               )
             );
           }}
-          fixed={true}
+    
         />
       ) : (
         ""
-      )}
+      )} 
     </>
   );
 };

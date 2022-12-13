@@ -20,9 +20,20 @@ import useWindowDimensions from "../../../components/useWidthDimenshion";
 import { MdFileDownload } from "react-icons/md";
 import { ArrowBack, Cached } from "@mui/icons-material";
 import { Box, CircularProgress, Slider } from "@mui/material";
+import Select from "react-select";
 import { height, styled } from "@mui/system";
 import Navbar from "../../../components/Sidebar/navbar";
 import ImageUploadPopup from "../../../components/ImageUploadPopup";
+const tagsInitials = {
+  a: "100,100",
+  b: "200,150",
+  c: "200,200",
+  d: "100,200",
+  fontFamily: "sans-serif",
+
+  scale: 1,
+  text_color: "#000",
+};
 const PrettoSlider = styled(Slider)({
   color: "#fff",
   height: 4,
@@ -70,6 +81,7 @@ const OccasionPage = () => {
   const [state, setState] = useState(false);
   const [baseImages, setBaseImages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [tagPopup, setTagPopup] = useState(false);
   const [customHolders, setCustomHolders] = useState([]);
 
   const [tags, setTags] = useState([]);
@@ -324,14 +336,15 @@ const OccasionPage = () => {
       <>
         <div className="container">
           <Navbar
-       
+            logo={false}
             Tag={() => (
               <div
                 className="flex"
                 style={{
                   color: "#fff",
-                  width: "85vw",
-                  justifyContent: "flex-start",
+                  width: "100%",
+                  justifyContent: "space-between",
+                  padding: "0 10px",
                 }}
               >
                 <ArrowBack
@@ -340,6 +353,30 @@ const OccasionPage = () => {
                     if (params.img_url)
                       navigate(`/occasion/${occasion?.occ_uuid}`);
                     setSelectedImage(false);
+                  }}
+                />
+                <button
+                  className="submit"
+                  onClick={() => setTagPopup(true)}
+                  style={{
+                    marginTop: 0,
+                    backgroundColor: "transparent",
+                    border: "2px solid #fff",
+                  }}
+                >
+                  Add Tag
+                </button>
+                <MdFileDownload
+                  className="customeGoldenButton flex"
+                  onClick={() => handlePng()}
+                  style={{
+                    fontSize: "40px",
+                    border: "2px solid #fff",
+                    borderRadius: "50%",
+                    padding: "5px",
+                    backgroundColor: "var(--main-color)",
+                    width: "40px",
+                    height: "40px",
                   }}
                 />
               </div>
@@ -431,82 +468,90 @@ const OccasionPage = () => {
                       return value;
                     })
                     ?.map((item) => {
-                      let url = tags.find(
-                        (a) => a.tag_uuid === item.label_uuid
-                      );
+                    
 
-                      let coordinates = item.a.split(",");
-                      coordinates[0] =
-                        selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[0] <
-                        width
-                          ? coordinates[0]
-                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                              1.5 <
-                            width
-                          ? coordinates[0] / 1.5
-                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                              2 <
-                            width
-                          ? coordinates[0] / 2
-                          : coordinates[0] / 2.5;
-
-                      coordinates[1] =
-                        selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[0] <
-                        width
-                          ? coordinates[1]
-                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                              1.5 <
-                            width
-                          ? coordinates[1] / 1.5
-                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                              2 <
-                            width
-                          ? coordinates[1] / 2
-                          : coordinates[1] / 2.5;
-
-                      let width1 =
-                        selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[0] <
-                        width
-                          ? item.b.split(",")[0] - coordinates[0]
-                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                              1.5 <
-                            width
-                          ? item.b.split(",")[0] / 1.5 - coordinates[0]
-                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                              2 <
-                            width
-                          ? item.b.split(",")[0] / 2 - coordinates[0]
-                          : item.b.split(",")[0] / 2.5 - coordinates[0];
-
-                      let height =
-                        selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[0] <
-                        width
-                          ? item.d.split(",")[1] - coordinates[1]
-                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                              1.5 <
-                            width
-                          ? item.d.split(",")[1] / 1.5 - coordinates[1]
-                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                              selectedImage?.coordinates[0]?.a?.split(",")[0]) /
-                              2 <
-                            width
-                          ? item.d.split(",")[1] / 2 - coordinates[1]
-                          : item.d.split(",")[1] / 2.5 - coordinates[1];
-                      //       console.log(coordinates, width1, height);
-                      if (url?.tag_type === "I") {
+                      let url = tags.find((a) => a.tag_uuid === item.label_uuid);
+                      let coordinates;
+                      let height;
+                      let width1;
+                      console.log("urls", item?.type, url);
+                      if (item?.type === "new") {
+                        coordinates = [100, 100];
+                        height = url?.height || 100;
+                        width1 = url?.width || 100;
+                      } else {
+                        coordinates = item.a.split(",");
+                        coordinates[0] =
+                          selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                          width
+                            ? coordinates[0]
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                                1.5 <
+                              width
+                            ? coordinates[0] / 1.5
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                                2 <
+                              width
+                            ? coordinates[0] / 2
+                            : coordinates[0] / 2.5;
+  
+                        coordinates[1] =
+                          selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                          width
+                            ? coordinates[1]
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                                1.5 <
+                              width
+                            ? coordinates[1] / 1.5
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                                2 <
+                              width
+                            ? coordinates[1] / 2
+                            : coordinates[1] / 2.5;
+  
+                        width1 =
+                          selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                          width
+                            ? item.b.split(",")[0] - coordinates[0]
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                                1.5 <
+                              width
+                            ? item.b.split(",")[0] / 1.5 - coordinates[0]
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                                2 <
+                              width
+                            ? item.b.split(",")[0] / 2 - coordinates[0]
+                            : item.b.split(",")[0] / 2.5 - coordinates[0];
+  
+                        height =
+                          selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                          width
+                            ? item.d.split(",")[1] - coordinates[1]
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                                1.5 <
+                              width
+                            ? item.d.split(",")[1] / 1.5 - coordinates[1]
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                                2 <
+                              width
+                            ? item.d.split(",")[1] / 2 - coordinates[1]
+                            : item.d.split(",")[1] / 2.5 - coordinates[1];
+                      } if (url?.tag_type === "I") {
                         return (
                           <Tag
+                            popupCrop={popupCrop}
                             image={item?.image}
                             switchBtn={switchBtn}
                             setSwitchBtn={setSwitchBtn}
@@ -529,6 +574,7 @@ const OccasionPage = () => {
                       } else if (url?.tag_type === "T") {
                         return (
                           <Tag
+                            popupCrop={popupCrop}
                             switchBtn={switchBtn}
                             setSwitchBtn={setSwitchBtn}
                             setSeletedHolder={setSeletedHolder}
@@ -620,12 +666,12 @@ const OccasionPage = () => {
                   onClick={() =>
                     setMirrorevert((prev) =>
                       prev?.length
-                        ? prev?.find((a) => a === selectedHolder?.label_uuid)
+                        ? prev?.find((a) => a === selectedHolder?._id)
                           ? prev?.filter(
-                              (a) => a !== selectedHolder?.label_uuid
+                              (a) => a !== selectedHolder?._id
                             )
-                          : [...prev, selectedHolder?.label_uuid]
-                        : [selectedHolder?.label_uuid]
+                          : [...prev, selectedHolder?._id]
+                        : [selectedHolder?._id]
                     )
                   }
                 >
@@ -651,7 +697,7 @@ const OccasionPage = () => {
                   onClick={() =>
                     setDeleteHolders((prev) => [
                       ...prev,
-                      selectedImage.holder.find(
+                      customHolders.find(
                         (a) => a._id === selectedHolder._id
                       ),
                     ])
@@ -663,88 +709,167 @@ const OccasionPage = () => {
             ) : (
               ""
             )}
-            <div
-              className="container_buttons_container"
+
+            <button
+              onClick={() =>
+                getSelectedBaseImageData(
+                  baseImages?.find((a) => {
+                    let b =
+                      selectedImage?.sort_order - 1
+                        ? selectedImage?.sort_order - 1
+                        : baseImages?.length;
+                    return a?.sort_order === b;
+                  }) || selectedImage
+                )
+              }
+              className="flex"
               style={{
-                width: "100vw",
+                cursor: "pointer",
+                fontSize: "35px",
+                color: "#fff",
+                borderRadius: "30px",
+
+                border: "none",
+                backgroundColor: "var(--main-color)",
                 position: "fixed",
                 bottom: "15vh",
+                left: "5px",
               }}
             >
-              <button
-                onClick={() =>
-                  getSelectedBaseImageData(
-                    baseImages?.find((a) => {
-                      let b =
-                        selectedImage?.sort_order - 1
-                          ? selectedImage?.sort_order - 1
-                          : baseImages?.length;
-                      return a?.sort_order === b;
-                    }) || selectedImage
-                  )
-                }
-                className="flex"
-                style={{
-                  cursor: "pointer",
-                  fontSize: "35px",
-                  color: "#fff",
-                  borderRadius: "30px",
-                
-                  border: "none",
-                  backgroundColor: "var(--main-color)",
+              <HiOutlineArrowCircleLeft />
+            </button>
 
-                }}
-              >
-                <HiOutlineArrowCircleLeft />
-              </button>
+            <button
+              onClick={() =>
+                getSelectedBaseImageData(
+                  baseImages?.find((a) => {
+                    let b =
+                      selectedImage?.sort_order + 1
+                        ? selectedImage?.sort_order + 1
+                        : baseImages?.length;
 
-              <button
-                onClick={() =>
-                  getSelectedBaseImageData(
-                    baseImages?.find((a) => {
-                      let b =
-                        selectedImage?.sort_order + 1
-                          ? selectedImage?.sort_order + 1
-                          : baseImages?.length;
+                    return a?.sort_order === b;
+                  }) || baseImage[0]
+                )
+              }
+              className="flex"
+              style={{
+                cursor: "pointer",
+                fontSize: "35px",
+                color: "#fff",
+                borderRadius: "30px",
 
-                      return a?.sort_order === b;
-                    }) || baseImage[0]
-                  )
-                }
-                className="flex"
-                style={{
-                  cursor: "pointer",
-                  fontSize: "35px",
-                  color: "#fff",
-                  borderRadius: "30px",
-
-                  border: "none",
-                  backgroundColor: "var(--main-color)",
-                }}
-              >
-                <HiOutlineArrowCircleRight />
-              </button>
-            </div>
-            <div
-              className="container_buttons_container"
-              style={{ position: "fixed", bottom: "10px", right: "10px" }}
+                border: "none",
+                backgroundColor: "var(--main-color)",
+                position: "fixed",
+                bottom: "15vh",
+                right: "5px",
+              }}
             >
-              <MdFileDownload
-                className="backArrow"
-                onClick={() => handlePng()}
-                style={{
-                  fontSize: "40px",
-                  border: "2px solid #fff",
-                  borderRadius: "50%",
-                  padding: "10px",
-                  backgroundColor: "var(--main-color)",
-                  width:"70px",
-                  height:"70px"
-                }}
-              />
-            </div>
+              <HiOutlineArrowCircleRight />
+            </button>
           </div>
         </div>
+        {tagPopup ? (
+          <div className="overlay" style={{ zIndex: 9999999999999 }}>
+            <Navbar
+              logo={false}
+              Tag={() => (
+                <div
+                  className="flex"
+                  style={{
+                    color: "#fff",
+                    width: "100%",
+                    justifyContent: "space-between",
+                    padding: "0 10px",
+                  }}
+                >
+                  <ArrowBack
+                    className="backArrow"
+                    onClick={() => {
+                      if (params.img_url)
+                        navigate(`/occasion/${occasion?.occ_uuid}`);
+                      setSelectedImage(false);
+                    }}
+                  />
+                  <h1 style={{ width: "70%" }}>Tags</h1>
+                </div>
+              )}
+            />
+
+            <div className="occasion_container_new">
+              {tags?.map((tag) =>
+                tag?.img_url?.length ? (
+                  <div
+                    style={{
+                      width: "100px",
+                      height: "100px",
+                      borderRadius: tag?.circle ? "100%" : "",
+                    }}
+                    className="image_container"
+                    onClick={() =>
+                      setCustomHolders((prev) => {
+                        let data = {
+                          label_uuid: tag?.tag_uuid,
+                          ...tagsInitials,
+                          ...(tag || {}),
+                          type: "new",
+                          _id: Math.random(),
+                        };
+                        setSeletedHolder(data);
+                        setTagPopup(false);
+
+                        return [...(prev || []), data];
+                      })
+                    }
+                  >
+                    {console.log(tag)}
+                    <img
+                      src={tag.img_url?.length ? tag.img_url[0]?.img_url : ""}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "contain",
+                        borderRadius: tag?.circle ? "100%" : "",
+                      }}
+                      alt=""
+                    />
+                  </div>
+                ) : tag?.text?.length ? (
+                  <div
+                    style={{
+                      width: "100px",
+                      height: "100px",
+                      color: "#000",
+                      backgroundColor: "#fff",
+                    }}
+                    className="image_container flex"
+                    onClick={() =>
+                      setCustomHolders((prev) => {
+                        let data = {
+                          label_uuid: tag?.tag_uuid,
+                          ...tagsInitials,
+                          _id: Math.random(),
+                          ...(tag || {}),
+                          type: "new",
+                        };
+                        setSeletedHolder(data);
+                        setTagPopup(false);
+                        return [...(prev || []), data];
+                      })
+                    }
+                  >
+                    <h4>{tag?.text?.length ? tag.text[0]?.text : ""}</h4>
+                  </div>
+                ) : (
+                  ""
+                )
+              )}
+            </div>
+          </div>
+        ) : (
+          ""
+        )}
         {selectedCropFile && popupCrop ? (
           <ImageUploadPopup
             file={selectedCropFile.file}
@@ -768,7 +893,7 @@ const OccasionPage = () => {
       <>
         <div className="userOccasion">
           <Navbar
-             logo={false}
+            logo={false}
             Tag={() => (
               <div className="flex">
                 <ArrowBack
@@ -799,7 +924,7 @@ const OccasionPage = () => {
               <CircularProgress />
             </div>
           ) : (
-            <div className="occasion_container">
+            <div className="occasion_container" style={{ marginTop: "50px" }}>
               {baseImages
                 .sort((a, b) => +a.sort_order - b.sort_order)
                 .map((imgItem, index) => (
@@ -814,7 +939,7 @@ const OccasionPage = () => {
                         height: "61vw",
                         maxHeight: "250px",
                         objectFit: "cover",
-                        backgroundColor:"#000"
+                        backgroundColor: "#000",
                       }}
                     />
                     {location.pathname.includes("AdminOccasion") ? (
@@ -962,18 +1087,33 @@ const Popup = ({
           <div className="popup_body">
             <h2>Copy Image Url For</h2>
 
-            <select
+            <Select
+              options={[
+                { value: "", label: "None" },
+                ...usersData.map((a) => ({
+                  value: a.user_uuid,
+                  label: a.user_name,
+                })),
+              ]}
               className="label_popup_input"
-              style={{ width: "200px" }}
-              value={user}
-              onChange={(e) => setUser(e.target.value)}
-            >
-              {/* <option selected={occasionsTemp.length===occasionsData.length} value="all">All</option> */}
-              <option value="">None</option>
-              {usersData.map((cat) => (
-                <option value={cat.user_uuid}>{cat.user_name}</option>
-              ))}
-            </select>
+              style={{ width: "200px", zIndex: 99999999999 }}
+              value={
+                user
+                  ? {
+                      value: user,
+                      label: usersData?.find((j) => j.user_uuid === user)
+                        ?.user_name,
+                    }
+                  : { value: 0, label: "None" }
+              }
+              onChange={(e) => setUser(e.value)}
+              autoFocus={!user}
+              openMenuOnFocus={true}
+              menuPosition="fixed"
+              menuPlacement="auto"
+              placeholder="User Name"
+            />
+
             <div>
               {user ? (
                 <textarea
@@ -1046,7 +1186,7 @@ const Popup = ({
                 }}
                 type="button"
                 className="inputButton"
-                style={{ position: "static" }}
+                style={{ position: "static", zIndex: -9 }}
               >
                 {btnName}
               </button>
@@ -1074,10 +1214,11 @@ const Tag = ({
   scale,
   image,
   selectedImage,
+  popupCrop,
 }) => {
   const [baseImage, setBaseImage] = useState();
   const revert = useMemo(
-    () => mirrorRevert.find((a) => a === item?.label_uuid),
+    () => mirrorRevert.find((a) => a === item?._id),
     [item?.label_uuid, mirrorRevert]
   );
   console.log(url);
@@ -1120,6 +1261,7 @@ const Tag = ({
         bottom: 350,
       }}
       drag
+      // onMouseLeave={() =>setTimeout(()=>!popupCrop? setSeletedHolder(false):{},1000)}
       className="resizeable"
       style={{
         cursor: "pointer",

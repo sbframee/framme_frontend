@@ -92,13 +92,13 @@ export default function ImageUploadPopup({
     y: 0,
   });
   const [rotate, setRotate] = useState(0);
-  const [aspect, setAspect] = useState(1);
+  const [aspect, setAspect] = useState(4 / 5);
   const [scale, setScale] = useState(1);
   const [update, setupdat] = useState(false);
 
   function onSelectFile(file) {
     if (file) {
-      setupdat(prev=>!prev)
+      setupdat((prev) => !prev);
       const reader = new FileReader();
       reader.addEventListener("load", () =>
         setImgSrc(reader.result.toString() || "")
@@ -110,14 +110,18 @@ export default function ImageUploadPopup({
     setTimeout(() => onSelectFile(file), 2000);
     // console.log(aspect, completedCrop);
   }, [file]);
-
+console.log(fixed)
   useEffect(() => {
     setTimeout(() => {
       if (fixed) {
-        let coordinates = selectedimage?.a.split(",");
-        let width = selectedimage?.b.split(",")[0] - coordinates[0];
-        let height = selectedimage?.d.split(",")[1] - coordinates[1];
-
+        let coordinates =selectedimage?.a? selectedimage?.a.split(","):"";
+        let width = coordinates?.length
+          ? selectedimage?.b.split(",")[0] - coordinates[0]
+          : selectedimage.width;
+        let height = coordinates?.length
+          ? selectedimage?.d.split(",")[1] - coordinates[1]
+          : selectedimage.height;
+        console.log(height, width);
         setAspect((width || 250) / (height || 250));
         // setCrop(
         //   centerAspectCrop(width, height, (width || 250) / (height || 250))
@@ -188,13 +192,12 @@ export default function ImageUploadPopup({
       }
     },
     100,
-    [completedCrop, scale, rotate,update]
+    [completedCrop, scale, rotate, update]
   );
 
-  console.log(crop, completedCrop, fixed);
   return (
     <div className="popup_bg overlay">
-      <div className="popup_img">
+      <div className="popup_img" style={{width:"100vw",height:"90vh"}}>
         <div className="popup_header">
           <h3>Upload Image</h3>
           <div className="exit_btn" onClick={onClose}>
