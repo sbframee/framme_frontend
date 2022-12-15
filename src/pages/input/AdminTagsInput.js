@@ -136,42 +136,7 @@ const WaBoot = () => {
     }
     return data;
   }, [usersData, userCategory]);
-  const UserSubCategoryLength = useMemo(() => {
-    let data = [];
-    for (let item of userCategory) {
-      data = [
-        {
-          user_category_uuid: item.user_category_uuid,
-          user_sub_category_uuid: 0,
-          title: "Unknown",
-          orderLength: usersData.filter(
-            (a) =>
-              a?.user_sub_category_uuid?.length &&
-              a.user_category_uuid.find((b) => b === item.user_category_uuid)
-          )?.length,
-        },
-      ];
 
-      for (let trip of userSubCategory) {
-        console.log(trip);
-        data.push({
-          ...trip,
-          user_category_uuid: item.user_category_uuid,
-          orderLength: usersData.filter(
-            (b) =>
-              b.user_category_uuid?.find(
-                (c) => c === item.user_category_uuid
-              ) &&
-              b.user_sub_category_uuid?.find(
-                (c) => c === trip.user_sub_category_uuid
-              )
-          )?.length,
-        });
-      }
-    }
-    return data;
-  }, [userCategory, userSubCategory, usersData]);
-  console.log(UserSubCategoryLength);
   const downloadExel = async () => {
     let data = { ...selectedOrder, user: selectedUser.map((a) => a.user_uuid) };
     if (data.new) {
@@ -217,6 +182,28 @@ const WaBoot = () => {
     }
     console.log(data);
   };
+  const UserSubCategoryLength = useMemo(() => {
+    let data = [];
+
+    for (let trip of userSubCategory) {
+      if (
+        usersData.filter((b) =>
+          b.user_sub_category_uuid?.find(
+            (c) => c === trip.user_sub_category_uuid
+          )
+        )?.length
+      )
+        data.push({
+          ...trip,
+          orderLength: usersData.filter((b) =>
+            b.user_sub_category_uuid?.find(
+              (c) => c === trip.user_sub_category_uuid
+            )
+          )?.length,
+        });
+    }
+    return data;
+  }, [userSubCategory, usersData]);
   return (
     <>
       <Header />
@@ -528,18 +515,11 @@ const WaBoot = () => {
                               }}
                               id="seats_container"
                             >
-                              {console.log(
-                                usersData.filter((b) =>
-                                  b.user_category_uuid?.find(
-                                    (c) => c === trip.user_category_uuid
-                                  )
-                                )
-                              )}
                               {usersData
                                 .filter((b) =>
                                   b.user_category_uuid?.find(
                                     (c) => c === trip.user_category_uuid
-                                  )
+                                  )&&!b.user_sub_category_uuid.length
                                 )
 
                                 .map((item) => {
@@ -599,6 +579,220 @@ const WaBoot = () => {
                                     </div>
                                   );
                                 })}
+                                <br/>
+                           
+                                 <div
+                                // className="content"
+                                style={{
+                                  flexDirection: "row",
+                                  flexWrap: "wrap",
+                                  gap: "0",
+                                  // marginBottom: "5px",
+                                }}
+                                id="seats_container"
+                              >
+                                
+                                {UserSubCategoryLength.filter(
+                                  (a) => a.user_category_uuid
+                                )?.length ? (
+                                  <>
+                                    {UserSubCategoryLength.filter(
+                                      (a) =>
+                                        a.user_category_uuid ===
+                                        trip.user_category_uuid
+                                    ).map((subCategory) => {
+                                      if (subCategory?.orderLength)
+                                        return (
+                                          <div
+                                            key={Math.random()}
+                                            className="sectionDiv"
+                                          >
+                                            <h1>
+                                              <span
+                                                style={{
+                                                  cursor: "pointer",
+                                                  fontSize: "1rem",
+                                                }}
+                                              >
+                                                {
+                                                  subCategory.user_sub_category_title
+                                                }
+                                              </span>
+
+                                              <input
+                                                type="checkbox"
+                                                style={{
+                                                  marginLeft: "10px",
+                                                  transform: "scale(1.5)",
+                                                }}
+                                                defaultChecked={
+                                                  usersData.filter((a) =>
+                                                    a.user_sub_category_uuid?.find(
+                                                      (c) =>
+                                                        c ===
+                                                        subCategory.user_sub_category_uuid
+                                                    )
+                                                  )?.length ===
+                                                  selectedUser.filter((a) =>
+                                                    a.user_sub_category_uuid?.find(
+                                                      (c) =>
+                                                        c ===
+                                                        subCategory.user_sub_category_uuid
+                                                    )
+                                                  )?.length
+                                                }
+                                                onClick={() =>
+                                                  usersData.filter((a) =>
+                                                    a.user_sub_category_uuid?.find(
+                                                      (c) =>
+                                                        c ===
+                                                        subCategory.user_sub_category_uuid
+                                                    )
+                                                  )?.length ===
+                                                  selectedUser.filter((a) =>
+                                                    a.user_sub_category_uuid?.find(
+                                                      (c) =>
+                                                        c ===
+                                                        subCategory.user_sub_category_uuid
+                                                    )
+                                                  )?.length
+                                                    ? setSelectedUser((prev) =>
+                                                        prev.filter(
+                                                          (b) =>
+                                                            !b.user_sub_category_uuid?.find(
+                                                              (c) =>
+                                                                c ===
+                                                                subCategory.user_sub_category_uuid
+                                                            )
+                                                        )
+                                                      )
+                                                    : setSelectedUser((prev) =>
+                                                        prev?.length
+                                                          ? [
+                                                              ...prev.filter(
+                                                                (b) =>
+                                                                  !b.user_sub_category_uuid?.find(
+                                                                    (c) =>
+                                                                      c ===
+                                                                      subCategory.user_sub_category_uuid
+                                                                  )
+                                                              ),
+                                                              ...usersData.filter(
+                                                                (a) =>
+                                                                  a.user_sub_category_uuid?.find(
+                                                                    (c) =>
+                                                                      c ===
+                                                                      subCategory.user_sub_category_uuid
+                                                                  )
+                                                              ),
+                                                            ]
+                                                          : usersData?.filter(
+                                                              (a) =>
+                                                                a.user_sub_category_uuid?.find(
+                                                                  (c) =>
+                                                                    c ===
+                                                                    subCategory.user_sub_category_uuid
+                                                                )
+                                                            )
+                                                      )
+                                                }
+                                              />
+                                            </h1>
+                                            <div
+                                              className="content"
+                                              style={{
+                                                flexDirection: "row",
+                                                flexWrap: "wrap",
+                                                gap: "0",
+                                                marginBottom: "10px",
+                                              }}
+                                              id="seats_container"
+                                            >
+                                              {usersData
+                                                .filter((b) =>
+                                                  b.user_sub_category_uuid?.find(
+                                                    (c) =>
+                                                      c ===
+                                                      subCategory.user_sub_category_uuid
+                                                  )
+                                                )
+
+                                                .map((item) => {
+                                                  return (
+                                                    <div
+                                                      className={`seatSearchTarget`}
+                                                      style={{
+                                                        height: "fit-content",
+                                                      }}
+                                                      key={Math.random()}
+                                                      seat-name={item.seat_name}
+                                                      seat-code={item.seat_uuid}
+                                                      seat={item.seat_uuid}
+                                                      // section={section.section_uuid}
+                                                      // section-name={section?.section_name}
+                                                      // outlet={outletIdState}
+                                                      onClick={(e) =>
+                                                        setSelectedUser(
+                                                          (prev) =>
+                                                            prev.filter(
+                                                              (a) =>
+                                                                a.user_uuid ===
+                                                                item.user_uuid
+                                                            )?.length
+                                                              ? prev.filter(
+                                                                  (a) =>
+                                                                    a.user_uuid !==
+                                                                    item.user_uuid
+                                                                )
+                                                              : prev?.length
+                                                              ? [...prev, item]
+                                                              : [item]
+                                                        )
+                                                      }
+                                                    >
+                                                      <span
+                                                        className="dblClickTrigger"
+                                                        style={{
+                                                          display: "none",
+                                                        }}
+                                                        // onClick={() =>
+                                                        //   menuOpenHandler(item)
+                                                        // }
+                                                      />
+                                                      <Card
+                                                        order={item}
+                                                        selectedOrder={
+                                                          selectedUser.filter(
+                                                            (a) =>
+                                                              a.user_uuid ===
+                                                              item.user_uuid
+                                                          )?.length
+                                                        }
+                                                        selectedCounter={
+                                                          selectedUser.filter(
+                                                            (a) =>
+                                                              item.user_category_uuid?.find(
+                                                                (b) =>
+                                                                  b.user_category_uuid ===
+                                                                  a.counter_uuid
+                                                              )
+                                                          )?.length
+                                                        }
+                                                        rounded
+                                                      />
+                                                    </div>
+                                                  );
+                                                })}
+                                            </div>
+                                          </div>
+                                        );
+                                      else return "";
+                                    })}
+                                  </>
+                                ) : (
+                                  ""
+                                )}
+                              </div>
                             </div>
                           </div>
                         );
@@ -777,6 +971,7 @@ const WaBoot = () => {
             setStep(1);
           }}
           fixed={true}
+          selectedimage={occasionsData.find(a=>selectedOrder.tag_uuid===a.tag_uuid)}
         />
       ) : (
         ""

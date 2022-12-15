@@ -12,7 +12,7 @@ import { BiRotateRight, BiRotateLeft } from "react-icons/bi";
 import "react-image-crop/dist/ReactCrop.css";
 import { GoMirror } from "react-icons/go";
 import { Box, Slider } from "@mui/material";
-import { styled } from "@mui/system";
+import { height, styled } from "@mui/system";
 const PrettoSlider = styled(Slider)({
   color: "#fff",
   height: 4,
@@ -78,6 +78,7 @@ export default function ImageUploadPopup({
   setSelectedFile,
   selectedimage,
   fixed,
+  ratioBtn,
 }) {
   const [imgSrc, setImgSrc] = useState("");
 
@@ -85,9 +86,9 @@ export default function ImageUploadPopup({
   const imgRef = useRef(null);
   const [crop, setCrop] = useState();
   const [completedCrop, setCompletedCrop] = useState({
-    height: 250,
+    height: 320,
     unit: "px",
-    width: 250,
+    width: 320,
     x: 0,
     y: 0,
   });
@@ -110,51 +111,39 @@ export default function ImageUploadPopup({
     setTimeout(() => onSelectFile(file), 2000);
     // console.log(aspect, completedCrop);
   }, [file]);
-console.log(fixed)
+  console.log(fixed, selectedimage, imgRef, crop);
   useEffect(() => {
     setTimeout(() => {
+      let width = 320;
+      let height = 320;
       if (fixed) {
-        let coordinates =selectedimage?.a? selectedimage?.a.split(","):"";
-        let width = coordinates?.length
+        let coordinates = selectedimage?.a ? selectedimage?.a.split(",") : "";
+        width = coordinates?.length
           ? selectedimage?.b.split(",")[0] - coordinates[0]
           : selectedimage.width;
-        let height = coordinates?.length
+        height = coordinates?.length
           ? selectedimage?.d.split(",")[1] - coordinates[1]
           : selectedimage.height;
-        console.log(height, width);
-        setAspect((width || 250) / (height || 250));
-        // setCrop(
-        //   centerAspectCrop(width, height, (width || 250) / (height || 250))
-        // );
-      } else if (
-        (imgRef?.current?.offsetWidth, imgRef?.current?.clientHeight)
-      ) {
-        setAspect(
-          ((selectedimage?.circle
-            ? selectedimage?.width
-            : imgRef?.current?.offsetWidth) || 250) /
-            ((selectedimage?.circle
-              ? selectedimage?.height
-              : imgRef?.current?.clientHeight) || 250)
-        );
-        setCrop(
-          centerAspectCrop(
-            (selectedimage?.circle
-              ? selectedimage?.width
-              : imgRef?.current?.offsetWidth) || 250,
-            (selectedimage?.circle
-              ? selectedimage?.height
-              : imgRef?.current?.clientHeight) || 250,
-            ((selectedimage?.circle
-              ? selectedimage?.width
-              : imgRef?.current?.offsetWidth) || 250) /
-              ((selectedimage?.circle
-                ? selectedimage?.height
-                : imgRef?.current?.clientHeight) || 250)
-          )
-        );
+      } else {
+        width = selectedimage?.width || imgRef?.current?.offsetWidth || 200;
+        height = selectedimage?.height || imgRef?.current?.clientHeight || 200;
       }
-    }, 2000);
+      setAspect((width || 200) / (height || 200));
+      setCrop({
+        height,
+        unit: "px",
+        width,
+        x: 0,
+        y: 0,
+      });
+      setCompletedCrop({
+        height,
+        unit: "px",
+        width,
+        x: 0,
+        y: 0,
+      });
+    }, 3000);
   }, [
     fixed,
     selectedimage?.a,
@@ -171,7 +160,7 @@ console.log(fixed)
       setCrop(centerAspectCrop(width, height, aspect));
     }
   }
-
+  console.log(aspect, completedCrop);
   useDebounceEffect(
     async () => {
       if (
@@ -192,12 +181,12 @@ console.log(fixed)
       }
     },
     100,
-    [completedCrop, scale, rotate, update]
+    [completedCrop, scale, rotate, update, aspect]
   );
 
   return (
     <div className="popup_bg overlay">
-      <div className="popup_img" style={{width:"100vw",height:"90vh"}}>
+      <div className="popup_img" style={{ width: "85vw", maxWidth: "350px" }}>
         <div className="popup_header">
           <h3>Upload Image</h3>
           <div className="exit_btn" onClick={onClose}>
@@ -214,7 +203,7 @@ console.log(fixed)
               justifyContent: "space-between",
               alignItems: "center",
               flexDirection: "column",
-              maxHeight: "100vh",
+              // maxHeight: "50vh",
             }}
           >
             {Boolean(completedCrop) && (
@@ -225,6 +214,7 @@ console.log(fixed)
                   border: "1px solid black",
                   objectFit: "contain",
                   width: completedCrop.width,
+                  maxWidth: "350px",
                   height: completedCrop.height,
                   display: "none",
                 }}
@@ -249,7 +239,11 @@ console.log(fixed)
                   )
                 }
                 aspect={aspect}
-                style={{ marginTop: "20px" }}
+                style={{
+                  marginTop: "20px",
+                  maxHeight: "60vh",
+                  // width: "350px",
+                }}
                 circularCrop={selectedimage?.circle}
               >
                 <img
@@ -258,8 +252,9 @@ console.log(fixed)
                   src={imgSrc}
                   style={{
                     transform: `scale(${scale}) rotate(${rotate}deg)`,
-                    height: "250px",
-                    maxHeight: "50vh",
+                    // height: "350px",
+                    width: "320px",
+                    // objectFit: "contain",
                   }}
                   onLoad={onImageLoad}
                 />
@@ -273,6 +268,7 @@ console.log(fixed)
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
+              marginTop: "20px",
             }}
           >
             <BiRotateLeft
@@ -303,6 +299,113 @@ console.log(fixed)
               style={{ width: "50%", fontSize: "20px", cursor: "pointer" }}
             />
           </div>
+          {ratioBtn ? (
+            <div
+              style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginTop: "20px",
+              }}
+            >
+              <div
+                className="flex"
+                style={{
+                  width: "50px",
+                  height: "50px",
+                  fontSize: "20px",
+                  cursor: "pointer",
+                  border:
+                    aspect === 1 / 1 ? "4px solid #fff" : "1px solid #fff",
+                }}
+                onClick={() => {
+                  setAspect(1 / 1);
+                  setCompletedCrop({
+                    height: 320,
+                    unit: "px",
+                    width: 320,
+                    x: 0,
+                    y: 0,
+                  });
+                  setCrop({
+                    height: 320,
+                    unit: "px",
+                    width: 320,
+                    x: 0,
+                    y: 0,
+                  });
+                  // setCrop()
+                }}
+              >
+                1:1
+              </div>
+              <div
+                className="flex"
+                style={{
+                  width: "50px",
+                  height: "40px",
+                  fontSize: "20px",
+                  cursor: "pointer",
+                  border:
+                    aspect === 9 / 6 ? "4px solid #fff" : "1px solid #fff",
+                }}
+                onClick={() => {
+                  setAspect(9 / 6);
+                  setCompletedCrop({
+                    height: 215,
+                    unit: "px",
+                    width: 320,
+                    x: 0,
+                    y: 0,
+                  });
+                  setCrop({
+                    height: 215,
+                    unit: "px",
+                    width: 320,
+                    x: 0,
+                    y: 0,
+                  });
+                  // setCrop()
+                }}
+              >
+                6:9
+              </div>
+              <div
+                className="flex"
+                style={{
+                  width: "40px",
+                  height: "50px",
+                  fontSize: "20px",
+                  cursor: "pointer",
+                  border:
+                    aspect === 6 / 9 ? "4px solid #fff" : "1px solid #fff",
+                }}
+                onClick={() => {
+                  setAspect(6 / 9);
+                  setCompletedCrop({
+                    height: 320,
+                    unit: "px",
+                    width: 215,
+                    x: 0,
+                    y: 0,
+                  });
+                  setCrop({
+                    height: 320,
+                    unit: "px",
+                    width: 215,
+                    x: 0,
+                    y: 0,
+                  });
+                  // setCrop()
+                }}
+              >
+                9:6
+              </div>
+            </div>
+          ) : (
+            ""
+          )}
           <div
             className="flex"
             style={{ width: "100%", backgroundColor: "var(--main-color)" }}

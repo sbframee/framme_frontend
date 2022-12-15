@@ -377,6 +377,7 @@ const OccasionPage = () => {
                     backgroundColor: "var(--main-color)",
                     width: "40px",
                     height: "40px",
+                    zIndex: "999999999999",
                   }}
                 />
               </div>
@@ -402,6 +403,34 @@ const OccasionPage = () => {
                           selectedImage?.coordinates[0]?.a?.split(",")[0]
                         : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
                             selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                            1.1 <
+                          width
+                        ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                          1.1
+                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                            1.2 <
+                          width
+                        ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                          1.2
+                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                            1.3 <
+                          width
+                        ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                          1.3
+                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                            1.4 <
+                          width
+                        ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                          1.4
+                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
                             1.5 <
                           width
                         ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
@@ -414,6 +443,13 @@ const OccasionPage = () => {
                         ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
                             selectedImage?.coordinates[0]?.a?.split(",")[0]) /
                           2
+                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                            2.2 <
+                          width
+                        ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                          2.2
                         : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
                             selectedImage?.coordinates[0]?.a?.split(",")[0]) /
                           2.5) + "px",
@@ -425,6 +461,34 @@ const OccasionPage = () => {
                           selectedImage?.coordinates[0]?.a?.split(",")[1]
                         : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
                             selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                            1.1 <
+                          width
+                        ? (selectedImage?.coordinates[0]?.d?.split(",")[1] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[1]) /
+                          1.1
+                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                            1.2 <
+                          width
+                        ? (selectedImage?.coordinates[0]?.d?.split(",")[1] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[1]) /
+                          1.2
+                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                            1.3 <
+                          width
+                        ? (selectedImage?.coordinates[0]?.d?.split(",")[1] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[1]) /
+                          1.3
+                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                            1.4 <
+                          width
+                        ? (selectedImage?.coordinates[0]?.d?.split(",")[1] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[1]) /
+                          1.4
+                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
                             1.5 <
                           width
                         ? (selectedImage?.coordinates[0]?.d?.split(",")[1] -
@@ -437,9 +501,16 @@ const OccasionPage = () => {
                         ? (selectedImage?.coordinates[0]?.d?.split(",")[1] -
                             selectedImage?.coordinates[0]?.a?.split(",")[1]) /
                           2
+                        : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                            2.5 <
+                          width
+                        ? (selectedImage?.coordinates[0]?.d?.split(",")[1] -
+                            selectedImage?.coordinates[0]?.a?.split(",")[1]) /
+                          2.5
                         : (selectedImage?.coordinates[0]?.d?.split(",")[1] -
                             selectedImage?.coordinates[0]?.a?.split(",")[1]) /
-                          2.5) + "px",
+                          3) + "px",
                     maxHeight: "100%",
                   }}
                 >
@@ -451,7 +522,7 @@ const OccasionPage = () => {
                       // height: "100%",
                       position: "absolute",
                       pointerEvents: "none",
-
+                      zIndex: "99",
                       // transform: mirrorRevert ? "scaleX(-1)" : "scaleX(1)",
                     }}
                     ref={imageArea}
@@ -468,9 +539,9 @@ const OccasionPage = () => {
                       return value;
                     })
                     ?.map((item) => {
-                    
-
-                      let url = tags.find((a) => a.tag_uuid === item.label_uuid);
+                      let url = tags.find(
+                        (a) => a.tag_uuid === item.label_uuid
+                      );
                       let coordinates;
                       let height;
                       let width1;
@@ -487,68 +558,197 @@ const OccasionPage = () => {
                           width
                             ? coordinates[0]
                             : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                                selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
+                                1.1 <
+                              width
+                            ? coordinates[0] / 1.1
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
+                                1.2 <
+                              width
+                            ? coordinates[0] / 1.2
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
+                                1.3 <
+                              width
+                            ? coordinates[0] / 1.3
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
+                                1.4 <
+                              width
+                            ? coordinates[0] / 1.4
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
                                 1.5 <
                               width
                             ? coordinates[0] / 1.5
                             : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                                selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
                                 2 <
                               width
                             ? coordinates[0] / 2
                             : coordinates[0] / 2.5;
-  
+
                         coordinates[1] =
                           selectedImage?.coordinates[0]?.b?.split(",")[0] -
                             selectedImage?.coordinates[0]?.a?.split(",")[0] <
                           width
                             ? coordinates[1]
                             : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                                selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
+                                1.1 <
+                              width
+                            ? coordinates[1] / 1.1
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
+                                1.2 <
+                              width
+                            ? coordinates[1] / 1.2
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
+                                1.3 <
+                              width
+                            ? coordinates[1] / 1.3
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
+                                1.4 <
+                              width
+                            ? coordinates[1] / 1.4
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
                                 1.5 <
                               width
                             ? coordinates[1] / 1.5
                             : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                                selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
                                 2 <
                               width
                             ? coordinates[1] / 2
                             : coordinates[1] / 2.5;
-  
+
                         width1 =
                           selectedImage?.coordinates[0]?.b?.split(",")[0] -
                             selectedImage?.coordinates[0]?.a?.split(",")[0] <
                           width
                             ? item.b.split(",")[0] - coordinates[0]
                             : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                                selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
+                                1.1 <
+                              width
+                            ? item.b.split(",")[0] / 1.1 - coordinates[0]
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
+                                1.2 <
+                              width
+                            ? item.b.split(",")[0] / 1.2 - coordinates[0]
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
+                                1.3 <
+                              width
+                            ? item.b.split(",")[0] / 1.3 - coordinates[0]
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
+                                1.4 <
+                              width
+                            ? item.b.split(",")[0] / 1.4 - coordinates[0]
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
                                 1.5 <
                               width
                             ? item.b.split(",")[0] / 1.5 - coordinates[0]
                             : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                                selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
                                 2 <
                               width
                             ? item.b.split(",")[0] / 2 - coordinates[0]
                             : item.b.split(",")[0] / 2.5 - coordinates[0];
-  
+
                         height =
                           selectedImage?.coordinates[0]?.b?.split(",")[0] -
                             selectedImage?.coordinates[0]?.a?.split(",")[0] <
                           width
                             ? item.d.split(",")[1] - coordinates[1]
                             : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                                selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
+                                1.1 <
+                              width
+                            ? item.d.split(",")[1] / 1.1 - coordinates[1]
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
+                                1.2 <
+                              width
+                            ? item.d.split(",")[1] / 1.2 - coordinates[1]
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
+                                1.3 <
+                              width
+                            ? item.d.split(",")[1] / 1.3 - coordinates[1]
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
+                                1.4 <
+                              width
+                            ? item.d.split(",")[1] / 1.4 - coordinates[1]
+                            : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
                                 1.5 <
                               width
                             ? item.d.split(",")[1] / 1.5 - coordinates[1]
                             : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                                selectedImage?.coordinates[0]?.a?.split(",")[0]) /
+                                selectedImage?.coordinates[0]?.a?.split(
+                                  ","
+                                )[0]) /
                                 2 <
                               width
                             ? item.d.split(",")[1] / 2 - coordinates[1]
                             : item.d.split(",")[1] / 2.5 - coordinates[1];
-                      } if (url?.tag_type === "I") {
+                      }
+                      if (url?.tag_type === "I") {
                         return (
                           <Tag
                             popupCrop={popupCrop}
@@ -631,7 +831,7 @@ const OccasionPage = () => {
                 {selectedHolder?.tag_type === "I" ? (
                   <div className="container_buttons_container">
                     <label htmlFor="inputImage">
-                      Change Image
+                      Replace Image
                       <input
                         id="inputImage"
                         style={{ display: "none" }}
@@ -667,9 +867,7 @@ const OccasionPage = () => {
                     setMirrorevert((prev) =>
                       prev?.length
                         ? prev?.find((a) => a === selectedHolder?._id)
-                          ? prev?.filter(
-                              (a) => a !== selectedHolder?._id
-                            )
+                          ? prev?.filter((a) => a !== selectedHolder?._id)
                           : [...prev, selectedHolder?._id]
                         : [selectedHolder?._id]
                     )
@@ -697,9 +895,7 @@ const OccasionPage = () => {
                   onClick={() =>
                     setDeleteHolders((prev) => [
                       ...prev,
-                      customHolders.find(
-                        (a) => a._id === selectedHolder._id
-                      ),
+                      customHolders.find((a) => a._id === selectedHolder._id),
                     ])
                   }
                 >
@@ -1270,6 +1466,7 @@ const Tag = ({
         width: width + "px",
         height: height + "px",
         position: "absolute",
+        zIndex: url?.back ? "0" : "99999999",
       }}
       onTouchEnd={() => setSwitchBtn("resize")}
     >

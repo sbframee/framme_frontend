@@ -435,6 +435,22 @@ const Popup = ({ popupInfo, setTagsData, close }) => {
               onChange={(e) => setData({ ...data, circle: false })}
             />
           </div>
+          <div>
+            Back
+            <input
+              type="checkbox"
+              placeholder="widht"
+              checked={data?.back}
+              onChange={(e) => setData({ ...data, back: true })}
+            />
+            Front
+            <input
+              type="checkbox"
+              placeholder="widht"
+              checked={!data?.back}
+              onChange={(e) => setData({ ...data, back: false })}
+            />
+          </div>
           <button
             onClick={submitHandler}
             type="button"

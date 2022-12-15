@@ -271,6 +271,7 @@ const PictureUpload = () => {
           file={selectedCropFile}
           onClose={() => setPopupCrop(null)}
           setSelectedFile={setSelectedFile}
+          ratioBtn={true}
         />
       ) : (
         ""
@@ -304,7 +305,7 @@ const NamePopup = ({
   const getTagsData = async () => {
     const response = await axios({
       method: "get",
-      url: "/occasions/getOccasions",
+      url: "/occasions/getOccasions/1",
     });
     console.log(response);
     if (response.data.success) {

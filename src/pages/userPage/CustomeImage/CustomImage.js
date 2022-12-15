@@ -303,7 +303,7 @@ const CustomImage = () => {
   useEffect(() => {
     setCustomHolders(selectedImage?.holder);
   }, [selectedImage?.holder]);
-  console.log(selectedHolder);
+
   return (
     <>
       {selectedImage ? (
@@ -320,11 +320,9 @@ const CustomImage = () => {
               >
                 <ArrowBack
                   className="backArrow"
-                  onClick={() => {
-                    setSelectedImage(false);
-                  }}
+                  onClick={() => navigate("/users")}
                 />
-                    <button
+                <button
                   className="submit"
                   onClick={() => setTagPopup(true)}
                   style={{
@@ -355,7 +353,7 @@ const CustomImage = () => {
 
                         height: imageArea?.current?.offsetHeight,
                         maxHeight: "100%",
-                        minHeight: "400px",
+                        // minHeight: "400px",
                         backgroundColor: "#000",
                       }
                     : {
@@ -437,7 +435,8 @@ const CustomImage = () => {
                     // height: "100%",
                     position: "absolute",
                     pointerEvents: "none",
-                    minHeight: "400px",
+                    // minHeight: "400px",
+                    zIndex:"99"
 
                     // transform: mirrorRevert ? "scaleX(-1)" : "scaleX(1)",
                   }}
@@ -586,7 +585,6 @@ const CustomImage = () => {
                 Saved
               </div> */}
               <div className="container_buttons">
-            
                 {selectedHolder ? (
                   <>
                     <div className="container_buttons_container">
@@ -618,7 +616,7 @@ const CustomImage = () => {
                     {selectedHolder?.tag_type === "I" ? (
                       <div className="container_buttons_container">
                         <label htmlFor="inputImage">
-                          Change Image
+                          Replace Image
                           <input
                             id="inputImage"
                             style={{ display: "none" }}
@@ -651,12 +649,8 @@ const CustomImage = () => {
                       onClick={() =>
                         setMirrorevert((prev) =>
                           prev?.length
-                            ? prev?.find(
-                                (a) => a === selectedHolder?._id
-                              )
-                              ? prev?.filter(
-                                  (a) => a !== selectedHolder?._id
-                                )
+                            ? prev?.find((a) => a === selectedHolder?._id)
+                              ? prev?.filter((a) => a !== selectedHolder?._id)
                               : [...prev, selectedHolder?._id]
                             : [selectedHolder?._id]
                         )
@@ -804,7 +798,7 @@ const CustomImage = () => {
                     onClick={() => navigate("/users")}
                     style={{ color: "#fff" }}
                   />
-                
+
                   <div className="h1" style={{ width: "80vw" }}>
                     Customs
                   </div>
@@ -812,36 +806,18 @@ const CustomImage = () => {
               )}
             />
 
-            {loading ? (
-              <div className="flex" style={{ marginTop: "50px" }}>
-                <CircularProgress />
-              </div>
-            ) : (
-              <div className="occasion_container">
-                {console.log(baseImages)}
-                {baseImages
-                  .sort((a, b) => +a.sort_order - b.sort_order)
-                  .map((imgItem, index) => (
-                    <div className="image_container">
-                      <img
-                        onClick={() => getSelectedBaseImageData(imgItem)}
-                        src={imgItem?.img_url ? imgItem?.img_url : NoImage}
-                        alt=""
-                        style={{
-                          width: "44vw",
-                          height: "61vw",
-                          objectFit: "cover",
-                        }}
-                      />
-                    </div>
-                  ))}
-              </div>
-            )}
+            <div className="flex" style={{ marginTop: "50px" }}>
+              <CircularProgress />
+            </div>
           </div>
           <label
             htmlFor="new_image"
             className="save_button"
-            style={{ position: "fixed", bottom: "0px" }}
+            style={{
+              position: "fixed",
+              bottom: "0px",
+              backgroundColor: "#000",
+            }}
           >
             <input
               type="file"
@@ -851,115 +827,114 @@ const CustomImage = () => {
               accept="image/png, image/jpeg"
               ref={inputFile}
             />
-            Add New
           </label>
         </>
       )}
-        {tagPopup ? (
-          <div className="overlay" style={{ zIndex: 9999999999999 }}>
-            <Navbar
-              logo={false}
-              Tag={() => (
-                <div
-                  className="flex"
-                  style={{
-                    color: "#fff",
-                    width: "100%",
-                    justifyContent: "space-between",
-                    padding: "0 10px",
+      {tagPopup ? (
+        <div className="overlay" style={{ zIndex: 9999999999999 }}>
+          <Navbar
+            logo={false}
+            Tag={() => (
+              <div
+                className="flex"
+                style={{
+                  color: "#fff",
+                  width: "100%",
+                  justifyContent: "space-between",
+                  padding: "0 10px",
+                }}
+              >
+                <ArrowBack
+                  className="backArrow"
+                  onClick={() => {
+                    setTagPopup(false);
                   }}
-                >
-                  <ArrowBack
-                    className="backArrow"
-                    onClick={() => {
- 
-                      setSelectedImage(false);
-                    }}
-                  />
-                  <h1 style={{ width: "70%" }}>Tags</h1>
-                </div>
-              )}
-            />
+                />
+                <h1 style={{ width: "70%" }}>Tags</h1>
+              </div>
+            )}
+          />
 
-            <div className="occasion_container_new">
-              {tags?.map((tag) =>
-                tag?.img_url?.length ? (
-                  <div
+          <div className="occasion_container_new">
+            {tags?.map((tag) =>
+              tag?.img_url?.length ? (
+                <div
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    borderRadius: tag?.circle ? "100%" : "",
+                  }}
+                  className="image_container"
+                  onClick={() =>
+                    setCustomHolders((prev) => {
+                      let data = {
+                        label_uuid: tag?.tag_uuid,
+                        ...tagsInitials,
+                        ...(tag || {}),
+                        type: "new",
+                        _id: Math.random(),
+                      };
+                      setSeletedHolder(data);
+                      setTagPopup(false);
+
+                      return [...(prev || []), data];
+                    })
+                  }
+                >
+                  {console.log(tag)}
+                  <img
+                    src={tag.img_url?.length ? tag.img_url[0]?.img_url : ""}
                     style={{
-                      width: "100px",
-                      height: "100px",
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
                       borderRadius: tag?.circle ? "100%" : "",
                     }}
-                    className="image_container"
-                    onClick={() =>
-                      setCustomHolders((prev) => {
-                        let data = {
-                          label_uuid: tag?.tag_uuid,
-                          ...tagsInitials,
-                          ...(tag || {}),
-                          type: "new",
-                          _id: Math.random(),
-                        };
-                        setSeletedHolder(data);
-                        setTagPopup(false);
-
-                        return [...(prev || []), data];
-                      })
-                    }
-                  >
-                    {console.log(tag)}
-                    <img
-                      src={tag.img_url?.length ? tag.img_url[0]?.img_url : ""}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "contain",
-                        borderRadius: tag?.circle ? "100%" : "",
-                      }}
-                      alt=""
-                    />
-                  </div>
-                ) : tag?.text?.length ? (
-                  <div
-                    style={{
-                      width: "100px",
-                      height: "100px",
-                      color: "#000",
-                      backgroundColor: "#fff",
-                    }}
-                    className="image_container flex"
-                    onClick={() =>
-                      setCustomHolders((prev) => {
-                        let data = {
-                          label_uuid: tag?.tag_uuid,
-                          ...tagsInitials,
-                          _id: Math.random(),
-                          ...(tag || {}),
-                          type: "new",
-                        };
-                        setSeletedHolder(data);
-                        setTagPopup(false);
-                        return [...(prev || []), data];
-                      })
-                    }
-                  >
-                    <h4>{tag?.text?.length ? tag.text[0]?.text : ""}</h4>
-                  </div>
-                ) : (
-                  ""
-                )
-              )}
-            </div>
+                    alt=""
+                  />
+                </div>
+              ) : tag?.text?.length ? (
+                <div
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    color: "#000",
+                    backgroundColor: "#fff",
+                  }}
+                  className="image_container flex"
+                  onClick={() =>
+                    setCustomHolders((prev) => {
+                      let data = {
+                        label_uuid: tag?.tag_uuid,
+                        ...tagsInitials,
+                        _id: Math.random(),
+                        ...(tag || {}),
+                        type: "new",
+                      };
+                      setSeletedHolder(data);
+                      setTagPopup(false);
+                      return [...(prev || []), data];
+                    })
+                  }
+                >
+                  <h4>{tag?.text?.length ? tag.text[0]?.text : ""}</h4>
+                </div>
+              ) : (
+                ""
+              )
+            )}
           </div>
-        ) : (
-          ""
-        )}
+        </div>
+      ) : (
+        ""
+      )}
       {selectedCropFile && popupCrop ? (
         <ImageUploadPopup
           selectedimage={selectedHolder}
           file={selectedCropFile}
           onClose={() => setPopupCrop(null)}
           fixed={false}
+          ratioBtn={!selectedImage}
           setSelectedFile={
             selectedHolder
               ? (e) =>
@@ -997,7 +972,7 @@ const Tag = ({
   selectedImage,
 }) => {
   const [baseImage, setBaseImage] = useState();
-
+  console.log(url?.back);
   useEffect(() => {
     let img_url = url?.img_url?.sort((a, b) => +a.sort_order - +b.sort_order)[
       (item?.index || 0) % url?.img_url?.length
@@ -1027,7 +1002,7 @@ const Tag = ({
       ];
     }
   }, [item.index, type, url?.text]);
-  console.log(mirrorRevert.find((a) => a === item?._id))
+  console.log(mirrorRevert.find((a) => a === item?._id));
   return (
     <motion.div
       dragConstraints={{
@@ -1045,7 +1020,8 @@ const Tag = ({
         width: width + "px",
         height: height + "px",
         position: "absolute",
-      
+        zIndex: url?.back ? "0" : "9999999999999",
+
       }}
       onTouchEnd={() => setSwitchBtn("resize")}
     >
@@ -1068,8 +1044,8 @@ const Tag = ({
             width: "100%",
             height: "100%",
             transform: mirrorRevert.find((a) => a === item?._id)
-            ? `scaleX(-1)`
-            : `scaleX(1)`,
+              ? `scaleX(-1)`
+              : `scaleX(1)`,
           }}
         >
           <div
@@ -1119,8 +1095,8 @@ const Tag = ({
               height: "100%",
               pointerEvents: "none",
               transform: mirrorRevert.find((a) => a === item?._id)
-              ? `scaleX(-1)`
-              : `scaleX(1)`,
+                ? `scaleX(-1)`
+                : `scaleX(1)`,
             }}
             alt={NoImage}
           />
