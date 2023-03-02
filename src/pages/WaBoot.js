@@ -3,8 +3,13 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import Header from "../components/Sidebar/Header";
 import SideBar from "../components/Sidebar/SideBar";
 import Card from "../components/Card";
+import download from "downloadjs";
 import * as XLSX from "xlsx";
 import * as FileSaver from "file-saver";
+import * as htmlToImage from "html-to-image";
+
+import JSZip from "jszip";
+import DownloadedImage from "./userPage/occassion/DownloadedImage";
 const fileExtension = ".xlsx";
 const fileType =
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
@@ -21,6 +26,7 @@ const WaBoot = () => {
   const [mssage, setMessage] = useState("{link}");
   const [mssagePopup, setMessagePopup] = useState("");
   const [step, setStep] = useState(0);
+
   let finalLink = useMemo(() => {
     let lastmsg = mssage
       ?.replace("{link}", `http://www.framee.in/login/{user_uuid}/{img_uuid}`)
@@ -152,7 +158,51 @@ const WaBoot = () => {
     }
     return data;
   }, [userSubCategory, usersData]);
+  function dataURItoBlob(dataURI) {
+    // convert base64 to raw binary data held in a string
+    // doesn't handle URLEncoded DataURIs - see SO answer #6850276 for code that does this
+    var byteString = atob(dataURI.split(",")[1]);
 
+    // separate out the mime component
+    var mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
+
+    // write the bytes of the string to an ArrayBuffer
+    var ab = new ArrayBuffer(byteString.length);
+
+    // create a view into the buffer
+    var ia = new Uint8Array(ab);
+
+    // set the bytes of the buffer to the correct values
+    for (var i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+
+    // write the ArrayBuffer to a blob, and you're done
+    var blob = new Blob([ab], { type: mimeString });
+    return blob;
+  }
+  const downloadhandler = async (e) => {
+    const zip = new JSZip();
+    Promise.all(
+      selectedUser.map((order) =>
+        htmlToImage
+          .toPng(document.getElementById(order.user_uuid))
+          .then(function (dataUrl) {
+            //   console.log(dataUrl);
+            zip.file(order.user_uuid + ".png", dataURItoBlob(dataUrl));
+          })
+      )
+    )
+      .then(() => {
+        //when all promises resolved - save zip file
+        zip.generateAsync({ type: "blob" }).then(function (blob) {
+          FileSaver.saveAs(blob, "Images.zip");
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   const downloadExel = () => {
     // console.log(selectedOrder);
@@ -974,6 +1024,17 @@ const WaBoot = () => {
           ) : (
             ""
           )}
+          {step === 2 ? (
+            <button
+              className="imageselectnextBtn"
+              style={{ right: "300px" }}
+              onClick={downloadhandler}
+            >
+              Download Image
+            </button>
+          ) : (
+            ""
+          )}
           {(step === 0 && selectedOrder?.length) ||
           (step === 1 && selectedUser?.length) ||
           step === 2 ? (
@@ -1017,6 +1078,23 @@ const WaBoot = () => {
           )}
         </div>
       </div>
+      {selectedUser?.map((user, index) => (
+        <div
+          style={{ position: "fixed", zIndex: "-9999999999" }}
+          key={user.user_uuid}
+          id={user.user_uuid}
+        >
+          <DownloadedImage
+            params={{
+              user_uuid: user.user_uuid,
+              img_url:
+                selectedOrder[index % selectedOrder?.length].img_url.split(
+                  "/"
+                )[3],
+            }}
+          />
+        </div>
+      ))}
       {mssagePopup ? (
         <div
           className="overlay"
