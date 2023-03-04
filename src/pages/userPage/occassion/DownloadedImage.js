@@ -23,7 +23,7 @@ import { Box, CircularProgress, Slider } from "@mui/material";
 import Select from "react-select";
 import { height, styled } from "@mui/system";
 
-const DownloadedImage = ({params}) => {
+const DownloadedImage = ({ params }) => {
   const [images, setImages] = useState([]);
   const [popupCrop, setPopupCrop] = useState();
   const [state, setState] = useState(false);
@@ -276,7 +276,11 @@ const DownloadedImage = ({params}) => {
             <CircularProgress />
           </div>
         ) : (
-          <div className="display_image_container">
+          <div
+            className="display_image_container"
+            style={{ marginTop: "0" }}
+            id={params.user_uuid}
+          >
             {selectedImage.img_url ? (
               <div
                 ref={ref}

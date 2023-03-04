@@ -1082,7 +1082,6 @@ const WaBoot = () => {
         <div
           style={{ position: "fixed", zIndex: "-9999999999" }}
           key={user.user_uuid}
-          id={user.user_uuid}
         >
           <DownloadedImage
             params={{
