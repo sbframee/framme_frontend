@@ -15,6 +15,7 @@ import axios from "axios";
 import WaBoot from "./pages/WaBoot";
 import ShareImage from "./pages/userPage/occassion/ShareImage";
 import AdminTagsInput from "./pages/input/AdminTagsInput";
+import Contact from "./pages/Contact";
 
 const id = "230522";
 // export const baseURL = "http://localhost:9000";
@@ -67,6 +68,7 @@ function App() {
 
                 <Route exact path="/tagInput" element={<InputPage />} />
                 <Route exact path="/users" element={<Main />} />
+                <Route exact path="/contacts" element={<Contact />} />
                 <Route
                   exact
                   path="/occasion/:occ_uuid"

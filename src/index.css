@@ -436,3 +436,9 @@ body {
   --text-color: #ffffff;
   --headings-color: #c5c5c5;
 }
+.flex{
+  display: flex;
+  /* flex-direction: column; */
+  justify-content: center;
+  align-items: center;
+}

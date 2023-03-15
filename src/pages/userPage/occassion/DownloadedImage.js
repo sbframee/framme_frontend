@@ -288,9 +288,23 @@ const DownloadedImage = ({ params }) => {
                 className="DisplayImg"
                 style={{
                   width:
-                    (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                      selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                    ((selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                      selectedImage?.coordinates[0]?.a?.split(",")[0]) *
+                      2 <
                     width
+                      ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]) *
+                        2
+                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]) *
+                          1.5 <
+                        width
+                      ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]) *
+                        1.5
+                      : selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                        width
                       ? selectedImage?.coordinates[0]?.b?.split(",")[0] -
                         selectedImage?.coordinates[0]?.a?.split(",")[0]
                       : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
@@ -346,9 +360,23 @@ const DownloadedImage = ({ params }) => {
                           selectedImage?.coordinates[0]?.a?.split(",")[0]) /
                         2.5) + "px",
                   height:
-                    (selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                      selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                    ((selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                      selectedImage?.coordinates[0]?.a?.split(",")[0]) *
+                      2 <
                     width
+                      ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]) *
+                        2
+                      : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]) *
+                          1.5 <
+                        width
+                      ? (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]) *
+                        1.5
+                      : selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                        width
                       ? selectedImage?.coordinates[0]?.d?.split(",")[1] -
                         selectedImage?.coordinates[0]?.a?.split(",")[1]
                       : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
@@ -442,9 +470,19 @@ const DownloadedImage = ({ params }) => {
                     } else {
                       coordinates = item.a.split(",");
                       coordinates[0] =
-                        selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                        (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]) *
+                          2 <
                         width
+                          ? coordinates[0] * 2
+                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                              selectedImage?.coordinates[0]?.a?.split(",")[0]) *
+                              1.5 <
+                            width
+                          ? coordinates[0] * 1.5
+                          : selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                              selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                            width
                           ? coordinates[0]
                           : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
                               selectedImage?.coordinates[0]?.a?.split(",")[0]) /
@@ -479,9 +517,19 @@ const DownloadedImage = ({ params }) => {
                           : coordinates[0] / 2.5;
 
                       coordinates[1] =
-                        selectedImage?.coordinates[0]?.b?.split(",")[0] -
-                          selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                        (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                          selectedImage?.coordinates[0]?.a?.split(",")[0]) *
+                          2 <
                         width
+                          ? coordinates[1] * 2
+                          : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                              selectedImage?.coordinates[0]?.a?.split(",")[0]) *
+                              1.5 <
+                            width
+                          ? coordinates[1] * 1.5
+                          : selectedImage?.coordinates[0]?.b?.split(",")[0] -
+                              selectedImage?.coordinates[0]?.a?.split(",")[0] <
+                            width
                           ? coordinates[1]
                           : (selectedImage?.coordinates[0]?.b?.split(",")[0] -
                               selectedImage?.coordinates[0]?.a?.split(",")[0]) /
