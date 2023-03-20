@@ -2,18 +2,18 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Main.css";
-import Carousel from "carousel-react-rcdev";
-import PersonIcon from "@mui/icons-material/Person";
 import NavigationBar from "../../../components/usersComponent/NavigationBar";
 import Sliders from "../../../components/Sliders";
 import "react-slideshow-image/dist/styles.css";
 import Navbar from "../../../components/Sidebar/navbar";
-import { Favorite } from "@mui/icons-material";
+import { Add, Favorite } from "@mui/icons-material";
+import ShareWhatsapp from "../../../components/ShareWhatsapp";
 const Main = () => {
   const [categories, setCategories] = useState([]);
   const [occasions, setOccasions] = useState([]);
   const [user, setUser] = useState({});
   const [posters, setPosters] = useState(false);
+  const [shareImage, setShareImage] = useState(false);
   const getImageData = async () => {
     const response = await axios({ method: "get", url: "/posters/getPoster" });
     // console.log(response)
@@ -101,6 +101,9 @@ const Main = () => {
             <div className="flex" style={{ color: "#fff" }}>
               <div>{user?.user_title || "Test"}</div>
               <div style={{ textAlign: "right", width: "70vw" }}>
+                <span style={{cursor:"pointer"}} onClick={()=>setShareImage(true)}>
+                  <Add />
+                </span>
                 <Favorite />
               </div>
             </div>
@@ -109,7 +112,7 @@ const Main = () => {
         <div className="slide-container">
           {posters.length ? <Sliders item={posters} /> : ""}
         </div>
-        <div style={{height:"80vh",overflowY:"scroll"}}>
+        <div style={{ height: "80vh", overflowY: "scroll" }}>
           {categories
 
             .sort((a, b) => +a.sort_order - +b.sort_order)
@@ -178,6 +181,7 @@ const Main = () => {
         Custom Images
       </button> */}
       {/* {popup ? <Popup close={() => setPopup(false)} setUser={setUser} /> : ""} */}
+      {shareImage?<ShareWhatsapp onSave={()=>setShareImage(false)}/>:""}
     </>
   );
 };
