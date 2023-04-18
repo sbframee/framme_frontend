@@ -169,7 +169,7 @@ const Main = () => {
         </div>
       </div>
 
-      <div style={{ width: "100vw", position: "fixed", bottom: "0" }}>
+      <div style={{ width: "100vw", position: "fixed", top: "300" }}>
         <NavigationBar />
       </div>
       {/* 
